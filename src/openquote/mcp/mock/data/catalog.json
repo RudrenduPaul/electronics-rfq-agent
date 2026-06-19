@@ -1,0 +1,1602 @@
+[
+  {
+    "part_number": "RES-0402-1K-1PCT",
+    "description": "1K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 9800,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-4K7-1PCT",
+    "description": "4.7K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8500,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-10K-1PCT",
+    "description": "10K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.007,
+    "available_qty": 10000,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-47K-1PCT",
+    "description": "47K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7200,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-100K-1PCT",
+    "description": "100K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 6800,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-1M-1PCT",
+    "description": "1M Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.009,
+    "available_qty": 5000,
+    "lead_time_days": 5,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-100R-5PCT",
+    "description": "100 Ohm 5% 0.1W 0402 Resistor",
+    "unit_price": 0.005,
+    "available_qty": 9500,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-330R-1PCT",
+    "description": "330 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8000,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-1K-1PCT",
+    "description": "1K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 9000,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-4K7-1PCT",
+    "description": "4.7K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 8200,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-10K-1PCT",
+    "description": "10K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.009,
+    "available_qty": 9800,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-47K-1PCT",
+    "description": "47K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 7500,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-100K-5PCT",
+    "description": "100K Ohm 5% 0.1W 0603 Resistor",
+    "unit_price": 0.007,
+    "available_qty": 6500,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-1M-1PCT",
+    "description": "1M Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.011,
+    "available_qty": 4500,
+    "lead_time_days": 5,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-0R-JUMPER",
+    "description": "0 Ohm Jumper 0603 Resistor",
+    "unit_price": 0.005,
+    "available_qty": 5000,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0805-10K-1PCT",
+    "description": "10K Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 7000,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0805-4K7-5PCT",
+    "description": "4.7K Ohm 5% 0.125W 0805 Resistor",
+    "unit_price": 0.012,
+    "available_qty": 6500,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0805-100R-1PCT",
+    "description": "100 Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 5800,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0805-1K-1PCT",
+    "description": "1K Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 7200,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0402-22R-1PCT",
+    "description": "22 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8800,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-470R-1PCT",
+    "description": "470 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8100,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-2K2-1PCT",
+    "description": "2.2K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7800,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-22K-1PCT",
+    "description": "22K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 7300,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0603-270R-5PCT",
+    "description": "270 Ohm 5% 0.1W 0603 Resistor",
+    "unit_price": 0.007,
+    "available_qty": 6900,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-560R-1PCT",
+    "description": "560 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7600,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-3K3-1PCT",
+    "description": "3.3K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8300,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0805-47K-1PCT",
+    "description": "47K Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0603-33R-5PCT",
+    "description": "33 Ohm 5% 0.1W 0603 Resistor",
+    "unit_price": 0.007,
+    "available_qty": 6200,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-68R-1PCT",
+    "description": "68 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7900,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-6K8-1PCT",
+    "description": "6.8K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7400,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-200K-1PCT",
+    "description": "200K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.009,
+    "available_qty": 6000,
+    "lead_time_days": 5,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-4K7-5PCT",
+    "description": "4.7K Ohm 5% 0.1W 0603 Resistor",
+    "unit_price": 0.007,
+    "available_qty": 6700,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0805-10R-1PCT",
+    "description": "10 Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 5200,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0603-150K-1PCT",
+    "description": "150K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.011,
+    "available_qty": 5600,
+    "lead_time_days": 5,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-15K-1PCT",
+    "description": "15K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7700,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0402-220R-1PCT",
+    "description": "220 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8400,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-8K2-1PCT",
+    "description": "8.2K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 6100,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0805-22K-1PCT",
+    "description": "22K Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 5900,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0402-33K-1PCT",
+    "description": "33K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7100,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-680R-1PCT",
+    "description": "680 Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 6400,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-82K-1PCT",
+    "description": "82K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.009,
+    "available_qty": 5700,
+    "lead_time_days": 5,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0805-330R-5PCT",
+    "description": "330 Ohm 5% 0.125W 0805 Resistor",
+    "unit_price": 0.012,
+    "available_qty": 5300,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0402-4R7-1PCT",
+    "description": "4.7 Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7500,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-56K-1PCT",
+    "description": "56K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 5800,
+    "lead_time_days": 5,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-10R-5PCT",
+    "description": "10 Ohm 5% 0.1W 0402 Resistor",
+    "unit_price": 0.005,
+    "available_qty": 9200,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-10R-1PCT",
+    "description": "10 Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 7000,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "RES-0402-1K5-1PCT",
+    "description": "1.5K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 8000,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0805-100K-1PCT",
+    "description": "100K Ohm 1% 0.125W 0805 Resistor",
+    "unit_price": 0.015,
+    "available_qty": 5400,
+    "lead_time_days": 5,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "RES-0402-27K-1PCT",
+    "description": "27K Ohm 1% 0.1W 0402 Resistor",
+    "unit_price": 0.008,
+    "available_qty": 7600,
+    "lead_time_days": 3,
+    "manufacturer": "Yageo"
+  },
+  {
+    "part_number": "RES-0603-2K7-1PCT",
+    "description": "2.7K Ohm 1% 0.1W 0603 Resistor",
+    "unit_price": 0.01,
+    "available_qty": 6800,
+    "lead_time_days": 3,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "CAP-10PF-50V-C0G-0402",
+    "description": "10pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.012,
+    "available_qty": 8000,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-100PF-50V-C0G-0402",
+    "description": "100pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.012,
+    "available_qty": 7500,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-1NF-50V-C0G-0402",
+    "description": "1nF 50V C0G 0402 Capacitor",
+    "unit_price": 0.015,
+    "available_qty": 7000,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-10NF-50V-X7R-0402",
+    "description": "10nF 50V X7R 0402 Capacitor",
+    "unit_price": 0.01,
+    "available_qty": 9000,
+    "lead_time_days": 3,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-100NF-50V-X7R-0402",
+    "description": "100nF 50V X7R 0402 Capacitor",
+    "unit_price": 0.01,
+    "available_qty": 9500,
+    "lead_time_days": 3,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-100NF-10V-X5R-0402",
+    "description": "100nF 10V X5R 0402 Capacitor",
+    "unit_price": 0.008,
+    "available_qty": 9800,
+    "lead_time_days": 3,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-1UF-10V-X5R-0402",
+    "description": "1uF 10V X5R 0402 Capacitor",
+    "unit_price": 0.018,
+    "available_qty": 8500,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-1UF-25V-X7R-0603",
+    "description": "1uF 25V X7R 0603 Capacitor",
+    "unit_price": 0.025,
+    "available_qty": 7800,
+    "lead_time_days": 5,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-10UF-10V-X5R-0603",
+    "description": "10uF 10V X5R 0603 Capacitor",
+    "unit_price": 0.035,
+    "available_qty": 7000,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-10UF-25V-X7R-0805",
+    "description": "10uF 25V X7R 0805 Capacitor",
+    "unit_price": 0.065,
+    "available_qty": 6000,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-100UF-10V-TANT-A",
+    "description": "100uF 10V Tantalum A Case Capacitor",
+    "unit_price": 0.45,
+    "available_qty": 3000,
+    "lead_time_days": 14,
+    "manufacturer": "AVX"
+  },
+  {
+    "part_number": "CAP-47UF-16V-TANT-B",
+    "description": "47uF 16V Tantalum B Case Capacitor",
+    "unit_price": 0.38,
+    "available_qty": 2800,
+    "lead_time_days": 14,
+    "manufacturer": "AVX"
+  },
+  {
+    "part_number": "CAP-4K7PF-50V-C0G-0402",
+    "description": "4700pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.02,
+    "available_qty": 6500,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-22PF-50V-C0G-0402",
+    "description": "22pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.012,
+    "available_qty": 8200,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-47PF-50V-C0G-0402",
+    "description": "47pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.012,
+    "available_qty": 7900,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-220NF-25V-X7R-0603",
+    "description": "220nF 25V X7R 0603 Capacitor",
+    "unit_price": 0.022,
+    "available_qty": 7400,
+    "lead_time_days": 5,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-2K2PF-50V-C0G-0402",
+    "description": "2200pF 50V C0G 0402 Capacitor",
+    "unit_price": 0.015,
+    "available_qty": 7200,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-470NF-16V-X7R-0603",
+    "description": "470nF 16V X7R 0603 Capacitor",
+    "unit_price": 0.025,
+    "available_qty": 6900,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-4K7UF-10V-ALUM-SMD",
+    "description": "4.7uF 10V Aluminum Electrolytic SMD Capacitor",
+    "unit_price": 0.085,
+    "available_qty": 4000,
+    "lead_time_days": 10,
+    "manufacturer": "Panasonic"
+  },
+  {
+    "part_number": "CAP-10UF-50V-X7R-1210",
+    "description": "10uF 50V X7R 1210 Capacitor",
+    "unit_price": 0.18,
+    "available_qty": 3500,
+    "lead_time_days": 10,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-33NF-50V-X7R-0402",
+    "description": "33nF 50V X7R 0402 Capacitor",
+    "unit_price": 0.01,
+    "available_qty": 8800,
+    "lead_time_days": 3,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-2K7PF-50V-C0G-0603",
+    "description": "2700pF 50V C0G 0603 Capacitor",
+    "unit_price": 0.02,
+    "available_qty": 6600,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-1UF-50V-X7R-0805",
+    "description": "1uF 50V X7R 0805 Capacitor",
+    "unit_price": 0.045,
+    "available_qty": 5500,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-22UF-6V3-X5R-0805",
+    "description": "22uF 6.3V X5R 0805 Capacitor",
+    "unit_price": 0.055,
+    "available_qty": 5200,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-100NF-16V-X7R-0603",
+    "description": "100nF 16V X7R 0603 Capacitor",
+    "unit_price": 0.015,
+    "available_qty": 9200,
+    "lead_time_days": 3,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-100PF-100V-C0G-0603",
+    "description": "100pF 100V C0G 0603 Capacitor",
+    "unit_price": 0.018,
+    "available_qty": 7100,
+    "lead_time_days": 5,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-4K7UF-25V-X7R-1206",
+    "description": "4.7uF 25V X7R 1206 Capacitor",
+    "unit_price": 0.095,
+    "available_qty": 4200,
+    "lead_time_days": 10,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-10NF-100V-X7R-0603",
+    "description": "10nF 100V X7R 0603 Capacitor",
+    "unit_price": 0.022,
+    "available_qty": 6800,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-22NF-25V-X7R-0402",
+    "description": "22nF 25V X7R 0402 Capacitor",
+    "unit_price": 0.01,
+    "available_qty": 9100,
+    "lead_time_days": 3,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "CAP-1UF-10V-X5R-0603",
+    "description": "1uF 10V X5R 0603 Capacitor",
+    "unit_price": 0.022,
+    "available_qty": 8000,
+    "lead_time_days": 5,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "CAP-4K7UF-16V-X5R-0805",
+    "description": "4.7uF 16V X5R 0805 Capacitor",
+    "unit_price": 0.048,
+    "available_qty": 5800,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-1UH-0402-500MA",
+    "description": "1uH 500mA 0402 Inductor",
+    "unit_price": 0.045,
+    "available_qty": 5000,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-10UH-0603-300MA",
+    "description": "10uH 300mA 0603 Inductor",
+    "unit_price": 0.065,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IND-100UH-0805-200MA",
+    "description": "100uH 200mA 0805 Inductor",
+    "unit_price": 0.12,
+    "available_qty": 3500,
+    "lead_time_days": 10,
+    "manufacturer": "W\u00fcrth Elektronik"
+  },
+  {
+    "part_number": "IND-4K7UH-PWR-DO5022",
+    "description": "4.7uH 3A Power Inductor DO5022",
+    "unit_price": 0.45,
+    "available_qty": 2500,
+    "lead_time_days": 14,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-22UH-PWR-CD1006",
+    "description": "22uH 2A Power Inductor CD1006",
+    "unit_price": 0.38,
+    "available_qty": 3000,
+    "lead_time_days": 10,
+    "manufacturer": "W\u00fcrth Elektronik"
+  },
+  {
+    "part_number": "IND-47UH-PWR-SRR6028",
+    "description": "47uH 1.5A Power Inductor SRR6028",
+    "unit_price": 0.55,
+    "available_qty": 2200,
+    "lead_time_days": 14,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-2K2UH-0402-600MA",
+    "description": "2.2uH 600mA 0402 Inductor",
+    "unit_price": 0.055,
+    "available_qty": 4200,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-10UH-PWR-SRR4018",
+    "description": "10uH 2.5A Power Inductor SRR4018",
+    "unit_price": 0.42,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-33UH-0805-400MA",
+    "description": "33uH 400mA 0805 Inductor",
+    "unit_price": 0.15,
+    "available_qty": 3200,
+    "lead_time_days": 10,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IND-4K7UH-0603-400MA",
+    "description": "4.7uH 400mA 0603 Inductor",
+    "unit_price": 0.075,
+    "available_qty": 4000,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IND-100UH-PWR-SRR1260",
+    "description": "100uH 1.2A Power Inductor SRR1260",
+    "unit_price": 0.85,
+    "available_qty": 1800,
+    "lead_time_days": 21,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-1UH-PWR-SRR4020",
+    "description": "1uH 4A Power Inductor SRR4020",
+    "unit_price": 0.35,
+    "available_qty": 3100,
+    "lead_time_days": 10,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-15UH-0603-350MA",
+    "description": "15uH 350mA 0603 Inductor",
+    "unit_price": 0.07,
+    "available_qty": 3800,
+    "lead_time_days": 7,
+    "manufacturer": "W\u00fcrth Elektronik"
+  },
+  {
+    "part_number": "IND-68UH-0805-300MA",
+    "description": "68uH 300mA 0805 Inductor",
+    "unit_price": 0.14,
+    "available_qty": 3000,
+    "lead_time_days": 10,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IND-2K7UH-PWR-CDRH6D38",
+    "description": "2.7uH 4.5A Power Inductor CDRH6D38",
+    "unit_price": 0.5,
+    "available_qty": 2400,
+    "lead_time_days": 14,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-56UH-0805-250MA",
+    "description": "56uH 250mA 0805 Shielded Inductor",
+    "unit_price": 0.13,
+    "available_qty": 2900,
+    "lead_time_days": 10,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IND-6K8UH-0603-450MA",
+    "description": "6.8uH 450mA 0603 Inductor",
+    "unit_price": 0.078,
+    "available_qty": 3700,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-18UH-PWR-HCMA1007",
+    "description": "18uH 2.2A Power Inductor HCMA1007",
+    "unit_price": 0.62,
+    "available_qty": 2000,
+    "lead_time_days": 14,
+    "manufacturer": "Bourns"
+  },
+  {
+    "part_number": "IND-3K3UH-0402-550MA",
+    "description": "3.3uH 550mA 0402 Inductor",
+    "unit_price": 0.05,
+    "available_qty": 4600,
+    "lead_time_days": 7,
+    "manufacturer": "Murata"
+  },
+  {
+    "part_number": "IND-8K2UH-0603-380MA",
+    "description": "8.2uH 380mA 0603 Inductor",
+    "unit_price": 0.082,
+    "available_qty": 3600,
+    "lead_time_days": 7,
+    "manufacturer": "TDK"
+  },
+  {
+    "part_number": "IC-LM358-SOIC8",
+    "description": "LM358 Dual Op-Amp SOIC-8",
+    "unit_price": 0.65,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-LM741-DIP8",
+    "description": "LM741 Single Op-Amp DIP-8",
+    "unit_price": 0.85,
+    "available_qty": 2000,
+    "lead_time_days": 14,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-TL071-SOIC8",
+    "description": "TL071 Low-Noise JFET Op-Amp SOIC-8",
+    "unit_price": 0.75,
+    "available_qty": 3800,
+    "lead_time_days": 7,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-74HC00-SOIC14",
+    "description": "74HC00 Quad 2-Input NAND Gate SOIC-14",
+    "unit_price": 0.55,
+    "available_qty": 5000,
+    "lead_time_days": 5,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-74HC04-SOIC14",
+    "description": "74HC04 Hex Inverter SOIC-14",
+    "unit_price": 0.5,
+    "available_qty": 4800,
+    "lead_time_days": 5,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-74HC74-SOIC14",
+    "description": "74HC74 Dual D-Type Flip-Flop SOIC-14",
+    "unit_price": 0.65,
+    "available_qty": 4200,
+    "lead_time_days": 7,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-LM7805-TO252",
+    "description": "LM7805 5V 1A Voltage Regulator TO-252",
+    "unit_price": 0.55,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "STMicroelectronics"
+  },
+  {
+    "part_number": "IC-LM1117-3V3-SOT223",
+    "description": "LM1117 3.3V 800mA LDO Regulator SOT-223",
+    "unit_price": 0.48,
+    "available_qty": 6000,
+    "lead_time_days": 5,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-LM317T-TO220",
+    "description": "LM317 Adjustable Voltage Regulator TO-220",
+    "unit_price": 0.75,
+    "available_qty": 3500,
+    "lead_time_days": 7,
+    "manufacturer": "STMicroelectronics"
+  },
+  {
+    "part_number": "IC-NE555-SOIC8",
+    "description": "NE555 Timer SOIC-8",
+    "unit_price": 0.45,
+    "available_qty": 6500,
+    "lead_time_days": 5,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-LM393-SOIC8",
+    "description": "LM393 Dual Comparator SOIC-8",
+    "unit_price": 0.58,
+    "available_qty": 5200,
+    "lead_time_days": 5,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-TLV2371-SOT23-5",
+    "description": "TLV2371 Rail-to-Rail Op-Amp SOT23-5",
+    "unit_price": 1.25,
+    "available_qty": 3200,
+    "lead_time_days": 7,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-MCP6002-SOIC8",
+    "description": "MCP6002 Dual 1MHz Op-Amp SOIC-8",
+    "unit_price": 1.1,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-74HC595-SOIC16",
+    "description": "74HC595 8-Bit Shift Register SOIC-16",
+    "unit_price": 0.72,
+    "available_qty": 4000,
+    "lead_time_days": 7,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-74HC245-SOIC20",
+    "description": "74HC245 Octal Bus Transceiver SOIC-20",
+    "unit_price": 0.88,
+    "available_qty": 3500,
+    "lead_time_days": 7,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-ADS1115-SOIC16",
+    "description": "ADS1115 16-Bit ADC I2C SOIC-16",
+    "unit_price": 5.5,
+    "available_qty": 1500,
+    "lead_time_days": 14,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-DAC8532-SOIC8",
+    "description": "DAC8532 Dual 16-Bit DAC SPI SOIC-8",
+    "unit_price": 7.2,
+    "available_qty": 900,
+    "lead_time_days": 21,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-MAX485-SOIC8",
+    "description": "MAX485 RS-485 Transceiver SOIC-8",
+    "unit_price": 2.1,
+    "available_qty": 2500,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-SP3485-SOIC8",
+    "description": "SP3485 Half-Duplex RS-485 SOIC-8",
+    "unit_price": 1.85,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-MCP2515-SOIC18",
+    "description": "MCP2515 CAN Bus Controller SPI SOIC-18",
+    "unit_price": 3.2,
+    "available_qty": 1800,
+    "lead_time_days": 14,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-ADUM1201-SOIC8",
+    "description": "ADuM1201 Digital Isolator Dual SOIC-8",
+    "unit_price": 4.5,
+    "available_qty": 1200,
+    "lead_time_days": 21,
+    "manufacturer": "Infineon"
+  },
+  {
+    "part_number": "IC-SN74LVC2G17-SOT23-6",
+    "description": "SN74LVC2G17 Dual Schmitt-Trigger Buffer SOT23-6",
+    "unit_price": 0.48,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-MCP9808-SOIC8",
+    "description": "MCP9808 Temperature Sensor I2C SOIC-8",
+    "unit_price": 2.2,
+    "available_qty": 2200,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-TPS61023-SOT23-5",
+    "description": "TPS61023 Boost Converter SOT23-5",
+    "unit_price": 3.8,
+    "available_qty": 1600,
+    "lead_time_days": 14,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-XC6204-SOT23-5",
+    "description": "XC6204 200mA LDO Regulator SOT23-5",
+    "unit_price": 0.42,
+    "available_qty": 6800,
+    "lead_time_days": 5,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-SG3525-DIP16",
+    "description": "SG3525 PWM Controller DIP-16",
+    "unit_price": 1.45,
+    "available_qty": 2000,
+    "lead_time_days": 14,
+    "manufacturer": "STMicroelectronics"
+  },
+  {
+    "part_number": "IC-ATTINY85-SOIC8",
+    "description": "ATtiny85 8-bit MCU 8KB Flash SOIC-8",
+    "unit_price": 2.4,
+    "available_qty": 2400,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-SN74LVC1G08-SOT23-5",
+    "description": "SN74LVC1G08 Single 2-Input AND Gate SOT23-5",
+    "unit_price": 0.42,
+    "available_qty": 5800,
+    "lead_time_days": 5,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-MAX232-SOIC16",
+    "description": "MAX232 RS-232 Transceiver 3.0V-5.5V SOIC-16",
+    "unit_price": 1.9,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-24C256-SOIC8",
+    "description": "24C256 256Kbit I2C EEPROM SOIC-8",
+    "unit_price": 1.25,
+    "available_qty": 3200,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-25AA256-SOIC8",
+    "description": "25AA256 256Kbit SPI EEPROM SOIC-8",
+    "unit_price": 1.35,
+    "available_qty": 3000,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-MCP4725-SOT23-6",
+    "description": "MCP4725 12-Bit DAC I2C SOT23-6 Package",
+    "unit_price": 1.85,
+    "available_qty": 2400,
+    "lead_time_days": 10,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-TCA9548A-SOIC24",
+    "description": "TCA9548A 8-Channel I2C Multiplexer SOIC-24",
+    "unit_price": 2.4,
+    "available_qty": 1900,
+    "lead_time_days": 14,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-PCF8574-SOIC16",
+    "description": "PCF8574 8-Bit I2C I/O Expander SOIC-16",
+    "unit_price": 1.65,
+    "available_qty": 2600,
+    "lead_time_days": 10,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-74HC138-SOIC16",
+    "description": "74HC138 3-to-8 Line Decoder SOIC-16",
+    "unit_price": 0.65,
+    "available_qty": 4500,
+    "lead_time_days": 5,
+    "manufacturer": "NXP"
+  },
+  {
+    "part_number": "IC-AP2112K-3V3-SOT23-5",
+    "description": "AP2112K 3.3V 600mA LDO Regulator SOT23-5",
+    "unit_price": 0.55,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "Microchip"
+  },
+  {
+    "part_number": "IC-TPS7A3301-SOT23-5",
+    "description": "TPS7A3301 300mA 3.3V LDO Regulator SOT23-5",
+    "unit_price": 1.1,
+    "available_qty": 3500,
+    "lead_time_days": 10,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-LM4040-2V5-SOT23-3",
+    "description": "LM4040 2.5V Precision Shunt Reference SOT23-3",
+    "unit_price": 0.95,
+    "available_qty": 3200,
+    "lead_time_days": 7,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "IC-REF3233-SOT23-3",
+    "description": "REF3233 3.3V Precision Voltage Reference SOT23-3",
+    "unit_price": 1.45,
+    "available_qty": 2500,
+    "lead_time_days": 10,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "CON-JST-PH2-2P",
+    "description": "JST PH 2.0mm 2-Pin Right Angle Connector",
+    "unit_price": 0.25,
+    "available_qty": 5000,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-JST-PH2-3P",
+    "description": "JST PH 2.0mm 3-Pin Right Angle Connector",
+    "unit_price": 0.3,
+    "available_qty": 4800,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-JST-PH2-4P",
+    "description": "JST PH 2.0mm 4-Pin Right Angle Connector",
+    "unit_price": 0.35,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-JST-XH2-2P",
+    "description": "JST XH 2.5mm 2-Pin Right Angle Connector",
+    "unit_price": 0.28,
+    "available_qty": 4800,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-JST-XH2-3P",
+    "description": "JST XH 2.5mm 3-Pin Right Angle Connector",
+    "unit_price": 0.33,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-HDR-2X5-2MM54",
+    "description": "10-Pin 2x5 2.54mm Male Header Connector",
+    "unit_price": 0.45,
+    "available_qty": 3500,
+    "lead_time_days": 7,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-HDR-1X6-2MM54",
+    "description": "6-Pin 1x6 2.54mm Male Header Connector",
+    "unit_price": 0.22,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-USBA-TYPEB-SMD",
+    "description": "USB Type-B SMD Through-Hole PCB Connector",
+    "unit_price": 1.2,
+    "available_qty": 2500,
+    "lead_time_days": 10,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-USBC-2P-SMD",
+    "description": "USB Type-C 2.0 SMD Connector 16-Pin",
+    "unit_price": 0.95,
+    "available_qty": 3000,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-MICROUSB-B-SMD",
+    "description": "Micro USB Type-B SMD Connector 5-Pin",
+    "unit_price": 0.55,
+    "available_qty": 4000,
+    "lead_time_days": 7,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-RJ45-8P8C-SMD",
+    "description": "RJ45 8P8C Modular Jack SMD Connector",
+    "unit_price": 1.85,
+    "available_qty": 2000,
+    "lead_time_days": 10,
+    "manufacturer": "TE Connectivity"
+  },
+  {
+    "part_number": "CON-DB9-MALE-PCB",
+    "description": "DB9 Male PCB Mount Connector Right Angle",
+    "unit_price": 1.5,
+    "available_qty": 1500,
+    "lead_time_days": 14,
+    "manufacturer": "TE Connectivity"
+  },
+  {
+    "part_number": "CON-FPC-10P-1MM-SMD",
+    "description": "10-Pin 1.0mm FPC/FFC SMD Connector",
+    "unit_price": 0.65,
+    "available_qty": 3200,
+    "lead_time_days": 10,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-JST-GH1-2P",
+    "description": "JST GH 1.25mm 2-Pin Right Angle Connector",
+    "unit_price": 0.4,
+    "available_qty": 3800,
+    "lead_time_days": 7,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-BARREL-DC-21MM",
+    "description": "2.1mm DC Power Barrel Jack PCB Mount",
+    "unit_price": 0.55,
+    "available_qty": 3500,
+    "lead_time_days": 7,
+    "manufacturer": "TE Connectivity"
+  },
+  {
+    "part_number": "CON-SMA-FEMALE-PCB",
+    "description": "SMA Female PCB Edge Mount RF Connector",
+    "unit_price": 2.8,
+    "available_qty": 1800,
+    "lead_time_days": 14,
+    "manufacturer": "Amphenol"
+  },
+  {
+    "part_number": "CON-SCREW-2P-3MM5",
+    "description": "3.5mm Pitch 2-Pin Screw Terminal Block",
+    "unit_price": 0.45,
+    "available_qty": 4200,
+    "lead_time_days": 7,
+    "manufacturer": "W\u00fcrth Elektronik"
+  },
+  {
+    "part_number": "CON-HDR-1X4-2MM54",
+    "description": "4-Pin 1x4 2.54mm Male Header Connector",
+    "unit_price": 0.18,
+    "available_qty": 6000,
+    "lead_time_days": 5,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "CON-PINHDR-2X20-2MM54",
+    "description": "40-Pin 2x20 2.54mm Male Header Raspberry Pi",
+    "unit_price": 1.2,
+    "available_qty": 2500,
+    "lead_time_days": 10,
+    "manufacturer": "W\u00fcrth Elektronik"
+  },
+  {
+    "part_number": "CON-CARD-MICROSD-SMD",
+    "description": "Micro SD Card Holder SMD Push-Push",
+    "unit_price": 1.1,
+    "available_qty": 2500,
+    "lead_time_days": 10,
+    "manufacturer": "Molex"
+  },
+  {
+    "part_number": "XTAL-8MHZ-SMD-3225",
+    "description": "8MHz Crystal 20pF 3225 SMD Package",
+    "unit_price": 0.55,
+    "available_qty": 5000,
+    "lead_time_days": 7,
+    "manufacturer": "ABRACON"
+  },
+  {
+    "part_number": "XTAL-12MHZ-SMD-3225",
+    "description": "12MHz Crystal 20pF 3225 SMD Package",
+    "unit_price": 0.58,
+    "available_qty": 4800,
+    "lead_time_days": 7,
+    "manufacturer": "ABRACON"
+  },
+  {
+    "part_number": "XTAL-16MHZ-SMD",
+    "description": "16MHz Crystal Oscillator SMD",
+    "unit_price": 0.62,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "SiTime"
+  },
+  {
+    "part_number": "XTAL-20MHZ-SMD-3225",
+    "description": "20MHz Crystal 18pF 3225 SMD Package",
+    "unit_price": 0.6,
+    "available_qty": 4000,
+    "lead_time_days": 7,
+    "manufacturer": "ABRACON"
+  },
+  {
+    "part_number": "XTAL-25MHZ-SMD-3225",
+    "description": "25MHz Crystal 20pF 3225 SMD Package",
+    "unit_price": 0.65,
+    "available_qty": 4200,
+    "lead_time_days": 7,
+    "manufacturer": "ABRACON"
+  },
+  {
+    "part_number": "XTAL-32K768-SMD-3215",
+    "description": "32.768kHz RTC Crystal 7pF 3215 SMD Package",
+    "unit_price": 0.48,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "ABRACON"
+  },
+  {
+    "part_number": "OSC-8MHZ-CMOS-SOT23-5",
+    "description": "8MHz CMOS Oscillator SOT23-5 Package",
+    "unit_price": 1.25,
+    "available_qty": 3000,
+    "lead_time_days": 10,
+    "manufacturer": "SiTime"
+  },
+  {
+    "part_number": "OSC-16MHZ-CMOS-SOT23-5",
+    "description": "16MHz CMOS Oscillator SOT23-5 Package",
+    "unit_price": 1.3,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "SiTime"
+  },
+  {
+    "part_number": "OSC-25MHZ-CMOS-SOT23-5",
+    "description": "25MHz CMOS Oscillator SOT23-5 Package",
+    "unit_price": 1.35,
+    "available_qty": 2600,
+    "lead_time_days": 10,
+    "manufacturer": "SiTime"
+  },
+  {
+    "part_number": "OSC-48MHZ-CMOS-SOT23-5",
+    "description": "48MHz CMOS Oscillator SOT23-5 Package",
+    "unit_price": 1.5,
+    "available_qty": 2200,
+    "lead_time_days": 14,
+    "manufacturer": "SiTime"
+  },
+  {
+    "part_number": "MOSFET-2N7002-SOT23",
+    "description": "2N7002 N-Channel MOSFET 60V 300mA SOT-23",
+    "unit_price": 0.12,
+    "available_qty": 8000,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "MOSFET-BSS138-SOT23",
+    "description": "BSS138 N-Channel MOSFET 50V 200mA SOT-23",
+    "unit_price": 0.15,
+    "available_qty": 7500,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "MOSFET-AO3400-SOT23",
+    "description": "AO3400 N-Channel MOSFET 30V 5.7A SOT-23",
+    "unit_price": 0.28,
+    "available_qty": 5500,
+    "lead_time_days": 5,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "MOSFET-IRF7313-SOIC8",
+    "description": "IRF7313 Dual N-Channel MOSFET 30V 6.5A SOIC-8",
+    "unit_price": 1.45,
+    "available_qty": 3000,
+    "lead_time_days": 7,
+    "manufacturer": "Infineon"
+  },
+  {
+    "part_number": "MOSFET-BSS84-SOT23",
+    "description": "BSS84 P-Channel MOSFET 50V 130mA SOT-23",
+    "unit_price": 0.18,
+    "available_qty": 6500,
+    "lead_time_days": 5,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "MOSFET-AO3401-SOT23",
+    "description": "AO3401 P-Channel MOSFET 30V 4A SOT-23",
+    "unit_price": 0.3,
+    "available_qty": 5200,
+    "lead_time_days": 5,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "MOSFET-IRLZ44N-TO220",
+    "description": "IRLZ44N N-Channel MOSFET 55V 47A TO-220",
+    "unit_price": 1.85,
+    "available_qty": 2800,
+    "lead_time_days": 10,
+    "manufacturer": "Infineon"
+  },
+  {
+    "part_number": "MOSFET-IRF9Z34N-TO220",
+    "description": "IRF9Z34N P-Channel MOSFET 55V 19A TO-220",
+    "unit_price": 2.2,
+    "available_qty": 2200,
+    "lead_time_days": 10,
+    "manufacturer": "Infineon"
+  },
+  {
+    "part_number": "MOSFET-CSD17577Q5A-SON8",
+    "description": "CSD17577Q5A N-Channel MOSFET 20V 52A SON-8",
+    "unit_price": 2.85,
+    "available_qty": 1800,
+    "lead_time_days": 14,
+    "manufacturer": "Texas Instruments"
+  },
+  {
+    "part_number": "BJT-BC547-TO92",
+    "description": "BC547 NPN Transistor 45V 100mA TO-92",
+    "unit_price": 0.06,
+    "available_qty": 9000,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "BJT-BC557-TO92",
+    "description": "BC557 PNP Transistor 45V 100mA TO-92",
+    "unit_price": 0.06,
+    "available_qty": 8800,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "BJT-2N3904-TO92",
+    "description": "2N3904 NPN General Purpose Transistor TO-92",
+    "unit_price": 0.08,
+    "available_qty": 8500,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "BJT-2N3906-TO92",
+    "description": "2N3906 PNP General Purpose Transistor TO-92",
+    "unit_price": 0.08,
+    "available_qty": 8200,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "BJT-MMBT3904-SOT23",
+    "description": "MMBT3904 NPN Transistor 40V 200mA SOT-23",
+    "unit_price": 0.1,
+    "available_qty": 7800,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "BJT-MMBT3906-SOT23",
+    "description": "MMBT3906 PNP Transistor 40V 200mA SOT-23",
+    "unit_price": 0.1,
+    "available_qty": 7500,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "BJT-BC817-SOT23",
+    "description": "BC817 NPN Transistor 45V 500mA SOT-23",
+    "unit_price": 0.08,
+    "available_qty": 8000,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "BJT-PBSS4032PA-SOT89",
+    "description": "PBSS4032PA PNP Transistor 40V 3A SOT-89",
+    "unit_price": 0.35,
+    "available_qty": 4500,
+    "lead_time_days": 7,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-1N4148-SOD123",
+    "description": "1N4148 Small Signal Switching Diode SOD-123",
+    "unit_price": 0.04,
+    "available_qty": 10000,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-1N4148-DO35",
+    "description": "1N4148 Small Signal Switching Diode DO-35",
+    "unit_price": 0.03,
+    "available_qty": 9500,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "DIODE-BAT54-SOT23",
+    "description": "BAT54 Schottky Diode 30V 200mA SOT-23",
+    "unit_price": 0.12,
+    "available_qty": 7000,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-SS34-SMA",
+    "description": "SS34 Schottky Diode 40V 3A SMA Package",
+    "unit_price": 0.18,
+    "available_qty": 6500,
+    "lead_time_days": 5,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "DIODE-1N5819-DO41",
+    "description": "1N5819 Schottky Diode 40V 1A DO-41",
+    "unit_price": 0.1,
+    "available_qty": 8000,
+    "lead_time_days": 3,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "DIODE-BZX84C3V3-SOT23",
+    "description": "BZX84C3V3 Zener Diode 3.3V 300mW SOT-23",
+    "unit_price": 0.08,
+    "available_qty": 7500,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-BZX84C5V1-SOT23",
+    "description": "BZX84C5V1 Zener Diode 5.1V 300mW SOT-23",
+    "unit_price": 0.08,
+    "available_qty": 7200,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-BZX84C12-SOT23",
+    "description": "BZX84C12 Zener Diode 12V 300mW SOT-23",
+    "unit_price": 0.09,
+    "available_qty": 6800,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-SMAJ5V0-SMA",
+    "description": "SMAJ5V0 TVS Diode 5V 400W SMA Unidirectional",
+    "unit_price": 0.25,
+    "available_qty": 5500,
+    "lead_time_days": 7,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "DIODE-SMAJ15A-SMA",
+    "description": "SMAJ15A TVS Diode 15V 400W SMA Unidirectional",
+    "unit_price": 0.28,
+    "available_qty": 5000,
+    "lead_time_days": 7,
+    "manufacturer": "Vishay"
+  },
+  {
+    "part_number": "DIODE-BAV99-SOT23",
+    "description": "BAV99 Dual Switching Diode Array SOT-23",
+    "unit_price": 0.08,
+    "available_qty": 7800,
+    "lead_time_days": 3,
+    "manufacturer": "Nexperia"
+  },
+  {
+    "part_number": "DIODE-ES1J-SMA",
+    "description": "ES1J Ultrafast Rectifier 1A 600V SMA",
+    "unit_price": 0.22,
+    "available_qty": 5800,
+    "lead_time_days": 7,
+    "manufacturer": "onsemi"
+  },
+  {
+    "part_number": "DIODE-MBR0520LT1-SOD123",
+    "description": "MBR0520LT1 Schottky Diode 20V 500mA SOD-123",
+    "unit_price": 0.14,
+    "available_qty": 6500,
+    "lead_time_days": 5,
+    "manufacturer": "onsemi"
+  }
+]

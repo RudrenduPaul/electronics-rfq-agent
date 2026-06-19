@@ -1,0 +1,10 @@
+RFQ from Acme Electronics Inc.
+Date: 2026-06-19
+PO Reference: PO-2026-0619
+
+Line | Part Number | Qty | Manufacturer | Notes
+1 | RES-0402-10K-1PCT | 1000 | Yageo | Tape and Reel
+2 | CAP-100NF-50V-X7R-0402 | 500 | Murata |
+3 | IC-LM358-SOIC8 | 50 | Texas Instruments |
+4 | XTAL-16MHZ-SMD | 25 | SiTime | Confirm lead time
+5 | MOSFET-NMOS-20V-3A-SOT23 | 100 | onsemi |

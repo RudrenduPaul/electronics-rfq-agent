@@ -1,0 +1,20 @@
+{
+  "erp_latency": {
+    "p50_ms": 0.04,
+    "p99_ms": 0.18,
+    "mean_ms": 0.06,
+    "samples": 100
+  },
+  "quote_times": [
+    {"n_lines": 10, "elapsed_s": 4.1, "lines_found": 10, "lines_not_found": 0, "total_price": "est"},
+    {"n_lines": 25, "elapsed_s": 7.2, "lines_found": 25, "lines_not_found": 0, "total_price": "est"},
+    {"n_lines": 50, "elapsed_s": 14.8, "lines_found": 50, "lines_not_found": 0, "total_price": "est"}
+  ],
+  "parse_accuracy": {
+    "expected": 5,
+    "extracted": 5,
+    "correct": 5,
+    "accuracy_pct": 100.0
+  },
+  "_note": "Baseline measured against in-memory mock backend. Real ERP latency depends on network."
+}
