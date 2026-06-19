@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import os
+import re
 import time
 from decimal import Decimal
 from typing import Any
@@ -12,6 +14,10 @@ from openquote.mcp.base import ERPMCPServer
 from openquote.models import ERPConfig, ERPPartResult
 
 _AZURE_TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"  # noqa: S105
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 
 class DynamicsMCP(ERPMCPServer):
@@ -60,6 +66,9 @@ class DynamicsMCP(ERPMCPServer):
         self._access_token: str | None = None
         # float("inf") means "never expires" — finite values set after a real fetch.
         self._token_expires_at: float = float("inf")
+        self._token_lock = asyncio.Lock()
+        if self._tenant_id and not _UUID_RE.match(self._tenant_id):
+            raise ValueError(f"tenant_id must be a valid UUID; got {self._tenant_id!r}")
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> DynamicsMCP:
@@ -71,17 +80,19 @@ class DynamicsMCP(ERPMCPServer):
         return _AZURE_TOKEN_URL.format(tenant_id=self._tenant_id)
 
     async def _ensure_token(self) -> str:
-        if self._access_token is not None and time.monotonic() < self._token_expires_at:
-            return self._access_token
-        token, expires_at = await fetch_client_credentials_token(
-            token_url=self._token_url,
-            client_id=self._client_id,
-            client_secret=self._client_secret,
-            extra_fields={"scope": f"{self._base_url}/.default"},
-            timeout=self._timeout,
-        )
-        self._access_token, self._token_expires_at = token, expires_at
-        return self._access_token
+        async with self._token_lock:
+            cached = self._access_token
+            if cached is not None and time.monotonic() < self._token_expires_at:
+                return cached
+            token, expires_at = await fetch_client_credentials_token(
+                token_url=self._token_url,
+                client_id=self._client_id,
+                client_secret=self._client_secret,
+                extra_fields={"scope": f"{self._base_url}/.default"},
+                timeout=self._timeout,
+            )
+            self._access_token, self._token_expires_at = token, expires_at
+            return token
 
     def _get_client(self) -> httpx.AsyncClient:
         # Authorization header is NOT embedded here — tokens expire and the client

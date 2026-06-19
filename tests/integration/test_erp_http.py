@@ -427,7 +427,7 @@ class TestDynamicsMCPHTTP:
     def dynamics(self) -> DynamicsMCP:
         with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
             return DynamicsMCP(
-                tenant_id="tenant123",
+                tenant_id="12345678-1234-1234-1234-123456789abc",
                 client_id="client456",
                 client_secret="secret789",
                 base_url="https://org.test.crm.dynamics.com",
@@ -588,7 +588,7 @@ class TestDynamicsMCPHTTP:
         self, dynamics: DynamicsMCP
     ) -> None:
         """Token is fetched from Azure AD endpoint and cached when not already set."""
-        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        token_url = "https://login.microsoftonline.com/12345678-1234-1234-1234-123456789abc/oauth2/v2.0/token"
         respx.post(token_url).mock(
             return_value=httpx.Response(200, json={"access_token": "dyn-token"})
         )
@@ -602,7 +602,7 @@ class TestDynamicsMCPHTTP:
         self, dynamics: DynamicsMCP
     ) -> None:
         """Cached token is reused on subsequent calls without hitting the network."""
-        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        token_url = "https://login.microsoftonline.com/12345678-1234-1234-1234-123456789abc/oauth2/v2.0/token"
         respx.post(token_url).mock(
             return_value=httpx.Response(200, json={"access_token": "dyn-token-1"})
         )
@@ -615,7 +615,7 @@ class TestDynamicsMCPHTTP:
     @pytest.mark.asyncio
     async def test_ensure_token_401_raises(self, dynamics: DynamicsMCP) -> None:
         """401 from Azure AD token endpoint raises httpx.HTTPStatusError."""
-        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        token_url = "https://login.microsoftonline.com/12345678-1234-1234-1234-123456789abc/oauth2/v2.0/token"
         respx.post(token_url).mock(return_value=httpx.Response(401))
         with pytest.raises(httpx.HTTPStatusError):
             await dynamics._ensure_token()
@@ -640,7 +640,7 @@ class TestDynamicsMCPHTTP:
         """Expired token triggers a new Azure AD fetch."""
         dynamics._access_token = "old-token"
         dynamics._token_expires_at = 0.0  # force expired
-        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        token_url = "https://login.microsoftonline.com/12345678-1234-1234-1234-123456789abc/oauth2/v2.0/token"
         respx.post(token_url).mock(
             return_value=httpx.Response(
                 200, json={"access_token": "refreshed-token", "expires_in": 3600}
@@ -655,7 +655,7 @@ class TestDynamicsMCPHTTP:
     async def test_api_call_uses_refreshed_token(self, dynamics: DynamicsMCP) -> None:
         """After a token refresh, search_parts must send the NEW token — not the
         stale one embedded in a cached httpx.AsyncClient header."""
-        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        token_url = "https://login.microsoftonline.com/12345678-1234-1234-1234-123456789abc/oauth2/v2.0/token"
 
         # First call: token fetch + search
         respx.post(token_url).mock(
