@@ -103,8 +103,8 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 ## Engineering (next sprint)
 
 - [ ] CLI tests — issue #4 (`tests/unit/test_cli.py`, Typer test runner)
-- [ ] LangGraph example — issue #7 (`examples/04-langgraph-agent/`)
-- [ ] OpenAI Agents SDK example — issue #8 (`examples/05-openai-agents/`)
+- [x] LangGraph example — issue #7 (`examples/04-langgraph-agent/`) ✅
+- [x] OpenAI Agents SDK example — issue #8 (`examples/05-openai-agents/`) ✅
 - [ ] docs/getting-started.md full ERP walkthrough — issue #5
 
 ## v0.2 (deferred)
