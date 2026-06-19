@@ -81,9 +81,12 @@ class Quote(BaseModel):
     @model_validator(mode="after")
     def validate_total_matches_lines(self) -> Quote:
         computed = sum(
-            line.extended_price
-            for line in self.lines
-            if line.extended_price is not None
+            (
+                line.extended_price
+                for line in self.lines
+                if line.extended_price is not None
+            ),
+            Decimal("0"),
         )
         if abs(computed - self.total_price) > Decimal("0.01"):
             raise ValueError(
