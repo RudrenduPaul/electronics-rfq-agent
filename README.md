@@ -27,22 +27,23 @@ print(quote.summary())
 
 ## Benchmark
 
-Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself in under 5 minutes:
+Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
 
 ```bash
 git clone https://github.com/RudrenduPaul/openquote-ai
 cd openquote-ai
-docker compose up -d
-python benchmarks/run.py
+uv run python benchmarks/run.py
 ```
 
-| RFQ size | ERP lookup P50 | ERP lookup P99 | Total time (mock) |
-|---|---|---|---|
-| 10 lines | 0.04ms | 0.18ms | 4.1s |
-| 25 lines | 0.04ms | 0.18ms | 7.2s |
-| 50 lines | 0.04ms | 0.18ms | 14.8s |
+**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
 
-*Mock backend numbers — in-memory ERP with zero network I/O. Real ERP latency is network-dependent (typically 100–500ms per lookup). Manual baseline for a 50-line RFQ: 2–4 hours.*
+| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
+|---|---|---|---|
+| 10 lines | <0.1ms | <0.1ms | <0.1s |
+| 25 lines | <0.1ms | <0.1ms | <0.1s |
+| 50 lines | <0.1ms | <0.1ms | <0.1s |
+
+*These numbers reflect the ERP lookup and quote assembly portion only — the benchmark mocks the RFQ parser so no Anthropic API call is made. In a real run, AI document parsing (one Claude API call per document) adds 5–15s depending on document size and API latency. Real ERP latency adds 100–500ms per line item over the network. Manual baseline for a 50-line RFQ: 2–4 hours.*
 
 ## Why we built this
 
