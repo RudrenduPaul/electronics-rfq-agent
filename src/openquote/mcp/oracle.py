@@ -80,12 +80,14 @@ class OracleMCP(ERPMCPServer):
             self._token_expires_at = time.monotonic() + expires_in - 60
         return self._access_token
 
-    def _get_client(self, token: str) -> httpx.AsyncClient:
+    def _get_client(self) -> httpx.AsyncClient:
+        # Authorization header is NOT embedded here — tokens expire and the client
+        # is cached, so embedding would send stale credentials after a refresh.
+        # Pass the current token per-request via headers= instead.
         if self._client is None:
             self._client = httpx.AsyncClient(
                 base_url=self._base_url,
                 headers={
-                    "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
@@ -99,10 +101,11 @@ class OracleMCP(ERPMCPServer):
             return await self._mock.search_parts(query, limit)
 
         token = await self._ensure_token()
-        client = self._get_client(token)
+        client = self._get_client()
         safe_query = query.replace("'", "''")
         response = await client.get(
             "/fscmRestApi/resources/11.13.18.05/items",
+            headers={"Authorization": f"Bearer {token}"},
             params={
                 "q": (
                     f"ItemNumber LIKE '%{safe_query}%' "
@@ -120,10 +123,11 @@ class OracleMCP(ERPMCPServer):
             return await self._mock.get_part(part_number)
 
         token = await self._ensure_token()
-        client = self._get_client(token)
+        client = self._get_client()
         encoded_pn = urlquote(part_number, safe="")
         response = await client.get(
             f"/fscmRestApi/resources/11.13.18.05/items/{encoded_pn}",
+            headers={"Authorization": f"Bearer {token}"},
         )
         if response.status_code == 404:  # noqa: PLR2004
             return None
