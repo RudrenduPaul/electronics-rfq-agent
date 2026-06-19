@@ -39,9 +39,10 @@ dependencies = [
 
 [project.optional-dependencies]
 sap = []
-langchain = ["langchain>=0.3", "langchain-core>=0.3"]
+langchain = ["langchain>=0.3", "langchain-core>=0.3", "langgraph>=0.2"]
 crewai = ["crewai>=0.80"]
 openai = ["openai>=1.0"]
+agents = ["openai-agents>=0.0.7", "openai>=1.0"]
 dev = [
     "pytest>=8",
     "pytest-benchmark",

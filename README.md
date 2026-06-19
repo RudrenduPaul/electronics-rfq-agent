@@ -90,12 +90,12 @@ Your quote data never leaves your environment.
 
 openquote works with any agent framework that supports MCP:
 
-| Framework | Install |
-|---|---|
-| Claude (built-in) | `pip install openquote` |
-| LangGraph | `pip install openquote[langchain]` |
-| OpenAI Agents SDK | `pip install openquote[openai]` |
-| CrewAI | `pip install openquote[crewai]` |
+| Framework | Install | Example |
+|---|---|---|
+| Claude (built-in) | `pip install openquote` | [01-basic-quote](examples/01-basic-quote/) |
+| LangGraph | `pip install 'openquote[langchain]' langgraph` | [04-langgraph-agent](examples/04-langgraph-agent/) |
+| OpenAI Agents SDK | `pip install openquote[agents]` | [05-openai-agents](examples/05-openai-agents/) |
+| CrewAI | `pip install openquote[crewai]` | — |
 
 ## Quick start with mock ERP
 
