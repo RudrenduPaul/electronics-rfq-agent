@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
@@ -48,9 +49,9 @@ class RFQParser:
         if suffix == ".pdf":
             return await self._parse_pdf(path)
         if suffix in (".xlsx", ".xls"):
-            return self._parse_excel(path)
+            return await asyncio.to_thread(self._parse_excel, path)
         if suffix == ".docx":
-            return self._parse_word(path)
+            return await asyncio.to_thread(self._parse_word, path)
         return await self._parse_text(path.read_text())
 
     async def _parse_pdf(self, path: Path) -> list[RFQLineItem]:
@@ -75,10 +76,7 @@ class RFQParser:
                         },
                         {
                             "type": "text",
-                            "text": (
-                                "Extract all RFQ line items from this document. "
-                                + self._SYSTEM_PROMPT
-                            ),
+                            "text": "Extract all RFQ line items from this document.",
                         },
                     ],
                 }
@@ -199,7 +197,10 @@ class RFQParser:
             end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
             cleaned = "\n".join(lines[start:end])
 
-        data: list[dict[str, Any]] = json.loads(cleaned)
+        try:
+            data: list[dict[str, Any]] = json.loads(cleaned)
+        except json.JSONDecodeError as exc:
+            raise RFQParseError(f"Model returned invalid JSON: {exc}") from exc
         items: list[RFQLineItem] = []
         for i, row in enumerate(data, start=1):
             try:

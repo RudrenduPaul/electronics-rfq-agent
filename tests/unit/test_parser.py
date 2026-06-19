@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from openquote.models import RFQLineItem
+from openquote.models import RFQLineItem, RFQParseError
 from openquote.parser import RFQParser
 
 
@@ -111,6 +111,18 @@ class TestRFQParserJson:
     def test_parse_json_empty_array(self, parser: RFQParser) -> None:
         items = parser._parse_json_response("[]")
         assert items == []
+
+    def test_parse_json_invalid_json_raises_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        with pytest.raises(RFQParseError, match="invalid JSON"):
+            parser._parse_json_response("not valid json {{{")
+
+    def test_parse_json_truncated_json_raises_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        with pytest.raises(RFQParseError, match="invalid JSON"):
+            parser._parse_json_response('[{"part_number": "RES-001"')  # truncated
 
 
 class TestFindHeaderRow:
