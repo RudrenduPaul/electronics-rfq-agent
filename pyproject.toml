@@ -1,0 +1,100 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openquote"
+version = "0.1.0"
+description = "AI quoting agent for electronics distributors. RFQ in, quote out in seconds."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Rudrendu Paul", email = "rkpaul.venture@gmail.com"},
+    {name = "Sourav Nandy"},
+]
+keywords = ["erp", "mcp", "quoting", "electronics", "distribution", "ai", "rfq", "supply-chain"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "anthropic>=0.40",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "openpyxl>=3.1",
+    "python-docx>=1.1",
+    "mcp>=1.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+sap = []
+langchain = ["langchain>=0.3", "langchain-core>=0.3"]
+crewai = ["crewai>=0.80"]
+openai = ["openai>=1.0"]
+dev = [
+    "pytest>=8",
+    "pytest-benchmark",
+    "pytest-asyncio>=0.24",
+    "pytest-cov",
+    "mypy>=1.10",
+    "ruff>=0.9",
+    "pre-commit",
+    "respx>=0.21",
+    "types-openpyxl",
+]
+
+[project.urls]
+Homepage = "https://github.com/RudrenduPaul/openquote-ai"
+Repository = "https://github.com/RudrenduPaul/openquote-ai"
+Documentation = "https://github.com/RudrenduPaul/openquote-ai/tree/main/docs"
+"Bug Tracker" = "https://github.com/RudrenduPaul/openquote-ai/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openquote"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "N", "UP", "S", "PL", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "PLR2004", "PLC0415", "B017", "B027"]
+"benchmarks/*" = ["S", "PLR2004", "T201", "PLC0415"]
+"examples/*" = ["S", "T201"]
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "raise ImportError",
+    "raise NotImplementedError",
+]

@@ -1,0 +1,130 @@
+from __future__ import annotations
+
+import asyncio
+import os
+import time
+import uuid
+from decimal import Decimal
+from pathlib import Path
+
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
+from openquote.mcp.base import ERPMCPServer
+from openquote.models import ERPPartResult, Quote, QuoteLineItem, RFQLineItem
+from openquote.parser import RFQParser
+
+_console = Console(stderr=True)
+
+
+class QuoteAgent:
+    """Orchestrate RFQ parsing, ERP lookup, and draft quote generation.
+
+    Args:
+        erp: Any ERPMCPServer implementation (EpicorMCP, SAPMCP, MockERP, etc.)
+        model: Anthropic model for RFQ parsing (default: claude-sonnet-4-6)
+        margin_pct: Margin to add on top of ERP cost price (default: 0.15 = 15%)
+    """
+
+    def __init__(
+        self,
+        erp: ERPMCPServer,
+        model: str | None = None,
+        margin_pct: float = 0.15,
+    ) -> None:
+        self.erp = erp
+        self.model = model or os.environ.get("OPENQUOTE_MODEL", "claude-sonnet-4-6")
+        self.margin_pct = Decimal(str(margin_pct))
+        self._parser = RFQParser(model=self.model)
+
+    async def run(self, rfq_source: str | Path) -> Quote:
+        """Parse the RFQ and generate a draft quote.
+
+        Args:
+            rfq_source: File path (PDF/Excel/Word) or text string of the RFQ.
+
+        Returns:
+            A Quote with all line items looked up against the ERP.
+        """
+        start = time.monotonic()
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=_console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task("Parsing RFQ...", total=None)
+            rfq_lines = await self._parser.parse(rfq_source)
+            progress.update(task, description=f"Parsed {len(rfq_lines)} line items")
+
+            progress.update(task, description="Looking up parts in ERP...")
+            quote_lines = await asyncio.gather(
+                *[self._lookup_line(line) for line in rfq_lines]
+            )
+            progress.update(task, description="Building quote...")
+
+        total = Decimal(
+            sum(
+                line.extended_price
+                for line in quote_lines
+                if line.extended_price is not None
+            )
+        )
+        quote = Quote(
+            id=str(uuid.uuid4()),
+            rfq_source=str(rfq_source),
+            lines=list(quote_lines),
+            total_price=total,
+        )
+
+        elapsed = time.monotonic() - start
+        _console.print(
+            f"[green]Quote complete[/green] — {len(rfq_lines)} lines in {elapsed:.1f}s"
+        )
+        return quote
+
+    def run_sync(self, rfq_source: str | Path) -> Quote:
+        """Synchronous wrapper for run(). Blocks until the quote is complete."""
+        return asyncio.run(self.run(rfq_source))
+
+    async def _lookup_line(self, line: RFQLineItem) -> QuoteLineItem:
+        part = await self.erp.get_part(line.part_number)
+        if part is None:
+            parts = await self.erp.search_parts(line.part_number, limit=1)
+            part = parts[0] if parts else None
+
+        if part is None:
+            return QuoteLineItem(
+                rfq_line=line,
+                erp_result=None,
+                status="not_found",
+                notes=f"Part {line.part_number!r} not found in ERP catalog",
+            )
+
+        cost_price = await self.erp.get_price(part.part_number, line.quantity)
+        if cost_price is None:
+            cost_price = part.unit_price
+
+        sell_price = (cost_price * (1 + self.margin_pct)).quantize(Decimal("0.0001"))
+        extended = (sell_price * line.quantity).quantize(Decimal("0.01"))
+
+        is_exact = part.part_number.upper() == line.part_number.upper()
+        status: str = "found" if is_exact else "substituted"
+        notes = (
+            None
+            if is_exact
+            else f"Substituted {line.part_number!r} with {part.part_number!r}"
+        )
+
+        return QuoteLineItem(
+            rfq_line=line,
+            erp_result=part,
+            status=status,  # type: ignore[arg-type]
+            unit_price=sell_price,
+            extended_price=extended,
+            notes=notes,
+        )
+
+    async def _lookup_part(self, part_number: str) -> ERPPartResult | None:
+        return await self.erp.get_part(part_number)
