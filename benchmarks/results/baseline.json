@@ -1,20 +1,38 @@
 {
   "erp_latency": {
-    "p50_ms": 0.04,
-    "p99_ms": 0.18,
-    "mean_ms": 0.06,
+    "p50_ms": 0.0002500019036233425,
+    "p99_ms": 0.002834014594554901,
+    "mean_ms": 0.0003124884096905589,
     "samples": 100
   },
   "quote_times": [
-    {"n_lines": 10, "elapsed_s": 4.1, "lines_found": 10, "lines_not_found": 0, "total_price": "est"},
-    {"n_lines": 25, "elapsed_s": 7.2, "lines_found": 25, "lines_not_found": 0, "total_price": "est"},
-    {"n_lines": 50, "elapsed_s": 14.8, "lines_found": 50, "lines_not_found": 0, "total_price": "est"}
+    {
+      "n_lines": 10,
+      "elapsed_s": 0.009,
+      "lines_found": 10,
+      "lines_not_found": 0,
+      "total_price": "4.97"
+    },
+    {
+      "n_lines": 25,
+      "elapsed_s": 0.004,
+      "lines_found": 25,
+      "lines_not_found": 0,
+      "total_price": "32.31"
+    },
+    {
+      "n_lines": 50,
+      "elapsed_s": 0.007,
+      "lines_found": 50,
+      "lines_not_found": 0,
+      "total_price": "127.68"
+    }
   ],
-  "parse_accuracy": {
+  "json_deserialize": {
     "expected": 5,
     "extracted": 5,
     "correct": 5,
-    "accuracy_pct": 100.0
-  },
-  "_note": "Baseline measured against in-memory mock backend. Real ERP latency depends on network."
+    "accuracy_pct": 100.0,
+    "note": "JSON deserialization only \u2014 no AI parsing"
+  }
 }

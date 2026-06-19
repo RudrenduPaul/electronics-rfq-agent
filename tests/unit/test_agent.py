@@ -202,6 +202,31 @@ class TestQuoteAgentRun:
             result = agent.run_sync("fake.txt")
         assert isinstance(result, Quote)
 
+    def test_run_sync_safe_inside_running_event_loop(
+        self, agent: QuoteAgent, sample_rfq_lines: list[RFQLineItem]
+    ) -> None:
+        """Verify run_sync() works when called from inside an active event loop.
+
+        Uses nest_asyncio under the hood — tests the actual fix path for the
+        "asyncio event loop is already running" error that occurs in Jupyter
+        or inside existing async frameworks (FastAPI startup handlers, etc.).
+        """
+        import asyncio
+
+        import nest_asyncio
+
+        async def _caller() -> Quote:
+            with patch.object(
+                agent._parser, "parse", new_callable=AsyncMock
+            ) as mock_parse:
+                mock_parse.return_value = sample_rfq_lines[:1]
+                nest_asyncio.apply()
+                return agent.run_sync("fake_from_loop.txt")
+
+        result = asyncio.run(_caller())
+        assert isinstance(result, Quote)
+        assert len(result.lines) == 1
+
 
 class TestQuoteAgentWithMockERP:
     @pytest.mark.asyncio
