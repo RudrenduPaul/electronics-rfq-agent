@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 import time
 from decimal import Decimal
@@ -52,6 +53,7 @@ class OracleMCP(ERPMCPServer):
         self._access_token: str | None = None
         # float("inf") means "never expires" — finite values set after a real fetch.
         self._token_expires_at: float = float("inf")
+        self._token_lock = asyncio.Lock()
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> OracleMCP:
@@ -63,16 +65,18 @@ class OracleMCP(ERPMCPServer):
         )
 
     async def _ensure_token(self) -> str:
-        if self._access_token is not None and time.monotonic() < self._token_expires_at:
-            return self._access_token
-        token, expires_at = await fetch_client_credentials_token(
-            token_url=f"{self._base_url}/oauth/token",
-            client_id=self._client_id,
-            client_secret=self._client_secret,
-            timeout=self._timeout,
-        )
-        self._access_token, self._token_expires_at = token, expires_at
-        return self._access_token
+        async with self._token_lock:
+            cached = self._access_token
+            if cached is not None and time.monotonic() < self._token_expires_at:
+                return cached
+            token, expires_at = await fetch_client_credentials_token(
+                token_url=f"{self._base_url}/oauth/token",
+                client_id=self._client_id,
+                client_secret=self._client_secret,
+                timeout=self._timeout,
+            )
+            self._access_token, self._token_expires_at = token, expires_at
+            return token
 
     def _get_client(self) -> httpx.AsyncClient:
         # Authorization header is NOT embedded here — tokens expire and the client
