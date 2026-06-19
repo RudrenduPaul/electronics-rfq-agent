@@ -65,8 +65,21 @@ class QuoteAgent:
             rfq_lines = await self._parser.parse(rfq_source)
             progress.update(task_id, description=f"Parsed {len(rfq_lines)} line items")
             progress.update(task_id, description="Looking up parts in ERP...")
+            # One asyncio Task per unique (part_number, quantity) pair.
+            # Duplicate lines share the same Task — ERP is called once, not N times.
+            task_cache: dict[tuple[str, int], asyncio.Task[QuoteLineItem]] = {}
+
+            async def _cached_lookup(ln: RFQLineItem) -> QuoteLineItem:
+                key = (ln.part_number, ln.quantity)
+                if key not in task_cache:
+                    task_cache[key] = asyncio.create_task(self._gated_lookup(ln))
+                result = await task_cache[key]
+                if result.rfq_line is ln:
+                    return result
+                return result.model_copy(update={"rfq_line": ln})
+
             quote_lines = await asyncio.gather(
-                *[self._gated_lookup(line) for line in rfq_lines]
+                *[_cached_lookup(line) for line in rfq_lines]
             )
             progress.update(task_id, description="Building quote...")
 
