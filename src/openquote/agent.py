@@ -6,6 +6,7 @@ import sys
 import time
 from decimal import Decimal
 from pathlib import Path
+from typing import Literal
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -123,7 +124,7 @@ class QuoteAgent:
         extended = (sell_price * line.quantity).quantize(Decimal("0.01"))
 
         is_exact = part.part_number.upper() == line.part_number.upper()
-        status: str = "found" if is_exact else "substituted"
+        status: Literal["found", "substituted"] = "found" if is_exact else "substituted"
         notes = (
             None
             if is_exact
@@ -133,7 +134,7 @@ class QuoteAgent:
         return QuoteLineItem(
             rfq_line=line,
             erp_result=part,
-            status=status,  # type: ignore[arg-type]
+            status=status,
             unit_price=sell_price,
             extended_price=extended,
             notes=notes,
