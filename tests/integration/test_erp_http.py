@@ -388,6 +388,36 @@ class TestOracleMCPHTTP:
         assert token == "refreshed-token"
         assert oracle._access_token == "refreshed-token"
 
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_api_call_uses_refreshed_token(self, oracle: OracleMCP) -> None:
+        """After a token refresh, search_parts must send the NEW token — not the
+        stale one that was embedded in a cached httpx.AsyncClient header."""
+        # First call: token fetch + search
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "first-token", "expires_in": 3600}
+            )
+        )
+        respx.get(url__regex=r"https://oracle\.test\.local/fscmRestApi/.*").mock(
+            return_value=httpx.Response(200, json={"items": []})
+        )
+        await oracle.search_parts("RES")
+
+        # Expire the token and refresh to a new one
+        oracle._token_expires_at = 0.0
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "second-token", "expires_in": 3600}
+            )
+        )
+        await oracle.search_parts("CAP")
+
+        # The second API request must carry the NEW token, not the old one
+        last_api_call = respx.calls[-1].request
+        assert last_api_call.headers["Authorization"] == "Bearer second-token"
+        await oracle.close()
+
 
 # ---------------------------------------------------------------------------
 # Dynamics HTTP tests
@@ -591,8 +621,8 @@ class TestDynamicsMCPHTTP:
             await dynamics._ensure_token()
 
     def test_get_client_creates_once(self, dynamics: DynamicsMCP) -> None:
-        c1 = dynamics._get_client("token")
-        c2 = dynamics._get_client("token")
+        c1 = dynamics._get_client()
+        c2 = dynamics._get_client()
         assert c1 is c2
 
     @pytest.mark.asyncio
@@ -619,3 +649,35 @@ class TestDynamicsMCPHTTP:
         token = await dynamics._ensure_token()
         assert token == "refreshed-token"
         assert dynamics._access_token == "refreshed-token"
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_api_call_uses_refreshed_token(self, dynamics: DynamicsMCP) -> None:
+        """After a token refresh, search_parts must send the NEW token — not the
+        stale one embedded in a cached httpx.AsyncClient header."""
+        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+
+        # First call: token fetch + search
+        respx.post(token_url).mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "first-token", "expires_in": 3600}
+            )
+        )
+        respx.get(
+            url__regex=r"https://org\.test\.crm\.dynamics\.com/api/data/v9\.2/products.*"
+        ).mock(return_value=httpx.Response(200, json={"value": []}))
+        await dynamics.search_parts("RES")
+
+        # Expire the token and refresh to a new one
+        dynamics._token_expires_at = 0.0
+        respx.post(token_url).mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "second-token", "expires_in": 3600}
+            )
+        )
+        await dynamics.search_parts("CAP")
+
+        # The second API request must carry the NEW token, not the old one
+        last_api_call = respx.calls[-1].request
+        assert last_api_call.headers["Authorization"] == "Bearer second-token"
+        await dynamics.close()
