@@ -89,12 +89,14 @@ class DynamicsMCP(ERPMCPServer):
             self._token_expires_at = time.monotonic() + expires_in - 60
         return self._access_token
 
-    def _get_client(self, token: str) -> httpx.AsyncClient:
+    def _get_client(self) -> httpx.AsyncClient:
+        # Authorization header is NOT embedded here — tokens expire and the client
+        # is cached, so embedding would send stale credentials after a refresh.
+        # Pass the current token per-request via headers= instead.
         if self._client is None:
             self._client = httpx.AsyncClient(
                 base_url=f"{self._base_url}/api/data/v9.2",
                 headers={
-                    "Authorization": f"Bearer {token}",
                     "Accept": "application/json",
                     "OData-MaxVersion": "4.0",
                     "OData-Version": "4.0",
@@ -109,10 +111,11 @@ class DynamicsMCP(ERPMCPServer):
             return await self._mock.search_parts(query, limit)
 
         token = await self._ensure_token()
-        client = self._get_client(token)
+        client = self._get_client()
         safe_query = query.replace("'", "''")
         response = await client.get(
             "/products",
+            headers={"Authorization": f"Bearer {token}"},
             params={
                 "$filter": (
                     f"contains(productnumber, '{safe_query}') "
@@ -130,10 +133,11 @@ class DynamicsMCP(ERPMCPServer):
             return await self._mock.get_part(part_number)
 
         token = await self._ensure_token()
-        client = self._get_client(token)
+        client = self._get_client()
         safe_pn = part_number.replace("'", "''")
         response = await client.get(
             "/products",
+            headers={"Authorization": f"Bearer {token}"},
             params={
                 "$filter": f"productnumber eq '{safe_pn}'",
                 "$top": 1,
