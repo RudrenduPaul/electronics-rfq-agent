@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from decimal import Decimal
 from typing import Any
 from urllib.parse import quote as urlquote
@@ -48,6 +49,8 @@ class OracleMCP(ERPMCPServer):
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
         self._access_token: str | None = None
+        # float("inf") means "never expires" — finite values set after a real fetch.
+        self._token_expires_at: float = float("inf")
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> OracleMCP:
@@ -59,7 +62,7 @@ class OracleMCP(ERPMCPServer):
         )
 
     async def _ensure_token(self) -> str:
-        if self._access_token is not None:
+        if self._access_token is not None and time.monotonic() < self._token_expires_at:
             return self._access_token
         async with httpx.AsyncClient(timeout=self._timeout, verify=True) as client:
             response = await client.post(
@@ -71,7 +74,10 @@ class OracleMCP(ERPMCPServer):
                 },
             )
             response.raise_for_status()
-            self._access_token = str(response.json()["access_token"])
+            data = response.json()
+            self._access_token = str(data["access_token"])
+            expires_in = int(data.get("expires_in", 3600))
+            self._token_expires_at = time.monotonic() + expires_in - 60
         return self._access_token
 
     def _get_client(self, token: str) -> httpx.AsyncClient:

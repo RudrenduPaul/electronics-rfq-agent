@@ -59,6 +59,8 @@ class SAPMCP(ERPMCPServer):
         self._password = password or os.environ.get("OPENQUOTE_SAP_PASSWORD", "")
         self._plant = plant
         self._conn: Any | None = None
+        # pyrfc connections are not thread-safe; serialise all BAPI calls.
+        self._bapi_lock = asyncio.Lock()
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> SAPMCP:
@@ -90,11 +92,14 @@ class SAPMCP(ERPMCPServer):
             return await self._mock.search_parts(query, limit)
 
         conn = self._get_conn()
-        result: dict[str, Any] = await asyncio.to_thread(
-            conn.call,
-            "BAPI_MATERIAL_GETLIST",
-            MATNRSELECTION=[{"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{query}*"}],
-        )
+        async with self._bapi_lock:
+            result: dict[str, Any] = await asyncio.to_thread(
+                conn.call,
+                "BAPI_MATERIAL_GETLIST",
+                MATNRSELECTION=[
+                    {"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{query}*"}
+                ],
+            )
         matnrs = [m["MATNR"] for m in result.get("MATNRLIST", [])[:limit]]
         parts = await asyncio.gather(*[self.get_part(m) for m in matnrs])
         return [p for p in parts if p is not None]
@@ -138,12 +143,13 @@ class SAPMCP(ERPMCPServer):
     ) -> tuple[dict[str, Any], dict[str, Any]] | None:
         conn = self._get_conn()
         try:
-            result: dict[str, Any] = await asyncio.to_thread(
-                conn.call,
-                "BAPI_MATERIAL_GET_DETAIL",
-                MATERIAL=part_number,
-                PLANT=self._plant,
-            )
+            async with self._bapi_lock:
+                result: dict[str, Any] = await asyncio.to_thread(
+                    conn.call,
+                    "BAPI_MATERIAL_GET_DETAIL",
+                    MATERIAL=part_number,
+                    PLANT=self._plant,
+                )
         except Exception as exc:
             if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
                 return None
@@ -160,12 +166,13 @@ class SAPMCP(ERPMCPServer):
     async def _bapi_pricing(self, part_number: str) -> dict[str, Any]:
         conn = self._get_conn()
         try:
-            result: dict[str, Any] = await asyncio.to_thread(
-                conn.call,
-                "BAPI_MATERIAL_GETPRICINGINFO",
-                MATERIAL=part_number,
-                PLANT=self._plant,
-            )
+            async with self._bapi_lock:
+                result: dict[str, Any] = await asyncio.to_thread(
+                    conn.call,
+                    "BAPI_MATERIAL_GETPRICINGINFO",
+                    MATERIAL=part_number,
+                    PLANT=self._plant,
+                )
         except Exception as exc:
             if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
                 return {}

@@ -346,6 +346,21 @@ class TestOracleMCPHTTP:
         with pytest.raises(httpx.HTTPStatusError):
             await oracle._ensure_token()
 
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_refreshes_on_expiry(self, oracle: OracleMCP) -> None:
+        """Expired token (token_expires_at in the past) triggers a new fetch."""
+        oracle._access_token = "old-token"
+        oracle._token_expires_at = 0.0  # force expired
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "refreshed-token", "expires_in": 3600}
+            )
+        )
+        token = await oracle._ensure_token()
+        assert token == "refreshed-token"
+        assert oracle._access_token == "refreshed-token"
+
 
 # ---------------------------------------------------------------------------
 # Dynamics HTTP tests
@@ -559,3 +574,21 @@ class TestDynamicsMCPHTTP:
             dyn = DynamicsMCP()
         results = await dyn.search_parts("RES", limit=3)
         assert len(results) > 0
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_refreshes_on_expiry(
+        self, dynamics: DynamicsMCP
+    ) -> None:
+        """Expired token triggers a new Azure AD fetch."""
+        dynamics._access_token = "old-token"
+        dynamics._token_expires_at = 0.0  # force expired
+        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        respx.post(token_url).mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "refreshed-token", "expires_in": 3600}
+            )
+        )
+        token = await dynamics._ensure_token()
+        assert token == "refreshed-token"
+        assert dynamics._access_token == "refreshed-token"
