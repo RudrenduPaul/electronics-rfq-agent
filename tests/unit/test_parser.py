@@ -207,40 +207,35 @@ class TestMapColumns:
         assert col["part_number"] == 0
 
 
-class TestSafeStr:
-    def test_safe_str_returns_value(self) -> None:
-        row = ["a", "b", "c"]
-        assert RFQParser._safe_str(row, 1) == "b"
-
-    def test_safe_str_none_idx_returns_empty(self) -> None:
-        assert RFQParser._safe_str(["a"], None) == ""
-
-    def test_safe_str_out_of_range_returns_empty(self) -> None:
-        assert RFQParser._safe_str(["a"], 5) == ""
-
-    def test_safe_str_strips_whitespace(self) -> None:
-        row = ["  hello  ", "b"]
-        assert RFQParser._safe_str(row, 0) == "hello"
-
-    def test_safe_str_none_value_returns_empty(self) -> None:
-        row = [None, "b"]
-        assert RFQParser._safe_str(row, 0) == ""
-
-
-class TestSafeListStr:
+class TestCell:
     def test_returns_value(self) -> None:
-        lst = ["a", "b", "c"]
-        assert RFQParser._safe_list_str(lst, 1) == "b"
+        row = ["a", "b", "c"]
+        assert RFQParser._cell(row, 1) == "b"
 
     def test_none_idx_returns_empty(self) -> None:
-        assert RFQParser._safe_list_str(["a"], None) == ""
+        assert RFQParser._cell(["a"], None) == ""
 
     def test_out_of_range_returns_empty(self) -> None:
-        assert RFQParser._safe_list_str(["a"], 5) == ""
+        assert RFQParser._cell(["a"], 5) == ""
 
     def test_strips_whitespace(self) -> None:
+        row = ["  hello  ", "b"]
+        assert RFQParser._cell(row, 0) == "hello"
+
+    def test_none_value_returns_empty(self) -> None:
+        row = [None, "b"]
+        assert RFQParser._cell(row, 0) == ""
+
+    def test_works_on_list_of_strings(self) -> None:
+        lst = ["a", "b", "c"]
+        assert RFQParser._cell(lst, 1) == "b"
+
+    def test_list_out_of_range_returns_empty(self) -> None:
+        assert RFQParser._cell(["a"], 5) == ""
+
+    def test_list_strips_whitespace(self) -> None:
         lst = ["  hello  "]
-        assert RFQParser._safe_list_str(lst, 0) == "hello"
+        assert RFQParser._cell(lst, 0) == "hello"
 
 
 class TestAsyncParsing:

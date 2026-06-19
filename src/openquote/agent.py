@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 import time
-import uuid
 from decimal import Decimal
 from pathlib import Path
 
@@ -24,6 +24,7 @@ class QuoteAgent:
         erp: Any ERPMCPServer implementation (EpicorMCP, SAPMCP, MockERP, etc.)
         model: Anthropic model for RFQ parsing (default: claude-sonnet-4-6)
         margin_pct: Margin to add on top of ERP cost price (default: 0.15 = 15%)
+        max_concurrent: Maximum parallel ERP lookups (default: 10)
     """
 
     def __init__(
@@ -49,41 +50,40 @@ class QuoteAgent:
             A Quote with all line items looked up against the ERP.
         """
         start = time.monotonic()
+        is_tty = sys.stderr.isatty()
 
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             console=_console,
             transient=True,
+            disable=not is_tty,
         ) as progress:
-            task = progress.add_task("Parsing RFQ...", total=None)
+            task_id = progress.add_task("Parsing RFQ...", total=None)
             rfq_lines = await self._parser.parse(rfq_source)
-            progress.update(task, description=f"Parsed {len(rfq_lines)} line items")
-
-            progress.update(task, description="Looking up parts in ERP...")
+            progress.update(task_id, description=f"Parsed {len(rfq_lines)} line items")
+            progress.update(task_id, description="Looking up parts in ERP...")
             quote_lines = await asyncio.gather(
                 *[self._gated_lookup(line) for line in rfq_lines]
             )
-            progress.update(task, description="Building quote...")
+            progress.update(task_id, description="Building quote...")
 
-        total = Decimal(
-            sum(
-                line.extended_price
-                for line in quote_lines
-                if line.extended_price is not None
-            )
+        total = sum(
+            (ln.extended_price for ln in quote_lines if ln.extended_price is not None),
+            Decimal("0"),
         )
         quote = Quote(
-            id=str(uuid.uuid4()),
             rfq_source=str(rfq_source),
             lines=list(quote_lines),
             total_price=total,
         )
 
-        elapsed = time.monotonic() - start
-        _console.print(
-            f"[green]Quote complete[/green] — {len(rfq_lines)} lines in {elapsed:.1f}s"
-        )
+        if is_tty:
+            elapsed = time.monotonic() - start
+            _console.print(
+                f"[green]Quote complete[/green] — "
+                f"{len(rfq_lines)} lines in {elapsed:.1f}s"
+            )
         return quote
 
     def run_sync(self, rfq_source: str | Path) -> Quote:
