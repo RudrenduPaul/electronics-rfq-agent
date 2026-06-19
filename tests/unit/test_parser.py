@@ -124,6 +124,22 @@ class TestRFQParserJson:
         with pytest.raises(RFQParseError, match="invalid JSON"):
             parser._parse_json_response('[{"part_number": "RES-001"')  # truncated
 
+    def test_parse_json_object_instead_of_array_raises_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        """When the model returns a JSON object instead of an array (e.g.
+        {"error": "..."} or {"line_items": [...]}), _parse_json_response must
+        raise RFQParseError — not crash with AttributeError from iterating dict
+        keys and calling .get() on strings."""
+        with pytest.raises(RFQParseError, match="dict"):
+            parser._parse_json_response('{"error": "could not parse this document"}')
+
+    def test_parse_json_scalar_instead_of_array_raises_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        with pytest.raises(RFQParseError, match="str"):
+            parser._parse_json_response('"just a string"')
+
 
 class TestFindHeaderRow:
     def test_find_header_row_with_part(self) -> None:
