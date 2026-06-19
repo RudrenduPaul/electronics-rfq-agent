@@ -63,6 +63,20 @@ class TestCLIBasic:
         result = runner.invoke(app, ["quote", "/nonexistent/rfq.txt", "--mock"])
         assert result.exit_code != 0
 
+    def test_quote_parse_error_exits_nonzero(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        from openquote.models import RFQParseError
+
+        rfq = tmp_path / "bad.pdf"  # type: ignore[operator]
+        rfq.write_bytes(b"not a real pdf")
+        with patch("openquote.agent.QuoteAgent") as mock_cls:
+            mock_cls.return_value.run_sync.side_effect = RFQParseError(
+                "Claude returned invalid JSON: ..."
+            )
+            result = runner.invoke(app, ["quote", str(rfq), "--mock"])
+        assert result.exit_code != 0
+
     def test_quote_output_contains_part_numbers(
         self, tmp_path: pytest.TempdirFactory
     ) -> None:

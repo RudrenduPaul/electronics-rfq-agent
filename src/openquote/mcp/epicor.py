@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from decimal import Decimal
 from typing import Any
+from urllib.parse import quote as urlquote
 
 import httpx
 
@@ -92,10 +93,14 @@ class EpicorMCP(ERPMCPServer):
             return await self._mock.get_part(part_number)
 
         client = self._get_client()
+        # OData: double single-quotes for string literal escaping; then
+        # URL-encode to prevent / and other path chars from corrupting the
+        # URL path while keeping the OData quote delimiters intact.
         safe_pn = part_number.replace("'", "''")
+        encoded_pn = urlquote(safe_pn, safe="'")
         url = (
             f"/api/v2/odata/{self._company}/Erp.BO.PartSvc/Parts"
-            f"(Company='{self._company}',PartNum='{safe_pn}')"
+            f"(Company='{self._company}',PartNum='{encoded_pn}')"
         )
         response = await client.get(url)
         if response.status_code == 404:  # noqa: PLR2004
