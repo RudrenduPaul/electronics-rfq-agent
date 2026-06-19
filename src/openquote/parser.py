@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from openquote.models import RFQLineItem
+from openquote.models import RFQLineItem, RFQParseError
 
 
 class RFQParser:
@@ -85,6 +85,10 @@ class RFQParser:
             ],
             system=self._SYSTEM_PROMPT,
         )
+        if not response.content or not hasattr(response.content[0], "text"):
+            raise RFQParseError(
+                "Anthropic API returned no parseable text content for PDF"
+            )
         text = response.content[0].text  # type: ignore[union-attr]
         return self._parse_json_response(text)
 
@@ -92,45 +96,46 @@ class RFQParser:
         import openpyxl  # noqa: PLC0415
 
         wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-        ws = wb.active
-        if ws is None:
-            return []
 
-        rows: list[list[Any]] = list(ws.values)  # type: ignore[arg-type]
-        if not rows:
-            return []
-
-        header_idx = self._find_header_row(rows)
-        if header_idx is None:
-            return []
-
-        header = [str(c).lower().strip() if c else "" for c in rows[header_idx]]
-        col = self._map_columns(header)
-
-        items = []
-        line_number = 1
-        for row in rows[header_idx + 1 :]:
-            part_num = self._safe_str(row, col.get("part_number"))
-            if not part_num:
+        # Search all sheets for one with a recognizable BOM header.
+        # Active sheet is often a cover/summary page; the BOM may be on another sheet.
+        for ws in wb.worksheets:
+            rows: list[list[Any]] = [list(row) for row in ws.values]  # type: ignore[arg-type]
+            if not rows:
                 continue
-            qty_raw = self._safe_str(row, col.get("quantity"))
-            try:
-                qty = int(float(qty_raw)) if qty_raw else 1
-            except ValueError:
-                qty = 1
+            header_idx = self._find_header_row(rows)
+            if header_idx is None:
+                continue
 
-            items.append(
-                RFQLineItem(
-                    line_number=line_number,
-                    part_number=part_num,
-                    quantity=qty,
-                    required_date=None,
-                    manufacturer=self._safe_str(row, col.get("manufacturer")) or None,
-                    customer_notes=self._safe_str(row, col.get("notes")) or None,
+            header = [str(c).lower().strip() if c else "" for c in rows[header_idx]]
+            col = self._map_columns(header)
+
+            items = []
+            line_number = 1
+            for row in rows[header_idx + 1 :]:
+                part_num = self._safe_str(row, col.get("part_number"))
+                if not part_num:
+                    continue
+                qty_raw = self._safe_str(row, col.get("quantity"))
+                try:
+                    qty = int(float(qty_raw)) if qty_raw else 1
+                except ValueError:
+                    qty = 1
+
+                items.append(
+                    RFQLineItem(
+                        line_number=line_number,
+                        part_number=part_num,
+                        quantity=qty,
+                        required_date=None,
+                        manufacturer=self._safe_str(row, col.get("manufacturer"))
+                        or None,
+                        customer_notes=self._safe_str(row, col.get("notes")) or None,
+                    )
                 )
-            )
-            line_number += 1
-        return items
+                line_number += 1
+            return items
+        return []
 
     def _parse_word(self, path: Path) -> list[RFQLineItem]:
         from docx import Document  # noqa: PLC0415
@@ -183,6 +188,8 @@ class RFQParser:
             system=self._SYSTEM_PROMPT,
             messages=[{"role": "user", "content": text}],
         )
+        if not response.content or not hasattr(response.content[0], "text"):
+            raise RFQParseError("Anthropic API returned no parseable text content")
         raw = response.content[0].text  # type: ignore[union-attr]
         return self._parse_json_response(raw)
 

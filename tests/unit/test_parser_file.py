@@ -298,6 +298,75 @@ class TestParseRouting:
             os.unlink(tmp_path)
 
     @pytest.mark.asyncio
+    async def test_parse_xlsx_multi_sheet_finds_bom_sheet(
+        self, parser: RFQParser
+    ) -> None:
+        """If the active sheet has no BOM header, parser searches other sheets."""
+        import openpyxl
+
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as f:
+            tmp_path = f.name
+        try:
+            wb = openpyxl.Workbook()
+            # Active (first) sheet = cover page with no recognizable BOM header
+            summary_ws = wb.active
+            summary_ws.title = "Summary"
+            summary_ws.append(["Quote Date", "2026-06-19"])
+            summary_ws.append(["Customer", "ACME Corp"])
+
+            # Second sheet = BOM with line items
+            bom_ws = wb.create_sheet("BOM")
+            bom_ws.append(["Part Number", "Quantity", "Manufacturer"])
+            bom_ws.append(["RES-0402-10K", 100, "Yageo"])
+            bom_ws.append(["CAP-100NF", 50, "Murata"])
+            wb.save(tmp_path)
+
+            items = await parser.parse(tmp_path)
+            assert len(items) == 2
+            assert items[0].part_number == "RES-0402-10K"
+            assert items[1].part_number == "CAP-100NF"
+        finally:
+            os.unlink(tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_parse_pdf_raises_rfq_parse_error_on_empty_content(
+        self, parser: RFQParser
+    ) -> None:
+        """RFQParseError is raised when Anthropic returns empty content list."""
+        with tempfile.NamedTemporaryFile(suffix=".pdf", mode="wb", delete=False) as f:
+            f.write(b"%PDF-1.4 fake content")
+            tmp_path = f.name
+        try:
+            mock_response = MagicMock()
+            mock_response.content = []
+            mock_client = MagicMock()
+            mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+            from openquote.models import RFQParseError
+
+            with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+                with pytest.raises(RFQParseError, match="no parseable text"):
+                    await parser.parse(tmp_path)
+        finally:
+            os.unlink(tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_parse_text_raises_rfq_parse_error_on_empty_content(
+        self, parser: RFQParser
+    ) -> None:
+        """RFQParseError raised when Anthropic returns no text for plain-text input."""
+        mock_response = MagicMock()
+        mock_response.content = []
+        mock_client = MagicMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        from openquote.models import RFQParseError
+
+        with patch("anthropic.AsyncAnthropic", return_value=mock_client):
+            with pytest.raises(RFQParseError, match="no parseable text"):
+                await parser.parse("RES-001, qty 10")
+
+    @pytest.mark.asyncio
     async def test_parse_xls_routes_to_excel(self, parser: RFQParser) -> None:
         """A .xls suffix should also route to _parse_excel."""
         # We create a real xlsx file but name it .xls for routing test

@@ -310,6 +310,42 @@ class TestOracleMCPHTTP:
         token = await oracle._ensure_token()
         assert token == "cached-token"
 
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_fetches_from_endpoint(self, oracle: OracleMCP) -> None:
+        """Token is fetched from OAuth endpoint and cached when not already set."""
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(200, json={"access_token": "fresh-token"})
+        )
+        token = await oracle._ensure_token()
+        assert token == "fresh-token"
+        assert oracle._access_token == "fresh-token"
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_not_refetched_on_second_call(
+        self, oracle: OracleMCP
+    ) -> None:
+        """Cached token is reused on subsequent calls without hitting the network."""
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(200, json={"access_token": "token-1"})
+        )
+        first = await oracle._ensure_token()
+        # Second call should not trigger another request
+        second = await oracle._ensure_token()
+        assert first == second == "token-1"
+        assert respx.calls.call_count == 1
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_401_raises(self, oracle: OracleMCP) -> None:
+        """401 from the token endpoint raises httpx.HTTPStatusError."""
+        respx.post("https://oracle.test.local/oauth/token").mock(
+            return_value=httpx.Response(401)
+        )
+        with pytest.raises(httpx.HTTPStatusError):
+            await oracle._ensure_token()
+
 
 # ---------------------------------------------------------------------------
 # Dynamics HTTP tests
@@ -473,6 +509,44 @@ class TestDynamicsMCPHTTP:
         dynamics._access_token = "cached-token"
         token = await dynamics._ensure_token()
         assert token == "cached-token"
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_fetches_from_endpoint(
+        self, dynamics: DynamicsMCP
+    ) -> None:
+        """Token is fetched from Azure AD endpoint and cached when not already set."""
+        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        respx.post(token_url).mock(
+            return_value=httpx.Response(200, json={"access_token": "dyn-token"})
+        )
+        token = await dynamics._ensure_token()
+        assert token == "dyn-token"
+        assert dynamics._access_token == "dyn-token"
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_not_refetched_on_second_call(
+        self, dynamics: DynamicsMCP
+    ) -> None:
+        """Cached token is reused on subsequent calls without hitting the network."""
+        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        respx.post(token_url).mock(
+            return_value=httpx.Response(200, json={"access_token": "dyn-token-1"})
+        )
+        first = await dynamics._ensure_token()
+        second = await dynamics._ensure_token()
+        assert first == second == "dyn-token-1"
+        assert respx.calls.call_count == 1
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_ensure_token_401_raises(self, dynamics: DynamicsMCP) -> None:
+        """401 from Azure AD token endpoint raises httpx.HTTPStatusError."""
+        token_url = "https://login.microsoftonline.com/tenant123/oauth2/v2.0/token"
+        respx.post(token_url).mock(return_value=httpx.Response(401))
+        with pytest.raises(httpx.HTTPStatusError):
+            await dynamics._ensure_token()
 
     def test_get_client_creates_once(self, dynamics: DynamicsMCP) -> None:
         c1 = dynamics._get_client("token")

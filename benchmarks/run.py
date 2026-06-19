@@ -89,14 +89,16 @@ async def bench_quote_time(n_lines: int) -> dict[str, object]:
     }
 
 
-def bench_parse_accuracy() -> dict[str, object]:
-    """Estimate parse accuracy using static test RFQ files."""
+def bench_json_deserialize() -> dict[str, object]:
+    """Measure RFQ JSON deserialization throughput (not AI parsing accuracy).
+
+    This benchmark tests how fast _parse_json_response() can deserialize
+    pre-structured JSON into RFQLineItem objects. It does NOT call the
+    Anthropic API and does NOT measure extraction accuracy from real documents.
+    To measure real parse accuracy, run with a real Anthropic API key and a
+    known ground-truth RFQ document.
+    """
     parser = RFQParser()
-    test_rfq = Path(__file__).parent.parent / "tests" / "fixtures" / "sample_rfq.txt"
-
-    if not test_rfq.exists():
-        return {"status": "skipped", "reason": "test fixture not found"}
-
     expected_parts = [
         "RES-0402-10K-1PCT",
         "CAP-100NF-50V-X7R-0402",
@@ -124,6 +126,7 @@ def bench_parse_accuracy() -> dict[str, object]:
         "extracted": len(extracted_parts),
         "correct": correct,
         "accuracy_pct": round(accuracy * 100, 1),
+        "note": "JSON deserialization only — no AI parsing",
     }
 
 
@@ -153,15 +156,13 @@ async def main() -> None:
         )
     print()
 
-    print("3. Parse accuracy (static fixture)")
-    accuracy = bench_parse_accuracy()
-    if accuracy.get("status") == "skipped":
-        print(f"   Skipped: {accuracy['reason']}")
-    else:
-        print(
-            f"   Accuracy: {accuracy['accuracy_pct']}% "
-            f"({accuracy['correct']}/{accuracy['expected']} parts correct)"
-        )
+    print("3. JSON deserialization throughput (not AI parse accuracy — no API call)")
+    accuracy = bench_json_deserialize()
+    print(
+        f"   Deserialized: {accuracy['correct']}/{accuracy['expected']} parts "
+        f"({accuracy['accuracy_pct']}% round-trip correct)"
+    )
+    print(f"   Note: {accuracy['note']}")
     print()
 
     print("4. Comparison: openquote vs manual (human baseline)")
@@ -178,7 +179,7 @@ async def main() -> None:
     output = {
         "erp_latency": latency,
         "quote_times": results,
-        "parse_accuracy": accuracy,
+        "json_deserialize": accuracy,
     }
     baseline_path = RESULTS_DIR / "baseline.json"
     with open(baseline_path, "w") as f:

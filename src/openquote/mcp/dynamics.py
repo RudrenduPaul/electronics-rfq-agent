@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult
+from openquote.models import ERPConfig, ERPPartResult
 
 
 class DynamicsMCP(ERPMCPServer):
@@ -57,6 +57,11 @@ class DynamicsMCP(ERPMCPServer):
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
         self._access_token: str | None = None
+
+    @classmethod
+    def from_config(cls, cfg: ERPConfig) -> DynamicsMCP:
+        """Construct from an ERPConfig instance. Uses api_key as tenant_id."""
+        return cls(tenant_id=cfg.api_key, base_url=cfg.base_url)
 
     async def _ensure_token(self) -> str:
         if self._access_token is not None:
