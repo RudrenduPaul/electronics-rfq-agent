@@ -7,6 +7,7 @@ from typing import Any
 
 import httpx
 
+from openquote.mcp._oauth import fetch_client_credentials_token
 from openquote.mcp.base import ERPMCPServer
 from openquote.models import ERPConfig, ERPPartResult
 
@@ -72,21 +73,14 @@ class DynamicsMCP(ERPMCPServer):
     async def _ensure_token(self) -> str:
         if self._access_token is not None and time.monotonic() < self._token_expires_at:
             return self._access_token
-        async with httpx.AsyncClient(timeout=self._timeout, verify=True) as client:
-            response = await client.post(
-                self._token_url,
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
-                    "scope": f"{self._base_url}/.default",
-                },
-            )
-            response.raise_for_status()
-            data = response.json()
-            self._access_token = str(data["access_token"])
-            expires_in = int(data.get("expires_in", 3600))
-            self._token_expires_at = time.monotonic() + expires_in - 60
+        token, expires_at = await fetch_client_credentials_token(
+            token_url=self._token_url,
+            client_id=self._client_id,
+            client_secret=self._client_secret,
+            extra_fields={"scope": f"{self._base_url}/.default"},
+            timeout=self._timeout,
+        )
+        self._access_token, self._token_expires_at = token, expires_at
         return self._access_token
 
     def _get_client(self) -> httpx.AsyncClient:
