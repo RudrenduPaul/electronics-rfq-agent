@@ -62,3 +62,41 @@ jobs:
         if: always()
         with:
           sarif_file: trivy-results.sarif
+
+  extras-compat:
+    name: Optional extras (${{ matrix.extra }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - extra: langchain
+            smoke: |
+              python -c "
+              import langgraph
+              from openquote import QuoteAgent
+              from openquote.mcp.mock import MockERP
+              print('langchain extra OK')
+              "
+          - extra: agents
+            smoke: |
+              python -c "
+              from agents import Agent, function_tool
+              from openquote import QuoteAgent
+              from openquote.mcp.mock import MockERP
+              print('agents extra OK')
+              "
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install core + extra
+        run: uv sync --extra dev --extra ${{ matrix.extra }}
+
+      - name: Smoke test import
+        run: uv run bash -c "${{ matrix.smoke }}"
