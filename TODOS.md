@@ -93,13 +93,21 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 
 ---
 
-## Deferred (not blocking v0.1.x)
+## Community / outreach
 
-- [ ] Submit to `awesome-mcp-servers`
-- [ ] Post Show HN
-- [ ] Tag first 20 GitHub issues as `good first issue`
-- [ ] Enable GitHub Discussions
-- [ ] Ship LangGraph and OpenAI Agents SDK integrations
-- [ ] Write `docs/getting-started.md` full tutorial
+- [ ] Submit to `awesome-mcp-servers` — tracked in #9, draft PR text in that issue
+- [ ] Post Show HN — draft written (post Tue–Thu 9–11am ET, reply to all early comments)
+- [x] Enable GitHub Discussions — done
+- [x] Create seeding issues tagged `good first issue` — issues #4 (CLI tests), #5 (docs), #6 (from_config tests), #7 (LangGraph), #8 (OpenAI Agents SDK)
+
+## Engineering (next sprint)
+
+- [ ] CLI tests — issue #4 (`tests/unit/test_cli.py`, Typer test runner)
+- [ ] LangGraph example — issue #7 (`examples/04-langgraph-agent/`)
+- [ ] OpenAI Agents SDK example — issue #8 (`examples/05-openai-agents/`)
+- [ ] docs/getting-started.md full ERP walkthrough — issue #5
+
+## v0.2 (deferred)
+
+- [ ] Web UI / file drop for sales engineers
 - [ ] Discord server
-- [ ] Web UI / file drop (v0.2 target)
