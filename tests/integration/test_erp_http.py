@@ -87,6 +87,33 @@ class TestEpicorHTTP:
 
     @respx.mock
     @pytest.mark.asyncio
+    async def test_get_part_url_encodes_slash_in_part_number(
+        self, epicor: EpicorMCP
+    ) -> None:
+        """Part numbers containing '/' must be percent-encoded so they don't
+        corrupt the OData URL path (A/B-001 would otherwise be split at '/')."""
+        payload = {
+            "PartNum": "A/B-001",
+            "PartDescription": "Slash Part",
+            "UnitPrice": "1.00",
+            "OnHandQty": 10,
+            "LeadTime": 0,
+            "VendorName": "Acme",
+        }
+        respx.get(
+            url__regex=r"https://epicor\.test\.local/api/v2/odata/EPIC/Erp\.BO\.PartSvc/Parts.*"
+        ).mock(return_value=httpx.Response(200, json=payload))
+
+        result = await epicor.get_part("A/B-001")
+        assert result is not None
+        assert result.part_number == "A/B-001"
+        # Verify the actual request URL percent-encoded the slash
+        last_request = respx.calls.last.request
+        assert "%2F" in str(last_request.url)
+        await epicor.close()
+
+    @respx.mock
+    @pytest.mark.asyncio
     async def test_check_inventory_http(self, epicor: EpicorMCP) -> None:
         payload = {
             "PartNum": "RES-001",

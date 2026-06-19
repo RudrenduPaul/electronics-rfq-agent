@@ -7,7 +7,7 @@ import pytest
 
 from openquote.agent import QuoteAgent
 from openquote.mcp.mock.backend import MockERP
-from openquote.models import Quote, RFQLineItem
+from openquote.models import ERPConnectionError, Quote, RFQLineItem
 
 
 @pytest.fixture
@@ -130,6 +130,20 @@ class TestQuoteAgentLookup:
             # extended should be unit * qty (with rounding)
             expected = (result.unit_price * qty).quantize(Decimal("0.01"))
             assert abs(result.extended_price - expected) < Decimal("0.01")
+
+    @pytest.mark.asyncio
+    async def test_lookup_line_erp_connection_error_returns_not_found(
+        self, agent: QuoteAgent
+    ) -> None:
+        """ERPConnectionError on a single part lookup must not propagate — it
+        should return a not_found line so the rest of the quote continues."""
+        rfq_line = RFQLineItem(line_number=1, part_number="RES-001", quantity=10)
+        with patch.object(agent.erp, "get_part", new_callable=AsyncMock) as mock_get:
+            mock_get.side_effect = ERPConnectionError("SAP unreachable")
+            result = await agent._lookup_line(rfq_line)
+        assert result.status == "not_found"
+        assert result.notes is not None
+        assert "ERP lookup failed" in result.notes
 
     @pytest.mark.asyncio
     async def test_substituted_status_when_search_finds_different(

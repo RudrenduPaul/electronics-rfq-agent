@@ -42,10 +42,18 @@ def quote(
 ) -> None:
     """Parse an RFQ document and print a draft quote."""
     from openquote.agent import QuoteAgent  # noqa: PLC0415
+    from openquote.models import RFQParseError  # noqa: PLC0415
 
     erp = _build_erp(mock=mock)
     agent = QuoteAgent(erp=erp, margin_pct=margin)
-    result = agent.run_sync(rfq)
+    try:
+        result = agent.run_sync(rfq)
+    except FileNotFoundError:
+        typer.echo(f"error: file not found: {rfq}", err=True)
+        raise typer.Exit(code=1) from None
+    except RFQParseError as exc:
+        typer.echo(f"error: could not parse RFQ: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
 
     typer.echo(result.summary())
     typer.echo("")
