@@ -102,10 +102,12 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 
 ## Engineering (next sprint)
 
-- [ ] CLI tests — issue #4 (`tests/unit/test_cli.py`, Typer test runner)
+- [x] CLI tests — issue #4 (`tests/unit/test_cli.py`, 13 tests, cli.py at 98%) ✅
 - [x] LangGraph example — issue #7 (`examples/04-langgraph-agent/`) ✅
 - [x] OpenAI Agents SDK example — issue #8 (`examples/05-openai-agents/`) ✅
-- [ ] docs/getting-started.md full ERP walkthrough — issue #5
+- [x] docs/getting-started.md full ERP walkthrough — Oracle, Dynamics, ERPConfig.from_config(), troubleshooting ✅
+- [x] Extras-compat CI job — langchain + agents imports verified on Python 3.12 ✅
+- [x] CLI bug fix — single-command Typer routing via @app.callback() ✅
 
 ## v0.2 (deferred)
 
