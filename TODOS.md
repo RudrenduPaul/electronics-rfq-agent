@@ -109,6 +109,26 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 - [x] Extras-compat CI job — langchain + agents imports verified on Python 3.12 ✅
 - [x] CLI bug fix — single-command Typer routing via @app.callback() ✅
 
+## Engineering (session 2026-06-19) ✅ All done
+
+- [x] **B1: Extract shared OAuth2 helper to eliminate DRY violation**
+  Files: `src/openquote/mcp/_oauth.py` (new), `oracle.py`, `dynamics.py`
+  Fix: `fetch_client_credentials_token()` shared helper; Oracle + Dynamics each keep own token state.
+  Commit: d5280ed
+
+- [x] **B2: Deduplicate ERP lookups for repeated part numbers per run**
+  Files: `src/openquote/agent.py:68-83`
+  Fix: `asyncio.Task` cache keyed on `(part_number, quantity)`; duplicate lines share one ERP call.
+  Commit: c43157a
+
+- [x] **B3: Prevent concurrent token refreshes; validate tenant_id UUID format**
+  Files: `src/openquote/mcp/oracle.py`, `dynamics.py`
+  Fix: `asyncio.Lock` per connector instance guards the token check-and-refresh; `DynamicsMCP.__init__`
+  validates `tenant_id` against UUID regex at construction time.
+  Commit: a990b61
+
+---
+
 ## v0.2 (deferred)
 
 - [ ] Web UI / file drop for sales engineers
