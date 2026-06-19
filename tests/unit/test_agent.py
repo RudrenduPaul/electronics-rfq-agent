@@ -163,6 +163,50 @@ class TestQuoteAgentLookup:
         assert "ERP lookup failed" in result.notes
 
     @pytest.mark.asyncio
+    async def test_get_price_returns_none_falls_back_to_unit_price(
+        self, agent: QuoteAgent
+    ) -> None:
+        """When get_price() returns None for a found part, agent must fall back
+        to part.unit_price so the quote line is still priced correctly."""
+        rfq_line = RFQLineItem(
+            line_number=1, part_number="RES-0402-10K-1PCT", quantity=10
+        )
+        with patch.object(agent.erp, "get_price", new_callable=AsyncMock) as mock_price:
+            mock_price.return_value = None
+            result = await agent._lookup_line(rfq_line)
+        assert result.status in ("found", "substituted")
+        assert result.unit_price is not None
+
+    @pytest.mark.asyncio
+    async def test_duplicate_part_numbers_deduplicated(self, agent: QuoteAgent) -> None:
+        """Two RFQ lines with the same (part_number, quantity) should only run
+        one _gated_lookup task, not two. The dedup cache in run() ensures this."""
+        lines = [
+            RFQLineItem(line_number=1, part_number="RES-0402-10K-1PCT", quantity=10),
+            RFQLineItem(line_number=2, part_number="RES-0402-10K-1PCT", quantity=10),
+        ]
+        gated_lookup_calls = 0
+        original_gated = agent._gated_lookup
+
+        async def counting_gated(ln: RFQLineItem) -> object:
+            nonlocal gated_lookup_calls
+            gated_lookup_calls += 1
+            return await original_gated(ln)
+
+        with (
+            patch.object(agent._parser, "parse", new_callable=AsyncMock) as mp,
+            patch.object(agent, "_gated_lookup", side_effect=counting_gated),
+        ):
+            mp.return_value = lines
+            quote = await agent.run("fake.txt")
+
+        assert len(quote.lines) == 2
+        # Both lines must appear in the quote
+        assert quote.lines[0].rfq_line.line_number == 1
+        assert quote.lines[1].rfq_line.line_number == 2
+        assert gated_lookup_calls == 1  # Only one ERP task dispatched
+
+    @pytest.mark.asyncio
     async def test_substituted_status_when_search_finds_different(
         self, agent: QuoteAgent
     ) -> None:
