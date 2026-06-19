@@ -201,11 +201,17 @@ class RFQParser:
             cleaned = "\n".join(lines[start:end])
 
         try:
-            data: list[dict[str, Any]] = json.loads(cleaned)
+            raw = json.loads(cleaned)
         except json.JSONDecodeError as exc:
             raise RFQParseError(f"Model returned invalid JSON: {exc}") from exc
+        # json.loads returns Any at runtime; guard against models returning a
+        # JSON object or scalar instead of the expected array.
+        if not isinstance(raw, list):
+            raise RFQParseError(
+                f"Model returned a JSON {type(raw).__name__}, expected an array"
+            )
         items: list[RFQLineItem] = []
-        for i, row in enumerate(data, start=1):
+        for i, row in enumerate(raw, start=1):
             try:
                 items.append(
                     RFQLineItem(
@@ -217,7 +223,7 @@ class RFQParser:
                         customer_notes=row.get("customer_notes"),
                     )
                 )
-            except (KeyError, ValueError):
+            except (KeyError, ValueError, AttributeError, TypeError):
                 continue
         return items
 
