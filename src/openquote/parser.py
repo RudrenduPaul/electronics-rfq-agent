@@ -87,6 +87,8 @@ class RFQParser:
             raise RFQParseError(
                 "Anthropic API returned no parseable text content for PDF"
             )
+        # ContentBlock is a union type in the Anthropic SDK; .text only exists on
+        # TextBlock. We guard with hasattr() above so the access is safe at runtime.
         text = response.content[0].text  # type: ignore[union-attr]
         return self._parse_json_response(text)
 
@@ -185,6 +187,7 @@ class RFQParser:
         )
         if not response.content or not hasattr(response.content[0], "text"):
             raise RFQParseError("Anthropic API returned no parseable text content")
+        # Same Anthropic SDK union-attr caveat as _parse_pdf; hasattr guard above.
         raw = response.content[0].text  # type: ignore[union-attr]
         return self._parse_json_response(raw)
 

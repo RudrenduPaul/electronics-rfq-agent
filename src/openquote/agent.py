@@ -8,11 +8,12 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Literal
 
+import httpx
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import Quote, QuoteLineItem, RFQLineItem
+from openquote.models import ERPConnectionError, Quote, QuoteLineItem, RFQLineItem
 from openquote.parser import RFQParser
 
 _console = Console(stderr=True)
@@ -103,10 +104,18 @@ class QuoteAgent:
             return await self._lookup_line(line)
 
     async def _lookup_line(self, line: RFQLineItem) -> QuoteLineItem:
-        part = await self.erp.get_part(line.part_number)
-        if part is None:
-            parts = await self.erp.search_parts(line.part_number, limit=1)
-            part = parts[0] if parts else None
+        try:
+            part = await self.erp.get_part(line.part_number)
+            if part is None:
+                parts = await self.erp.search_parts(line.part_number, limit=1)
+                part = parts[0] if parts else None
+        except (ERPConnectionError, httpx.HTTPError) as exc:
+            return QuoteLineItem(
+                rfq_line=line,
+                erp_result=None,
+                status="not_found",
+                notes=f"ERP lookup failed for {line.part_number!r}: {exc}",
+            )
 
         if part is None:
             return QuoteLineItem(
