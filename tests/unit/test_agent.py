@@ -146,6 +146,23 @@ class TestQuoteAgentLookup:
         assert "ERP lookup failed" in result.notes
 
     @pytest.mark.asyncio
+    async def test_lookup_line_get_price_error_returns_not_found(
+        self, agent: QuoteAgent
+    ) -> None:
+        """get_price() can raise ERPConnectionError (it makes network calls too).
+        A failure there must NOT propagate to asyncio.gather — it must return
+        a not_found line so the rest of the quote continues."""
+        rfq_line = RFQLineItem(
+            line_number=1, part_number="RES-0402-10K-1PCT", quantity=10
+        )
+        with patch.object(agent.erp, "get_price", new_callable=AsyncMock) as mock_price:
+            mock_price.side_effect = ERPConnectionError("pricing service down")
+            result = await agent._lookup_line(rfq_line)
+        assert result.status == "not_found"
+        assert result.notes is not None
+        assert "ERP lookup failed" in result.notes
+
+    @pytest.mark.asyncio
     async def test_substituted_status_when_search_finds_different(
         self, agent: QuoteAgent
     ) -> None:
