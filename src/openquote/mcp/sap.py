@@ -1,18 +1,24 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from decimal import Decimal
 from typing import Any
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult
+from openquote.models import ERPConfig, ERPConnectionError, ERPPartResult
+
+# pyrfc raises ABAPApplicationError for "material not found" responses.
+# All other exceptions are treated as connection/auth failures.
+_SAP_NOT_FOUND_EXCEPTIONS: frozenset[str] = frozenset({"ABAPApplicationError"})
 
 
 class SAPMCP(ERPMCPServer):
     """SAP ECC / S/4HANA connector using PyRFC BAPI calls.
 
-    Requires the SAP NetWeaver RFC Library and pyrfc to be installed:
-        pip install openquote[sap]
+    Requires the SAP NetWeaver RFC Library and pyrfc to be installed.
+    pyrfc is not available on PyPI — see docs/erp-setup/sap.md for manual
+    installation instructions.
 
     Required SAP authorizations:
     - S_RFC: RFC_TYPE=FUGR, RFC_NAME=BAPI_MATERIAL_*
@@ -54,6 +60,11 @@ class SAPMCP(ERPMCPServer):
         self._plant = plant
         self._conn: Any | None = None
 
+    @classmethod
+    def from_config(cls, cfg: ERPConfig) -> SAPMCP:
+        """Construct from an ERPConfig instance."""
+        return cls(user=cfg.username, password=cfg.password)
+
     def _get_conn(self) -> Any:
         if self._conn is not None:
             return self._conn
@@ -62,9 +73,8 @@ class SAPMCP(ERPMCPServer):
         except ImportError as exc:
             raise ImportError(
                 "pyrfc is required for SAP connectivity. "
-                "Install with: pip install openquote[sap]\n"
-                "The SAP NetWeaver RFC Library must also be installed separately. "
-                "See docs/erp-setup/sap.md for instructions."
+                "pyrfc is not available on PyPI — the SAP NetWeaver RFC Library "
+                "must be installed manually. See docs/erp-setup/sap.md."
             ) from exc
         self._conn = pyrfc.Connection(
             ashost=self._host,
@@ -80,7 +90,8 @@ class SAPMCP(ERPMCPServer):
             return await self._mock.search_parts(query, limit)
 
         conn = self._get_conn()
-        result = conn.call(
+        result: dict[str, Any] = await asyncio.to_thread(
+            conn.call,
             "BAPI_MATERIAL_GETLIST",
             MATNRSELECTION=[{"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{query}*"}],
         )
@@ -97,25 +108,37 @@ class SAPMCP(ERPMCPServer):
 
         conn = self._get_conn()
         try:
-            result = conn.call(
+            result: dict[str, Any] = await asyncio.to_thread(
+                conn.call,
                 "BAPI_MATERIAL_GET_DETAIL",
                 MATERIAL=part_number,
                 PLANT=self._plant,
             )
-        except Exception:
-            return None
+        except Exception as exc:
+            if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
+                return None
+            raise ERPConnectionError(
+                f"SAP BAPI call failed for {part_number!r}: {exc}"
+            ) from exc
 
-        mat_general = result.get("MATERIAL_GENERAL_DATA", {})
-        mat_plant = result.get("MATERIAL_PLANT_DATA", {})
+        mat_general: dict[str, Any] = result.get("MATERIAL_GENERAL_DATA", {})
+        mat_plant: dict[str, Any] = result.get("MATERIAL_PLANT_DATA", {})
         if not mat_general:
             return None
 
-        price_result = conn.call(
-            "BAPI_MATERIAL_GETPRICINGINFO",
-            MATERIAL=part_number,
-            PLANT=self._plant,
-        )
-        price_data = price_result.get("PRICINGDATA", {})
+        try:
+            price_result: dict[str, Any] = await asyncio.to_thread(
+                conn.call,
+                "BAPI_MATERIAL_GETPRICINGINFO",
+                MATERIAL=part_number,
+                PLANT=self._plant,
+            )
+        except Exception as exc:
+            raise ERPConnectionError(
+                f"SAP pricing BAPI failed for {part_number!r}: {exc}"
+            ) from exc
+
+        price_data: dict[str, Any] = price_result.get("PRICINGDATA", {})
 
         return ERPPartResult(
             part_number=str(mat_general.get("MATERIAL", part_number)),
@@ -137,8 +160,25 @@ class SAPMCP(ERPMCPServer):
         if self._mock is not None:
             return await self._mock.get_price(part_number, quantity)
 
-        part = await self.get_part(part_number)
-        return part.unit_price if part is not None else None
+        conn = self._get_conn()
+        try:
+            result: dict[str, Any] = await asyncio.to_thread(
+                conn.call,
+                "BAPI_MATERIAL_GETPRICINGINFO",
+                MATERIAL=part_number,
+                PLANT=self._plant,
+            )
+        except Exception as exc:
+            if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
+                return None
+            raise ERPConnectionError(
+                f"SAP pricing BAPI failed for {part_number!r}: {exc}"
+            ) from exc
+
+        price_data: dict[str, Any] = result.get("PRICINGDATA", {})
+        if not price_data:
+            return None
+        return Decimal(str(price_data.get("PRICE", "0")))
 
     async def close(self) -> None:
         if self._conn is not None:

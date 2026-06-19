@@ -17,13 +17,22 @@ from openquote.mcp.epicor import EpicorMCP
 from openquote.mcp.mock.backend import MockERP
 from openquote.mcp.oracle import OracleMCP
 from openquote.mcp.sap import SAPMCP
-from openquote.models import ERPConfig, ERPPartResult, Quote, QuoteLineItem, RFQLineItem
+from openquote.models import (
+    ERPConfig,
+    ERPConnectionError,
+    ERPPartResult,
+    Quote,
+    QuoteLineItem,
+    RFQLineItem,
+    RFQParseError,
+)
 
 __version__ = "0.1.0"
 __all__ = [
     "SAPMCP",
     "DynamicsMCP",
     "ERPConfig",
+    "ERPConnectionError",
     "ERPMCPServer",
     "ERPPartResult",
     "EpicorMCP",
@@ -33,5 +42,6 @@ __all__ = [
     "QuoteAgent",
     "QuoteLineItem",
     "RFQLineItem",
+    "RFQParseError",
     "__version__",
 ]

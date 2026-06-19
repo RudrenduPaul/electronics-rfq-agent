@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult
+from openquote.models import ERPConfig, ERPPartResult
 
 
 class OracleMCP(ERPMCPServer):
@@ -47,6 +47,15 @@ class OracleMCP(ERPMCPServer):
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
         self._access_token: str | None = None
+
+    @classmethod
+    def from_config(cls, cfg: ERPConfig) -> OracleMCP:
+        """Construct from an ERPConfig. Uses username/password as client_id/secret."""
+        return cls(
+            base_url=cfg.base_url,
+            client_id=cfg.username,
+            client_secret=cfg.password,
+        )
 
     async def _ensure_token(self) -> str:
         if self._access_token is not None:

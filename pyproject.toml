@@ -28,11 +28,13 @@ classifiers = [
 dependencies = [
     "anthropic>=0.40",
     "httpx>=0.27",
+    "nest_asyncio>=1.6",
     "pydantic>=2.7",
     "openpyxl>=3.1",
     "python-docx>=1.1",
     "mcp>=1.0",
     "rich>=13.0",
+    "typer>=0.12",
 ]
 
 [project.optional-dependencies]
@@ -51,6 +53,9 @@ dev = [
     "respx>=0.21",
     "types-openpyxl",
 ]
+
+[project.scripts]
+openquote = "openquote.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/RudrenduPaul/openquote-ai"
@@ -73,6 +78,7 @@ ignore = ["S101"]
 "tests/*" = ["S", "PLR2004", "PLC0415", "B017", "B027"]
 "benchmarks/*" = ["S", "PLR2004", "T201", "PLC0415"]
 "examples/*" = ["S", "T201"]
+"src/openquote/cli.py" = ["B008"]
 
 [tool.mypy]
 strict = true
@@ -80,6 +86,10 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "openquote.parser"
+warn_unused_ignores = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

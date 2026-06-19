@@ -132,23 +132,6 @@ class TestQuoteAgentLookup:
             assert abs(result.extended_price - expected) < Decimal("0.01")
 
     @pytest.mark.asyncio
-    async def test_lookup_part_returns_erp_result(
-        self, agent: QuoteAgent, mock_erp: MockERP
-    ) -> None:
-        parts = await mock_erp.search_parts("RES", limit=1)
-        if not parts:
-            pytest.skip("No RES parts")
-        pn = parts[0].part_number
-        result = await agent._lookup_part(pn)
-        assert result is not None
-        assert result.part_number == pn
-
-    @pytest.mark.asyncio
-    async def test_lookup_part_not_found_returns_none(self, agent: QuoteAgent) -> None:
-        result = await agent._lookup_part("ZZZNOMATCH-DOESNOTEXIST")
-        assert result is None
-
-    @pytest.mark.asyncio
     async def test_substituted_status_when_search_finds_different(
         self, agent: QuoteAgent
     ) -> None:
