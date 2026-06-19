@@ -9,6 +9,8 @@ import httpx
 from openquote.mcp.base import ERPMCPServer
 from openquote.models import ERPConfig, ERPPartResult
 
+_AZURE_TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"  # noqa: S105
+
 
 class DynamicsMCP(ERPMCPServer):
     """Microsoft Dynamics 365 Sales connector via Graph API.
@@ -22,9 +24,6 @@ class DynamicsMCP(ERPMCPServer):
     - OPENQUOTE_DYNAMICS_CLIENT_SECRET: Azure AD app client secret
     - OPENQUOTE_DYNAMICS_BASE_URL: Dynamics instance URL, e.g. https://org.api.crm.dynamics.com
     """
-
-    _TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"  # noqa: S105
-    _SCOPE = "https://org.api.crm.dynamics.com/.default"
 
     def __init__(
         self,
@@ -63,13 +62,16 @@ class DynamicsMCP(ERPMCPServer):
         """Construct from an ERPConfig instance. Uses api_key as tenant_id."""
         return cls(tenant_id=cfg.api_key, base_url=cfg.base_url)
 
+    @property
+    def _token_url(self) -> str:
+        return _AZURE_TOKEN_URL.format(tenant_id=self._tenant_id)
+
     async def _ensure_token(self) -> str:
         if self._access_token is not None:
             return self._access_token
-        token_url = self._TOKEN_URL.format(tenant_id=self._tenant_id)
         async with httpx.AsyncClient(timeout=self._timeout, verify=True) as client:
             response = await client.post(
-                token_url,
+                self._token_url,
                 data={
                     "grant_type": "client_credentials",
                     "client_id": self._client_id,
@@ -113,8 +115,7 @@ class DynamicsMCP(ERPMCPServer):
             },
         )
         response.raise_for_status()
-        data = response.json()
-        return [self._map_product(p) for p in data.get("value", [])]
+        return [self._map_product(p) for p in response.json().get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
@@ -132,23 +133,7 @@ class DynamicsMCP(ERPMCPServer):
         )
         response.raise_for_status()
         values = response.json().get("value", [])
-        if not values:
-            return None
-        return self._map_product(values[0])
-
-    async def check_inventory(self, part_number: str, quantity: int) -> bool:
-        if self._mock is not None:
-            return await self._mock.check_inventory(part_number, quantity)
-
-        part = await self.get_part(part_number)
-        return part is not None and part.available_qty >= quantity
-
-    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
-        if self._mock is not None:
-            return await self._mock.get_price(part_number, quantity)
-
-        part = await self.get_part(part_number)
-        return part.unit_price if part is not None else None
+        return self._map_product(values[0]) if values else None
 
     async def close(self) -> None:
         if self._client is not None:

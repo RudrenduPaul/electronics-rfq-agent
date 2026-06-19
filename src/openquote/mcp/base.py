@@ -23,15 +23,15 @@ class ERPMCPServer(ABC):
         """Retrieve a specific part by exact part number. Returns None if not found."""
         ...
 
-    @abstractmethod
     async def check_inventory(self, part_number: str, quantity: int) -> bool:
         """Return True if available_qty >= requested quantity."""
-        ...
+        part = await self.get_part(part_number)
+        return part is not None and part.available_qty >= quantity
 
-    @abstractmethod
     async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
         """Return unit price at given quantity. Returns None if part not found."""
-        ...
+        part = await self.get_part(part_number)
+        return part.unit_price if part is not None else None
 
     async def __aenter__(self) -> ERPMCPServer:
         return self
@@ -44,6 +44,5 @@ class ERPMCPServer(ABC):
     ) -> None:
         await self.close()
 
-    async def close(self) -> None:
+    async def close(self) -> None:  # noqa: B027
         """Release resources. Override in subclasses that hold connections."""
-        return  # default no-op; subclasses override when they hold connections

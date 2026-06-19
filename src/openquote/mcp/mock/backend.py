@@ -10,6 +10,13 @@ from openquote.models import ERPPartResult
 
 _CATALOG_PATH = Path(__file__).parent / "data" / "catalog.json"
 
+# (min_quantity, discount_multiplier) — checked from highest qty down
+_PRICE_TIERS: tuple[tuple[int, Decimal], ...] = (
+    (1000, Decimal("0.80")),
+    (100, Decimal("0.90")),
+    (10, Decimal("0.95")),
+)
+
 
 class MockERP(ERPMCPServer):
     """In-memory mock ERP backend for local development and testing.
@@ -24,7 +31,7 @@ class MockERP(ERPMCPServer):
         with open(path) as f:
             raw: list[dict[str, Any]] = json.load(f)
         self._parts: dict[str, ERPPartResult] = {
-            p["part_number"]: ERPPartResult(
+            p["part_number"].upper(): ERPPartResult(
                 part_number=p["part_number"],
                 description=p["description"],
                 unit_price=Decimal(str(p["unit_price"])),
@@ -45,31 +52,15 @@ class MockERP(ERPMCPServer):
         return results[:limit]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
-        normalized = part_number.strip().upper()
-        direct = self._parts.get(normalized)
-        if direct:
-            return direct
-        for key, part in self._parts.items():
-            if key.upper() == normalized:
-                return part
-        return None
-
-    async def check_inventory(self, part_number: str, quantity: int) -> bool:
-        part = await self.get_part(part_number)
-        if part is None:
-            return False
-        return part.available_qty >= quantity
+        return self._parts.get(part_number.strip().upper())
 
     async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
         part = await self.get_part(part_number)
         if part is None:
             return None
-        if quantity >= 1000:  # noqa: PLR2004
-            return part.unit_price * Decimal("0.80")
-        if quantity >= 100:  # noqa: PLR2004
-            return part.unit_price * Decimal("0.90")
-        if quantity >= 10:  # noqa: PLR2004
-            return part.unit_price * Decimal("0.95")
+        for min_qty, multiplier in _PRICE_TIERS:
+            if quantity >= min_qty:
+                return part.unit_price * multiplier
         return part.unit_price
 
     def part_count(self) -> int:
