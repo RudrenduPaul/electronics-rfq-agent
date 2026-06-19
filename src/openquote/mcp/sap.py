@@ -95,17 +95,47 @@ class SAPMCP(ERPMCPServer):
             "BAPI_MATERIAL_GETLIST",
             MATNRSELECTION=[{"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{query}*"}],
         )
-        parts = []
-        for mat in result.get("MATNRLIST", [])[:limit]:
-            part = await self.get_part(mat["MATNR"])
-            if part is not None:
-                parts.append(part)
-        return parts
+        matnrs = [m["MATNR"] for m in result.get("MATNRLIST", [])[:limit]]
+        parts = await asyncio.gather(*[self.get_part(m) for m in matnrs])
+        return [p for p in parts if p is not None]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
             return await self._mock.get_part(part_number)
 
+        detail = await self._bapi_material_detail(part_number)
+        if detail is None:
+            return None
+
+        mat_general, mat_plant = detail
+        price_data = await self._bapi_pricing(part_number)
+
+        return ERPPartResult(
+            part_number=str(mat_general.get("MATERIAL", part_number)),
+            description=str(mat_general.get("MATL_DESC", "")),
+            unit_price=Decimal(str(price_data.get("PRICE", "0"))),
+            available_qty=int(mat_plant.get("TOTAL_STOCK", 0)),
+            lead_time_days=int(mat_plant.get("REPLENISHMENT_LEAD_TIME", 0)),
+            manufacturer=str(mat_general.get("MANUFACTURER", "")),
+        )
+
+    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
+        if self._mock is not None:
+            return await self._mock.get_price(part_number, quantity)
+
+        price_data = await self._bapi_pricing(part_number)
+        if not price_data:
+            return None
+        return Decimal(str(price_data.get("PRICE", "0")))
+
+    async def close(self) -> None:
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+
+    async def _bapi_material_detail(
+        self, part_number: str
+    ) -> tuple[dict[str, Any], dict[str, Any]] | None:
         conn = self._get_conn()
         try:
             result: dict[str, Any] = await asyncio.to_thread(
@@ -122,44 +152,12 @@ class SAPMCP(ERPMCPServer):
             ) from exc
 
         mat_general: dict[str, Any] = result.get("MATERIAL_GENERAL_DATA", {})
-        mat_plant: dict[str, Any] = result.get("MATERIAL_PLANT_DATA", {})
         if not mat_general:
             return None
+        mat_plant: dict[str, Any] = result.get("MATERIAL_PLANT_DATA", {})
+        return mat_general, mat_plant
 
-        try:
-            price_result: dict[str, Any] = await asyncio.to_thread(
-                conn.call,
-                "BAPI_MATERIAL_GETPRICINGINFO",
-                MATERIAL=part_number,
-                PLANT=self._plant,
-            )
-        except Exception as exc:
-            raise ERPConnectionError(
-                f"SAP pricing BAPI failed for {part_number!r}: {exc}"
-            ) from exc
-
-        price_data: dict[str, Any] = price_result.get("PRICINGDATA", {})
-
-        return ERPPartResult(
-            part_number=str(mat_general.get("MATERIAL", part_number)),
-            description=str(mat_general.get("MATL_DESC", "")),
-            unit_price=Decimal(str(price_data.get("PRICE", "0"))),
-            available_qty=int(mat_plant.get("TOTAL_STOCK", 0)),
-            lead_time_days=int(mat_plant.get("REPLENISHMENT_LEAD_TIME", 0)),
-            manufacturer=str(mat_general.get("MANUFACTURER", "")),
-        )
-
-    async def check_inventory(self, part_number: str, quantity: int) -> bool:
-        if self._mock is not None:
-            return await self._mock.check_inventory(part_number, quantity)
-
-        part = await self.get_part(part_number)
-        return part is not None and part.available_qty >= quantity
-
-    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
-        if self._mock is not None:
-            return await self._mock.get_price(part_number, quantity)
-
+    async def _bapi_pricing(self, part_number: str) -> dict[str, Any]:
         conn = self._get_conn()
         try:
             result: dict[str, Any] = await asyncio.to_thread(
@@ -170,17 +168,8 @@ class SAPMCP(ERPMCPServer):
             )
         except Exception as exc:
             if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
-                return None
+                return {}
             raise ERPConnectionError(
                 f"SAP pricing BAPI failed for {part_number!r}: {exc}"
             ) from exc
-
-        price_data: dict[str, Any] = result.get("PRICINGDATA", {})
-        if not price_data:
-            return None
-        return Decimal(str(price_data.get("PRICE", "0")))
-
-    async def close(self) -> None:
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
+        return dict(result.get("PRICINGDATA", {}))

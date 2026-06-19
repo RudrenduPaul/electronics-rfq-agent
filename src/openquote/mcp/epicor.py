@@ -85,8 +85,7 @@ class EpicorMCP(ERPMCPServer):
             params=params,
         )
         response.raise_for_status()
-        data = response.json()
-        return [self._map_part(p) for p in data.get("value", [])]
+        return [self._map_part(p) for p in response.json().get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
@@ -103,20 +102,6 @@ class EpicorMCP(ERPMCPServer):
             return None
         response.raise_for_status()
         return self._map_part(response.json())
-
-    async def check_inventory(self, part_number: str, quantity: int) -> bool:
-        if self._mock is not None:
-            return await self._mock.check_inventory(part_number, quantity)
-
-        part = await self.get_part(part_number)
-        return part is not None and part.available_qty >= quantity
-
-    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
-        if self._mock is not None:
-            return await self._mock.get_price(part_number, quantity)
-
-        part = await self.get_part(part_number)
-        return part.unit_price if part is not None else None
 
     async def close(self) -> None:
         if self._client is not None:

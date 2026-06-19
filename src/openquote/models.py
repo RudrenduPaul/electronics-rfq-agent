@@ -58,7 +58,7 @@ class QuoteLineItem(BaseModel):
 
     @model_validator(mode="after")
     def validate_prices_on_found(self) -> QuoteLineItem:
-        if self.status in ("found", "substituted") and self.erp_result is not None:
+        if self.status in ("found", "substituted"):
             if self.unit_price is None:
                 raise ValueError(
                     "unit_price required when status is 'found' or 'substituted'"
@@ -95,19 +95,18 @@ class Quote(BaseModel):
         return self.model_dump(mode="json")
 
     def summary(self) -> str:
-        found = sum(1 for line in self.lines if line.status == "found")
-        not_found = sum(1 for line in self.lines if line.status == "not_found")
-        substituted = sum(1 for line in self.lines if line.status == "substituted")
+        counts: dict[str, int] = {"found": 0, "not_found": 0, "substituted": 0}
+        for line in self.lines:
+            counts[line.status] = counts.get(line.status, 0) + 1
         return (
             f"Quote {self.id[:8]} | {len(self.lines)} lines | "
-            f"Found: {found} Not found: {not_found} Substituted: {substituted} | "
+            f"Found: {counts['found']} Not found: {counts['not_found']} "
+            f"Substituted: {counts['substituted']} | "
             f"Total: {self.currency} {self.total_price:.2f}"
         )
 
 
 class ERPConfig(BaseModel):
-    model_config = ConfigDict()
-
     erp_type: Literal["epicor", "sap", "oracle", "dynamics", "mock"]
     base_url: str | None = None
     api_key: str | None = None

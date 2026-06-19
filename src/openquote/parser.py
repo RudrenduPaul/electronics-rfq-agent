@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -46,12 +47,11 @@ class RFQParser:
 
         if suffix == ".pdf":
             return await self._parse_pdf(path)
-        elif suffix in (".xlsx", ".xls"):
+        if suffix in (".xlsx", ".xls"):
             return self._parse_excel(path)
-        elif suffix == ".docx":
+        if suffix == ".docx":
             return self._parse_word(path)
-        else:
-            return await self._parse_text(path.read_text())
+        return await self._parse_text(path.read_text())
 
     async def _parse_pdf(self, path: Path) -> list[RFQLineItem]:
         import anthropic  # noqa: PLC0415
@@ -109,14 +109,14 @@ class RFQParser:
 
             header = [str(c).lower().strip() if c else "" for c in rows[header_idx]]
             col = self._map_columns(header)
-
-            items = []
+            items: list[RFQLineItem] = []
             line_number = 1
+
             for row in rows[header_idx + 1 :]:
-                part_num = self._safe_str(row, col.get("part_number"))
+                part_num = self._cell(row, col.get("part_number"))
                 if not part_num:
                     continue
-                qty_raw = self._safe_str(row, col.get("quantity"))
+                qty_raw = self._cell(row, col.get("quantity"))
                 try:
                     qty = int(float(qty_raw)) if qty_raw else 1
                 except ValueError:
@@ -128,9 +128,8 @@ class RFQParser:
                         part_number=part_num,
                         quantity=qty,
                         required_date=None,
-                        manufacturer=self._safe_str(row, col.get("manufacturer"))
-                        or None,
-                        customer_notes=self._safe_str(row, col.get("notes")) or None,
+                        manufacturer=self._cell(row, col.get("manufacturer")) or None,
+                        customer_notes=self._cell(row, col.get("notes")) or None,
                     )
                 )
                 line_number += 1
@@ -141,7 +140,7 @@ class RFQParser:
         from docx import Document  # noqa: PLC0415
 
         doc = Document(str(path))
-        items = []
+        items: list[RFQLineItem] = []
         line_number = 1
 
         for table in doc.tables:
@@ -154,10 +153,10 @@ class RFQParser:
 
             for row in table.rows[1:]:
                 cells = [c.text.strip() for c in row.cells]
-                part_num = self._safe_list_str(cells, col.get("part_number"))
+                part_num = self._cell(cells, col.get("part_number"))
                 if not part_num:
                     continue
-                qty_raw = self._safe_list_str(cells, col.get("quantity"))
+                qty_raw = self._cell(cells, col.get("quantity"))
                 try:
                     qty = int(qty_raw) if qty_raw else 1
                 except ValueError:
@@ -169,10 +168,8 @@ class RFQParser:
                         part_number=part_num,
                         quantity=qty,
                         required_date=None,
-                        manufacturer=self._safe_list_str(cells, col.get("manufacturer"))
-                        or None,
-                        customer_notes=self._safe_list_str(cells, col.get("notes"))
-                        or None,
+                        manufacturer=self._cell(cells, col.get("manufacturer")) or None,
+                        customer_notes=self._cell(cells, col.get("notes")) or None,
                     )
                 )
                 line_number += 1
@@ -194,17 +191,16 @@ class RFQParser:
         return self._parse_json_response(raw)
 
     def _parse_json_response(self, text: str) -> list[RFQLineItem]:
-        import json  # noqa: PLC0415
-
         cleaned = text.strip()
         if cleaned.startswith("```"):
-            lines = cleaned.split("\n")
-            cleaned = "\n".join(
-                lines[1:-1] if lines[-1].strip() == "```" else lines[1:]
-            )
+            lines = cleaned.splitlines()
+            # strip opening fence (```json, ``` etc.) and closing fence
+            start = 1
+            end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
+            cleaned = "\n".join(lines[start:end])
 
         data: list[dict[str, Any]] = json.loads(cleaned)
-        items = []
+        items: list[RFQLineItem] = []
         for i, row in enumerate(data, start=1):
             try:
                 items.append(
@@ -245,7 +241,8 @@ class RFQParser:
         return mapping
 
     @staticmethod
-    def _safe_str(row: Any, idx: int | None) -> str:
+    def _cell(row: Any, idx: int | None) -> str:
+        """Return the string value at index `idx` in any subscriptable sequence."""
         if idx is None:
             return ""
         try:
@@ -253,9 +250,3 @@ class RFQParser:
             return str(val).strip() if val is not None else ""
         except (IndexError, TypeError):
             return ""
-
-    @staticmethod
-    def _safe_list_str(lst: list[str], idx: int | None) -> str:
-        if idx is None or idx >= len(lst):
-            return ""
-        return lst[idx].strip()
