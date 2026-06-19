@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from decimal import Decimal
 from typing import Any
+from urllib.parse import quote as urlquote
 
 import httpx
 
@@ -93,10 +94,14 @@ class OracleMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client(token)
+        safe_query = query.replace("'", "''")
         response = await client.get(
             "/fscmRestApi/resources/11.13.18.05/items",
             params={
-                "q": f"ItemNumber LIKE '%{query}%' OR Description LIKE '%{query}%'",
+                "q": (
+                    f"ItemNumber LIKE '%{safe_query}%' "
+                    f"OR Description LIKE '%{safe_query}%'"
+                ),
                 "limit": limit,
                 "fields": "ItemNumber,Description,ListPrice,PrimaryUOMCode",
             },
@@ -110,8 +115,9 @@ class OracleMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client(token)
+        encoded_pn = urlquote(part_number, safe="")
         response = await client.get(
-            f"/fscmRestApi/resources/11.13.18.05/items/{part_number}",
+            f"/fscmRestApi/resources/11.13.18.05/items/{encoded_pn}",
         )
         if response.status_code == 404:  # noqa: PLR2004
             return None

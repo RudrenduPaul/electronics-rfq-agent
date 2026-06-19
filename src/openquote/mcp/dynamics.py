@@ -104,11 +104,13 @@ class DynamicsMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client(token)
+        safe_query = query.replace("'", "''")
         response = await client.get(
             "/products",
             params={
                 "$filter": (
-                    f"contains(productnumber, '{query}') or contains(name, '{query}')"
+                    f"contains(productnumber, '{safe_query}') "
+                    f"or contains(name, '{safe_query}')"
                 ),
                 "$top": limit,
                 "$select": "productnumber,name,price,quantityonhand,suppliername",
@@ -123,10 +125,11 @@ class DynamicsMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client(token)
+        safe_pn = part_number.replace("'", "''")
         response = await client.get(
             "/products",
             params={
-                "$filter": f"productnumber eq '{part_number}'",
+                "$filter": f"productnumber eq '{safe_pn}'",
                 "$top": 1,
                 "$select": "productnumber,name,price,quantityonhand,suppliername",
             },
