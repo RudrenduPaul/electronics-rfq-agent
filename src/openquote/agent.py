@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult, Quote, QuoteLineItem, RFQLineItem
+from openquote.models import Quote, QuoteLineItem, RFQLineItem
 from openquote.parser import RFQParser
 
 _console = Console(stderr=True)
@@ -31,11 +31,13 @@ class QuoteAgent:
         erp: ERPMCPServer,
         model: str | None = None,
         margin_pct: float = 0.15,
+        max_concurrent: int = 10,
     ) -> None:
         self.erp = erp
         self.model = model or os.environ.get("OPENQUOTE_MODEL", "claude-sonnet-4-6")
         self.margin_pct = Decimal(str(margin_pct))
         self._parser = RFQParser(model=self.model)
+        self._semaphore = asyncio.Semaphore(max_concurrent)
 
     async def run(self, rfq_source: str | Path) -> Quote:
         """Parse the RFQ and generate a draft quote.
@@ -60,7 +62,7 @@ class QuoteAgent:
 
             progress.update(task, description="Looking up parts in ERP...")
             quote_lines = await asyncio.gather(
-                *[self._lookup_line(line) for line in rfq_lines]
+                *[self._gated_lookup(line) for line in rfq_lines]
             )
             progress.update(task, description="Building quote...")
 
@@ -85,8 +87,19 @@ class QuoteAgent:
         return quote
 
     def run_sync(self, rfq_source: str | Path) -> Quote:
-        """Synchronous wrapper for run(). Blocks until the quote is complete."""
-        return asyncio.run(self.run(rfq_source))
+        """Synchronous wrapper for run(). Safe inside existing event loops."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self.run(rfq_source))
+        import nest_asyncio  # noqa: PLC0415
+
+        nest_asyncio.apply()
+        return loop.run_until_complete(self.run(rfq_source))
+
+    async def _gated_lookup(self, line: RFQLineItem) -> QuoteLineItem:
+        async with self._semaphore:
+            return await self._lookup_line(line)
 
     async def _lookup_line(self, line: RFQLineItem) -> QuoteLineItem:
         part = await self.erp.get_part(line.part_number)
@@ -125,6 +138,3 @@ class QuoteAgent:
             extended_price=extended,
             notes=notes,
         )
-
-    async def _lookup_part(self, part_number: str) -> ERPPartResult | None:
-        return await self.erp.get_part(part_number)

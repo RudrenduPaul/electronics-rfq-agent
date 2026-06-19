@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 
 from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult
+from openquote.models import ERPConfig, ERPPartResult
 
 
 class EpicorMCP(ERPMCPServer):
@@ -44,6 +44,11 @@ class EpicorMCP(ERPMCPServer):
         self._company = company or os.environ.get("OPENQUOTE_EPICOR_COMPANY", "EPIC")
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
+
+    @classmethod
+    def from_config(cls, cfg: ERPConfig) -> EpicorMCP:
+        """Construct from an ERPConfig instance."""
+        return cls(base_url=cfg.base_url, api_key=cfg.api_key)
 
     def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:

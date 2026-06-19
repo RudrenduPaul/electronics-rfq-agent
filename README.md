@@ -36,13 +36,13 @@ docker compose up -d
 python benchmarks/run.py
 ```
 
-| RFQ size | ERP lookup P50 | ERP lookup P99 | Total time | vs. manual |
-|---|---|---|---|---|
-| 10 lines | 0.04ms | 0.18ms | 4.1s | ~1750x faster |
-| 25 lines | 0.04ms | 0.18ms | 7.2s | ~1000x faster |
-| 50 lines | 0.04ms | 0.18ms | 14.8s | ~500x faster |
+| RFQ size | ERP lookup P50 | ERP lookup P99 | Total time (mock) |
+|---|---|---|---|
+| 10 lines | 0.04ms | 0.18ms | 4.1s |
+| 25 lines | 0.04ms | 0.18ms | 7.2s |
+| 50 lines | 0.04ms | 0.18ms | 14.8s |
 
-*Mock backend numbers. Real ERP latency is network-dependent. Manual baseline: 2-4 hours per 50-line RFQ.*
+*Mock backend numbers — in-memory ERP with zero network I/O. Real ERP latency is network-dependent (typically 100–500ms per lookup). Manual baseline for a 50-line RFQ: 2–4 hours.*
 
 ## Why we built this
 
@@ -55,10 +55,12 @@ The MCP architecture means adding a new ERP is writing one file. The parser hand
 | ERP | Status | Connection | Docs |
 |---|---|---|---|
 | Epicor Kinetic | Supported | REST API | [Setup](docs/erp-setup/epicor.md) |
-| SAP ECC / S/4HANA | Supported | PyRFC (BAPI) | [Setup](docs/erp-setup/sap.md) |
+| SAP ECC / S/4HANA | Beta (manual install) | PyRFC (BAPI) | [Setup](docs/erp-setup/sap.md) |
 | Oracle Cloud SCM | Supported | REST API | [Setup](docs/erp-setup/oracle.md) |
 | Microsoft Dynamics 365 | Supported | Graph API | [Setup](docs/erp-setup/dynamics.md) |
 | Mock backend | Built-in | In-memory | No config needed |
+
+> **SAP note:** pyrfc requires the SAP NetWeaver RFC Library, which is not on PyPI and must be downloaded manually from SAP's support portal (S-user required). See [docs/erp-setup/sap.md](docs/erp-setup/sap.md) for step-by-step instructions.
 
 ## vs. alternatives
 

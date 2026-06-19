@@ -1,11 +1,19 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+class ERPConnectionError(Exception):
+    """Raised when an ERP connection fails (auth, network, timeout)."""
+
+
+class RFQParseError(Exception):
+    """Raised when an RFQ document cannot be parsed into line items."""
 
 
 class RFQLineItem(BaseModel):
@@ -64,7 +72,7 @@ class QuoteLineItem(BaseModel):
 
 class Quote(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     rfq_source: str
     lines: list[QuoteLineItem]
     total_price: Decimal
