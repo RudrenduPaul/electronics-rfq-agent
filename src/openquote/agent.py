@@ -104,11 +104,23 @@ class QuoteAgent:
             return await self._lookup_line(line)
 
     async def _lookup_line(self, line: RFQLineItem) -> QuoteLineItem:
+        # All ERP calls are inside one try-except: get_price() also makes
+        # network requests and can raise the same exceptions as get_part().
         try:
             part = await self.erp.get_part(line.part_number)
             if part is None:
                 parts = await self.erp.search_parts(line.part_number, limit=1)
                 part = parts[0] if parts else None
+            if part is None:
+                return QuoteLineItem(
+                    rfq_line=line,
+                    erp_result=None,
+                    status="not_found",
+                    notes=f"Part {line.part_number!r} not found in ERP catalog",
+                )
+            cost_price = await self.erp.get_price(part.part_number, line.quantity)
+            if cost_price is None:
+                cost_price = part.unit_price
         except (ERPConnectionError, httpx.HTTPError) as exc:
             return QuoteLineItem(
                 rfq_line=line,
@@ -116,18 +128,6 @@ class QuoteAgent:
                 status="not_found",
                 notes=f"ERP lookup failed for {line.part_number!r}: {exc}",
             )
-
-        if part is None:
-            return QuoteLineItem(
-                rfq_line=line,
-                erp_result=None,
-                status="not_found",
-                notes=f"Part {line.part_number!r} not found in ERP catalog",
-            )
-
-        cost_price = await self.erp.get_price(part.part_number, line.quantity)
-        if cost_price is None:
-            cost_price = part.unit_price
 
         sell_price = (cost_price * (1 + self.margin_pct)).quantize(Decimal("0.0001"))
         extended = (sell_price * line.quantity).quantize(Decimal("0.01"))
