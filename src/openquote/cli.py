@@ -19,7 +19,13 @@ app = typer.Typer(
     name="openquote",
     help="AI quoting agent for electronics distributors. RFQ in, quote out.",
     add_completion=False,
+    no_args_is_help=True,
 )
+
+
+@app.callback()
+def _callback() -> None:
+    """AI quoting agent for electronics distributors. RFQ in, quote out."""
 
 
 @app.command()
