@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import statistics
 import time
@@ -32,9 +33,9 @@ RESULTS_DIR.mkdir(exist_ok=True)
 MOCK_ERP = MockERP()
 
 
-def _make_rfq_lines(n: int) -> list[RFQLineItem]:
+async def _make_rfq_lines(n: int) -> list[RFQLineItem]:
     """Generate n synthetic RFQ line items using parts from the mock catalog."""
-    all_pns = list(MOCK_ERP._parts.keys())
+    all_pns = [p.part_number for p in await MOCK_ERP.search_parts("", limit=300)]
     lines = []
     for i in range(n):
         pn = all_pns[i % len(all_pns)]
@@ -50,7 +51,7 @@ def _make_rfq_lines(n: int) -> list[RFQLineItem]:
 
 async def bench_erp_latency() -> dict[str, float]:
     """Measure ERP lookup latency across 100 lookups."""
-    parts = list(MOCK_ERP._parts.keys())[:100]
+    parts = [p.part_number for p in await MOCK_ERP.search_parts("", limit=100)]
     latencies: list[float] = []
 
     for pn in parts:
@@ -60,7 +61,7 @@ async def bench_erp_latency() -> dict[str, float]:
 
     return {
         "p50_ms": statistics.median(latencies),
-        "p99_ms": sorted(latencies)[int(len(latencies) * 0.99)],
+        "p99_ms": sorted(latencies)[max(0, math.ceil(len(latencies) * 0.99) - 1)],
         "mean_ms": statistics.mean(latencies),
         "samples": len(latencies),
     }
@@ -69,7 +70,7 @@ async def bench_erp_latency() -> dict[str, float]:
 async def bench_quote_time(n_lines: int) -> dict[str, object]:
     """Measure end-to-end quote generation time for n_lines."""
     agent = QuoteAgent(erp=MOCK_ERP, margin_pct=0.15)
-    lines = _make_rfq_lines(n_lines)
+    lines = await _make_rfq_lines(n_lines)
 
     from unittest.mock import AsyncMock, patch
 

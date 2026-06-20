@@ -69,7 +69,12 @@ class DynamicsMCP(ERPMCPServer):
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> DynamicsMCP:
         """Construct from an ERPConfig instance. Uses api_key as tenant_id."""
-        return cls(tenant_id=cfg.api_key, base_url=cfg.base_url)
+        return cls(
+            tenant_id=cfg.api_key,
+            client_id=cfg.username,
+            base_url=cfg.base_url,
+            client_secret=cfg.password,
+        )
 
     @property
     def _token_url(self) -> str:
@@ -159,8 +164,8 @@ class DynamicsMCP(ERPMCPServer):
         return ERPPartResult(
             part_number=str(data.get("productnumber", "")),
             description=str(data.get("name", "")),
-            unit_price=Decimal(str(data.get("price", "0"))),
-            available_qty=int(data.get("quantityonhand", 0)),
-            lead_time_days=int(data.get("leadtime", 0)),
+            unit_price=Decimal(str(data.get("price") or "0")),
+            available_qty=int(data.get("quantityonhand") or 0),
+            lead_time_days=int(data.get("leadtime") or 0),
             manufacturer=str(data.get("suppliername", "")),
         )

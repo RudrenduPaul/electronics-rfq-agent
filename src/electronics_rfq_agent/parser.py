@@ -52,7 +52,11 @@ class RFQParser:
             return await asyncio.to_thread(self._parse_excel, path)
         if suffix == ".docx":
             return await asyncio.to_thread(self._parse_word, path)
-        return await self._parse_text(path.read_text())
+        try:
+            text = path.read_text()
+        except (OSError, UnicodeDecodeError) as exc:
+            raise RFQParseError(f"Cannot read {path}: {exc}") from exc
+        return await self._parse_text(text)
 
     async def _parse_pdf(self, path: Path) -> list[RFQLineItem]:
         import anthropic  # noqa: PLC0415
@@ -158,7 +162,7 @@ class RFQParser:
                     continue
                 qty_raw = self._cell(cells, col.get("quantity"))
                 try:
-                    qty = int(qty_raw) if qty_raw else 1
+                    qty = int(float(qty_raw)) if qty_raw else 1
                 except ValueError:
                     qty = 1
 
@@ -231,8 +235,8 @@ class RFQParser:
     def _find_header_row(rows: list[list[Any]]) -> int | None:
         keywords = {"part", "pn", "item", "qty", "quantity", "description"}
         for i, row in enumerate(rows[:10]):
-            cells = {str(c).lower() for c in row if c is not None}
-            if cells & keywords:
+            cells = [str(c).lower() for c in row if c is not None]
+            if any(any(k in cell for k in keywords) for cell in cells):
                 return i
         return None
 

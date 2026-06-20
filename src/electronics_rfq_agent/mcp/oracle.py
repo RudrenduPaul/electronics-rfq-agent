@@ -100,7 +100,7 @@ class OracleMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client()
-        safe_query = query.replace("'", "''")
+        safe_query = query.replace("%", r"\%").replace("_", r"\_").replace("'", "''")
         response = await client.get(
             "/fscmRestApi/resources/11.13.18.05/items",
             headers={"Authorization": f"Bearer {token}"},
@@ -142,8 +142,8 @@ class OracleMCP(ERPMCPServer):
         return ERPPartResult(
             part_number=str(data.get("ItemNumber", "")),
             description=str(data.get("Description", "")),
-            unit_price=Decimal(str(data.get("ListPrice", "0"))),
-            available_qty=int(data.get("OnHandQuantity", 0)),
-            lead_time_days=int(data.get("LeadTime", 0)),
+            unit_price=Decimal(str(data.get("ListPrice") or "0")),
+            available_qty=int(data.get("OnHandQuantity") or 0),
+            lead_time_days=int(data.get("LeadTime") or 0),
             manufacturer=str(data.get("Manufacturer", "")),
         )

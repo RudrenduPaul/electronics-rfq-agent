@@ -1,6 +1,6 @@
 """CLI tests for `erfa quote`.
 
-Uses Typer's CliRunner — no process spawning, no real ERP or Anthropic calls.
+Uses Typer's CliRunner -- no process spawning, no real ERP or Anthropic calls.
 QuoteAgent is patched at the module level so run_sync() returns a fixture.
 """
 
@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 from decimal import Decimal
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -51,8 +52,8 @@ SUBSTITUTED_QUOTE = _make_quote("RES-0402-10K-1PCT-ALT", status="substituted")
 
 
 class TestCLIBasic:
-    def test_quote_exits_zero_with_mock(self, tmp_path: pytest.TempdirFactory) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_quote_exits_zero_with_mock(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy content")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -63,12 +64,10 @@ class TestCLIBasic:
         result = runner.invoke(app, ["quote", "/nonexistent/rfq.txt", "--mock"])
         assert result.exit_code != 0
 
-    def test_quote_parse_error_exits_nonzero(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_quote_parse_error_exits_nonzero(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.models import RFQParseError
 
-        rfq = tmp_path / "bad.pdf"  # type: ignore[operator]
+        rfq = tmp_path / "bad.pdf"
         rfq.write_bytes(b"not a real pdf")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.side_effect = RFQParseError(
@@ -77,10 +76,8 @@ class TestCLIBasic:
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert result.exit_code != 0
 
-    def test_quote_output_contains_part_numbers(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_quote_output_contains_part_numbers(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -88,30 +85,24 @@ class TestCLIBasic:
         assert "RES-0402-10K-1PCT" in result.output
         assert "CAP-100NF-50V-X7R-0402" in result.output
 
-    def test_quote_found_line_shows_plus_icon(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_quote_found_line_shows_plus_icon(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "[+]" in result.output
 
-    def test_quote_not_found_shows_minus_icon(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_quote_not_found_shows_minus_icon(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = MISSING_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "[-]" in result.output
 
-    def test_quote_substituted_shows_tilde_icon(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_quote_substituted_shows_tilde_icon(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SUBSTITUTED_QUOTE
@@ -120,10 +111,8 @@ class TestCLIBasic:
 
 
 class TestCLIMargin:
-    def test_custom_margin_passed_to_agent(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_custom_margin_passed_to_agent(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -132,8 +121,8 @@ class TestCLIMargin:
         call_kwargs = mock_cls.call_args
         assert call_kwargs.kwargs.get("margin_pct") == pytest.approx(0.25)
 
-    def test_default_margin_is_015(self, tmp_path: pytest.TempdirFactory) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_default_margin_is_015(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -143,8 +132,8 @@ class TestCLIMargin:
 
 
 class TestCLIMockFlag:
-    def test_env_var_triggers_mock(self, tmp_path: pytest.TempdirFactory) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_env_var_triggers_mock(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -152,10 +141,10 @@ class TestCLIMockFlag:
                 result = runner.invoke(app, ["quote", str(rfq)])
         assert result.exit_code == 0, result.output
 
-    def test_mock_flag_uses_mock_erp(self, tmp_path: pytest.TempdirFactory) -> None:
+    def test_mock_flag_uses_mock_erp(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.mcp.mock.backend import MockERP
 
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -163,12 +152,10 @@ class TestCLIMockFlag:
         erp_arg = mock_cls.call_args.kwargs.get("erp")
         assert isinstance(erp_arg, MockERP)
 
-    def test_without_mock_flag_uses_epicor(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_without_mock_flag_uses_epicor(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.mcp.epicor import EpicorMCP
 
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
@@ -180,20 +167,16 @@ class TestCLIMockFlag:
 
 
 class TestCLISummary:
-    def test_summary_line_appears_in_output(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_summary_line_appears_in_output(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert SIMPLE_QUOTE.summary() in result.output
 
-    def test_run_sync_called_with_rfq_path(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        rfq = tmp_path / "test_rfq.txt"  # type: ignore[operator]
+    def test_run_sync_called_with_rfq_path(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "test_rfq.txt"
         rfq.write_text("dummy")
         mock_agent = MagicMock()
         mock_agent.run_sync.return_value = SIMPLE_QUOTE
@@ -203,10 +186,10 @@ class TestCLISummary:
 
 
 class TestCLIOutput:
-    def test_output_flag_saves_json_file(self, tmp_path: pytest.TempdirFactory) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_output_flag_saves_json_file(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
-        out = tmp_path / "quote.json"  # type: ignore[operator]
+        out = tmp_path / "quote.json"
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(
@@ -220,10 +203,10 @@ class TestCLIOutput:
         assert "lines" in data
         assert "total_price" in data
 
-    def test_output_flag_json_is_valid(self, tmp_path: pytest.TempdirFactory) -> None:
-        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+    def test_output_flag_json_is_valid(self, tmp_path: Path) -> None:
+        rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
-        out = tmp_path / "q.json"  # type: ignore[operator]
+        out = tmp_path / "q.json"
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             runner.invoke(app, ["quote", str(rfq), "--mock", "--output", str(out)])
@@ -234,28 +217,26 @@ class TestCLIOutput:
 
 
 class TestCLIAudit:
-    def _write_quote_json(self, path: object) -> None:
+    def _write_quote_json(self, path: Path) -> None:
         import json
 
         data = SIMPLE_QUOTE.to_dict()
-        path.write_text(json.dumps(data))  # type: ignore[union-attr]
+        path.write_text(json.dumps(data))
 
-    def test_audit_exits_zero_on_valid_file(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        f = tmp_path / "q.json"  # type: ignore[operator]
+    def test_audit_exits_zero_on_valid_file(self, tmp_path: Path) -> None:
+        f = tmp_path / "q.json"
         self._write_quote_json(f)
         result = runner.invoke(app, ["audit", str(f)])
         assert result.exit_code == 0, result.output
 
-    def test_audit_shows_found_section(self, tmp_path: pytest.TempdirFactory) -> None:
-        f = tmp_path / "q.json"  # type: ignore[operator]
+    def test_audit_shows_found_section(self, tmp_path: Path) -> None:
+        f = tmp_path / "q.json"
         self._write_quote_json(f)
         result = runner.invoke(app, ["audit", str(f)])
         assert "FOUND" in result.output
 
-    def test_audit_shows_fill_rate(self, tmp_path: pytest.TempdirFactory) -> None:
-        f = tmp_path / "q.json"  # type: ignore[operator]
+    def test_audit_shows_fill_rate(self, tmp_path: Path) -> None:
+        f = tmp_path / "q.json"
         self._write_quote_json(f)
         result = runner.invoke(app, ["audit", str(f)])
         assert "Fill rate" in result.output
@@ -264,44 +245,36 @@ class TestCLIAudit:
         result = runner.invoke(app, ["audit", "/no/such/file.json"])
         assert result.exit_code != 0
 
-    def test_audit_invalid_json_exits_nonzero(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
-        f = tmp_path / "bad.json"  # type: ignore[operator]
-        f.write_text("not json {{{")  # type: ignore[union-attr]
+    def test_audit_invalid_json_exits_nonzero(self, tmp_path: Path) -> None:
+        f = tmp_path / "bad.json"
+        f.write_text("not json {{{")
         result = runner.invoke(app, ["audit", str(f)])
         assert result.exit_code != 0
 
-    def test_audit_shows_not_found_section(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_audit_shows_not_found_section(self, tmp_path: Path) -> None:
         import json
 
-        f = tmp_path / "q.json"  # type: ignore[operator]
+        f = tmp_path / "q.json"
         data = MISSING_QUOTE.to_dict()
-        f.write_text(json.dumps(data))  # type: ignore[union-attr]
+        f.write_text(json.dumps(data))
         result = runner.invoke(app, ["audit", str(f)])
         assert "NOT FOUND" in result.output
 
-    def test_audit_shows_substituted_section(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_audit_shows_substituted_section(self, tmp_path: Path) -> None:
         import json
 
-        f = tmp_path / "q.json"  # type: ignore[operator]
+        f = tmp_path / "q.json"
         data = SUBSTITUTED_QUOTE.to_dict()
-        f.write_text(json.dumps(data))  # type: ignore[union-attr]
+        f.write_text(json.dumps(data))
         result = runner.invoke(app, ["audit", str(f)])
         assert "SUBSTITUTED" in result.output
 
 
 class TestTelemetry:
-    def test_collector_writes_to_local_file(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_collector_writes_to_local_file(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
-        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        log = tmp_path / "tel.jsonl"
         col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
         col.record(
             TelemetryEvent(
@@ -315,18 +288,16 @@ class TestTelemetry:
         )
         import json
 
-        lines = log.read_text().strip().splitlines()  # type: ignore[union-attr]
+        lines = log.read_text().strip().splitlines()
         assert len(lines) == 1
         data = json.loads(lines[0])
         assert data["erp_type"] == "MockERP"
         assert data["line_count"] == 5
 
-    def test_collector_appends_multiple_events(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_collector_appends_multiple_events(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
-        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        log = tmp_path / "tel.jsonl"
         col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
         ev = TelemetryEvent(
             erp_type="EpicorMCP",
@@ -338,7 +309,7 @@ class TestTelemetry:
         )
         col.record(ev)
         col.record(ev)
-        lines = log.read_text().strip().splitlines()  # type: ignore[union-attr]
+        lines = log.read_text().strip().splitlines()
         assert len(lines) == 2
 
     def test_collector_from_env_returns_none_by_default(self) -> None:
@@ -357,10 +328,10 @@ class TestTelemetry:
             col = collector_from_env()
         assert isinstance(col, TelemetryCollector)
 
-    def test_http_failure_is_silent(self, tmp_path: pytest.TempdirFactory) -> None:
+    def test_http_failure_is_silent(self, tmp_path: Path) -> None:
         from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
-        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        log = tmp_path / "tel.jsonl"
         col = TelemetryCollector(
             log_path=log,  # type: ignore[arg-type]
             endpoint="http://127.0.0.1:1/nonexistent",
@@ -374,4 +345,4 @@ class TestTelemetry:
             duration_ms=10,
         )
         col.record(ev)
-        assert log.read_text().strip() != ""  # type: ignore[union-attr]
+        assert log.read_text().strip() != ""

@@ -83,6 +83,7 @@ class TestParseRouting:
         try:
             wb = openpyxl.Workbook()
             ws = wb.active
+            assert ws is not None
             ws.append(["Part Number", "Quantity", "Manufacturer"])
             ws.append(["RES-0402-10K", 100, "Yageo"])
             ws.append(["CAP-100NF", 50, "Murata"])
@@ -105,6 +106,7 @@ class TestParseRouting:
         try:
             wb = openpyxl.Workbook()
             ws = wb.active
+            assert ws is not None
             ws.append(["Part Number", "Quantity", "Manufacturer", "Notes"])
             ws.append(["RES-001", 10, "Yageo", "Priority"])
             wb.save(tmp_path)
@@ -124,6 +126,7 @@ class TestParseRouting:
         try:
             wb = openpyxl.Workbook()
             ws = wb.active
+            assert ws is not None
             ws.append(["Part Number", "Quantity"])
             ws.append(["RES-001", 10])
             ws.append([None, None])  # empty row — should be skipped
@@ -144,6 +147,7 @@ class TestParseRouting:
         try:
             wb = openpyxl.Workbook()
             ws = wb.active
+            assert ws is not None
             ws.append(["Part Number", "Quantity"])
             ws.append(["RES-001", None])  # None quantity
             wb.save(tmp_path)
@@ -183,6 +187,7 @@ class TestParseRouting:
         try:
             wb = openpyxl.Workbook()
             ws = wb.active
+            assert ws is not None
             # Rows with no recognizable header keywords
             ws.append(["col_x", "col_y", "col_z"])
             ws.append(["data1", "data2", "data3"])
@@ -310,6 +315,7 @@ class TestParseRouting:
             wb = openpyxl.Workbook()
             # Active (first) sheet = cover page with no recognizable BOM header
             summary_ws = wb.active
+            assert summary_ws is not None
             summary_ws.title = "Summary"
             summary_ws.append(["Quote Date", "2026-06-19"])
             summary_ws.append(["Customer", "ACME Corp"])
@@ -369,26 +375,29 @@ class TestParseRouting:
     @pytest.mark.asyncio
     async def test_parse_xls_routes_to_excel(self, parser: RFQParser) -> None:
         """A .xls suffix should also route to _parse_excel."""
-        # We create a real xlsx file but name it .xls for routing test
         import openpyxl
 
         with tempfile.NamedTemporaryFile(suffix=".xls", delete=False) as f:
             tmp_path = f.name
 
         try:
-            wb = openpyxl.Workbook()
-            ws = wb.active
-            ws.append(["Part Number", "Quantity"])
-            ws.append(["DIODE-001", 25])
-            wb.save(tmp_path)
+            with patch.object(parser, "_parse_excel", wraps=parser._parse_excel) as spy:
+                wb = openpyxl.Workbook()
+                ws = wb.active
+                assert ws is not None
+                ws.append(["Part Number", "Quantity"])
+                ws.append(["DIODE-001", 25])
+                wb.save(tmp_path)
 
-            # openpyxl can load .xls files saved as xlsx under a .xls name
-            items = await parser.parse(tmp_path)
-            # May succeed or fail depending on openpyxl behavior with .xls extension
-            # but routing should have called _parse_excel, not _parse_text
-            assert isinstance(items, list)
-        except Exception:
-            pass  # openpyxl may not handle .xls extension gracefully
+                try:
+                    items = await parser.parse(tmp_path)
+                except Exception:
+                    pytest.skip(
+                        "openpyxl does not support .xls extension on this platform"
+                    )
+
+                spy.assert_called_once()
+                assert isinstance(items, list)
         finally:
             if os.path.exists(tmp_path):
                 os.unlink(tmp_path)

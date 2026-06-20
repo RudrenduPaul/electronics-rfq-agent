@@ -34,7 +34,7 @@ from electronics_rfq_agent.mcp.mock import MockERP
 from electronics_rfq_agent.models import Quote
 
 SAMPLE_RFQ = """
-RFQ from Acme Electronics — 2026-06-19
+RFQ from Acme Electronics - 2026-06-19
 Requested by: J. Smith | Terms: Net 30
 
 Part Number,Qty,Required Date,Notes

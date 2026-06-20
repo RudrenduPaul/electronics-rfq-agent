@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -188,10 +189,12 @@ class TestQuoteAgentLookup:
         gated_lookup_calls = 0
         original_gated = agent._gated_lookup
 
-        async def counting_gated(ln: RFQLineItem) -> object:
+        async def counting_gated(
+            ln: RFQLineItem, semaphore: asyncio.Semaphore
+        ) -> object:
             nonlocal gated_lookup_calls
             gated_lookup_calls += 1
-            return await original_gated(ln)
+            return await original_gated(ln, semaphore)
 
         with (
             patch.object(agent._parser, "parse", new_callable=AsyncMock) as mp,
