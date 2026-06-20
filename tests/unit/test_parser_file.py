@@ -373,6 +373,62 @@ class TestParseRouting:
                 await parser.parse("RES-001, qty 10")
 
     @pytest.mark.asyncio
+    async def test_parse_xlsx_fractional_quantity(self, parser: RFQParser) -> None:
+        import openpyxl
+
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as f:
+            tmp_path = f.name
+        try:
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            assert ws is not None
+            ws.append(["Part Number", "Quantity"])
+            ws.append(["RES-001", 10.5])
+            wb.save(tmp_path)
+
+            items = await parser.parse(tmp_path)
+            assert len(items) == 1
+            assert items[0].quantity == 10
+        finally:
+            os.unlink(tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_parse_docx_fractional_quantity(self, parser: RFQParser) -> None:
+        from docx import Document
+
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as f:
+            tmp_path = f.name
+        try:
+            doc = Document()
+            table = doc.add_table(rows=2, cols=2)
+            table.cell(0, 0).text = "Part Number"
+            table.cell(0, 1).text = "Quantity"
+            table.cell(1, 0).text = "RES-001"
+            table.cell(1, 1).text = "10.5"
+            doc.save(tmp_path)
+
+            items = await parser.parse(tmp_path)
+            assert len(items) == 1
+            assert items[0].quantity == 10
+        finally:
+            os.unlink(tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_parse_binary_txt_raises_rfq_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        from electronics_rfq_agent.models import RFQParseError
+
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+            f.write(b"\x00\xff\xfe binary")
+            tmp_path = f.name
+        try:
+            with pytest.raises(RFQParseError):
+                await parser.parse(tmp_path)
+        finally:
+            os.unlink(tmp_path)
+
+    @pytest.mark.asyncio
     async def test_parse_xls_routes_to_excel(self, parser: RFQParser) -> None:
         """A .xls suffix should also route to _parse_excel."""
         import openpyxl

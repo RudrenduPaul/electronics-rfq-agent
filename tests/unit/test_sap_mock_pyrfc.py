@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import sys
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
@@ -129,7 +130,7 @@ class TestSAPLivePaths:
     async def test_get_price_direct_bapi(
         self, sap_live: tuple[SAPMCP, MagicMock]
     ) -> None:
-        """get_price() should NOT call get_part() — uses the pricing BAPI directly."""
+        """get_price() should NOT call get_part() -- uses the pricing BAPI directly."""
         sap, mock_conn = sap_live
         mock_conn.call.return_value = _BAPI_PRICING_RESPONSE
 
@@ -217,3 +218,48 @@ class TestSAPLivePaths:
             sap = SAPMCP.from_config(cfg)
         assert sap._user == "rfcuser"
         assert sap._password == "rfcpass"
+
+    @pytest.mark.asyncio
+    async def test_get_conn_wraps_pyrfc_in_to_thread(self) -> None:
+        """_get_conn() must call asyncio.to_thread(pyrfc.Connection, ...)."""
+        with patch.dict("os.environ", {"ERFA_USE_MOCK": "false"}):
+            sap = SAPMCP(
+                host="sap.test.local",
+                sysnr="00",
+                client="100",
+                user="rfcuser",
+                password="rfcpass",
+            )
+
+        mock_conn = MagicMock()
+
+        async def fake_to_thread(func: object, **kwargs: object) -> MagicMock:
+            if func is _FAKE_PYRFC.Connection:
+                return mock_conn
+            return await asyncio.get_event_loop().run_in_executor(None, func)  # type: ignore[arg-type]
+
+        target = "electronics_rfq_agent.mcp.sap.asyncio.to_thread"
+        with patch(target, side_effect=fake_to_thread) as mock_to_thread:
+            conn = await sap._get_conn()
+
+        assert conn is mock_conn
+        assert mock_to_thread.call_args[0][0] is _FAKE_PYRFC.Connection
+
+    @pytest.mark.asyncio
+    async def test_get_conn_import_error_when_pyrfc_missing(self) -> None:
+        """_get_conn() raises ImportError when pyrfc is not installed."""
+        saved = sys.modules.pop("pyrfc", None)
+        try:
+            with patch.dict("os.environ", {"ERFA_USE_MOCK": "false"}):
+                sap = SAPMCP(
+                    host="sap.test.local",
+                    sysnr="00",
+                    client="100",
+                    user="rfcuser",
+                    password="rfcpass",
+                )
+            with pytest.raises(ImportError, match="pyrfc is required"):
+                await sap._get_conn()
+        finally:
+            if saved is not None:
+                sys.modules["pyrfc"] = saved

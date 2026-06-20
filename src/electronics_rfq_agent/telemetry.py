@@ -57,6 +57,7 @@ class TelemetryCollector:
     ) -> None:
         self._log_path = log_path or Path.home() / ".erfa" / "telemetry.jsonl"
         self._endpoint = endpoint or os.environ.get("ERFA_TELEMETRY_ENDPOINT", "")
+        self._background_tasks: set[asyncio.Task[None]] = set()
 
     def record(self, event: TelemetryEvent) -> None:
         self._write_local(event)
@@ -64,7 +65,8 @@ class TelemetryCollector:
             try:
                 loop = asyncio.get_running_loop()
                 _task = loop.create_task(self._push_http_async(event))
-                _task.add_done_callback(lambda _: None)
+                self._background_tasks.add(_task)
+                _task.add_done_callback(self._background_tasks.discard)
             except RuntimeError:
                 self._push_http_sync(event)
 

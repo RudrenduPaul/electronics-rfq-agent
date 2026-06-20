@@ -269,6 +269,16 @@ class TestCLIAudit:
         result = runner.invoke(app, ["audit", str(f)])
         assert "SUBSTITUTED" in result.output
 
+    def test_audit_json_array_exits_nonzero_with_clean_message(
+        self, tmp_path: Path
+    ) -> None:
+        f = tmp_path / "array.json"
+        f.write_text("[1, 2, 3]")
+        result = runner.invoke(app, ["audit", str(f)])
+        assert result.exit_code != 0
+        combined = result.output.lower() + (result.stderr or "").lower()
+        assert "error" in combined
+
 
 class TestTelemetry:
     def test_collector_writes_to_local_file(self, tmp_path: Path) -> None:
