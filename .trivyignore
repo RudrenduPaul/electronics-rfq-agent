@@ -1,0 +1,8 @@
+# CVE-2026-45829: chromadb arbitrary code execution via pre-auth code injection
+# Status: no upstream fix available as of 2026-06-20
+# Scope: transitive dependency of the optional `crewai` extra ONLY
+#        chromadb is NOT a runtime dependency of the core package
+# Action: users who install `electronics-rfq-agent[crewai]` should audit their
+#         deployment surface and avoid exposing ChromaDB to untrusted input until
+#         an upstream patch is released.
+CVE-2026-45829

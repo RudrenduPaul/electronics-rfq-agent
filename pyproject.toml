@@ -97,6 +97,10 @@ warn_unused_ignores = false
 asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing"
+filterwarnings = [
+    "ignore::DeprecationWarning:nest_asyncio",
+    "ignore:An exception occurred during teardown of an asyncio\\.Runner:RuntimeWarning",
+]
 
 [tool.coverage.run]
 source = ["src"]

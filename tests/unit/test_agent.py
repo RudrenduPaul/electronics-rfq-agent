@@ -291,14 +291,11 @@ class TestQuoteAgentRun:
         """
         import asyncio
 
-        import nest_asyncio
-
         async def _caller() -> Quote:
             with patch.object(
                 agent._parser, "parse", new_callable=AsyncMock
             ) as mock_parse:
                 mock_parse.return_value = sample_rfq_lines[:1]
-                nest_asyncio.apply()
                 return agent.run_sync("fake_from_loop.txt")
 
         result = asyncio.run(_caller())

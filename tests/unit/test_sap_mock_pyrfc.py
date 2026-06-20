@@ -236,7 +236,7 @@ class TestSAPLivePaths:
         async def fake_to_thread(func: object, **kwargs: object) -> MagicMock:
             if func is _FAKE_PYRFC.Connection:
                 return mock_conn
-            return await asyncio.get_event_loop().run_in_executor(None, func)  # type: ignore[arg-type]
+            return await asyncio.get_running_loop().run_in_executor(None, func)  # type: ignore[arg-type]
 
         target = "electronics_rfq_agent.mcp.sap.asyncio.to_thread"
         with patch(target, side_effect=fake_to_thread) as mock_to_thread:
