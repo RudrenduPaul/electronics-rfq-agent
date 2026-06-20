@@ -5,10 +5,10 @@ from __future__ import annotations
 import asyncio
 import os
 
-os.environ.setdefault("OPENQUOTE_USE_MOCK", "true")
+os.environ.setdefault("ERFA_USE_MOCK", "true")
 
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
 
 SAMPLE_RFQ = """
 RFQ from Acme Electronics

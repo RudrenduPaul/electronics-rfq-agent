@@ -1,7 +1,7 @@
 # Electronics RFQ Agent
 
 [![CI](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml)
-[![PyPI version](https://badge.fury.io/py/openquote.svg)](https://badge.fury.io/py/openquote)
+[![PyPI version](https://badge.fury.io/py/electronics-rfq-agent.svg)](https://badge.fury.io/py/electronics-rfq-agent)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent/badge)](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent)
@@ -11,12 +11,12 @@ Your sales engineers are spending 2-4 hours turning RFQ documents into quotes. T
 Electronics RFQ Agent is a Python library that reads RFQ documents (PDF, Excel, Word), looks up every line item against your ERP catalog, and outputs a draft quote. It connects to SAP, Epicor, Oracle, and Microsoft Dynamics through MCP servers, so it works with Claude, GPT-4, or any agent framework that speaks MCP.
 
 ```bash
-pip install openquote
+pip install electronics-rfq-agent
 ```
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import EpicorMCP
 
 agent = QuoteAgent(
     erp=EpicorMCP(base_url="https://your-epicor.company.com", api_key="..."),
@@ -90,13 +90,13 @@ Your quote data never leaves your environment.
 
 ```bash
 # Generate a quote from an RFQ file
-openquote quote rfq.xlsx --mock
+erfa quote rfq.xlsx --mock
 
 # Save the quote as JSON for later inspection
-openquote quote rfq.xlsx --mock --output quote.json
+erfa quote rfq.xlsx --mock --output quote.json
 
 # Audit what happened: what was found, substituted, or missing and why
-openquote audit quote.json
+erfa audit quote.json
 ```
 
 **Audit output example:**
@@ -131,18 +131,18 @@ Electronics RFQ Agent works with any agent framework that supports MCP:
 
 | Framework | Install | Example |
 |---|---|---|
-| Claude (built-in) | `pip install openquote` | [01-basic-quote](examples/01-basic-quote/) |
-| LangGraph | `pip install 'openquote[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
-| OpenAI Agents SDK | `pip install openquote[agents]` | [05-openai-agents](examples/05-openai-agents/) |
-| CrewAI | `pip install openquote[crewai]` | -- |
+| Claude (built-in) | `pip install electronics-rfq-agent` | [01-basic-quote](examples/01-basic-quote/) |
+| LangGraph | `pip install 'electronics-rfq-agent[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
+| OpenAI Agents SDK | `pip install electronics-rfq-agent[agents]` | [05-openai-agents](examples/05-openai-agents/) |
+| CrewAI | `pip install electronics-rfq-agent[crewai]` | -- |
 
 ## Quick start with mock ERP
 
 No ERP system required to try it out:
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
 
 agent = QuoteAgent(erp=MockERP())
 quote = agent.run_sync("path/to/rfq.xlsx")
@@ -158,19 +158,19 @@ print(quote.summary())
 If you are a design partner, you can turn on anonymized telemetry. No part numbers, prices, or customer data is ever recorded.
 
 ```bash
-OPENQUOTE_TELEMETRY=true openquote quote rfq.xlsx --mock
+ERFA_TELEMETRY=true erfa quote rfq.xlsx --mock
 ```
 
 Or in Python:
 
 ```python
-from openquote import QuoteAgent, TelemetryCollector
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent, TelemetryCollector
+from electronics_rfq_agent.mcp.mock import MockERP
 
 agent = QuoteAgent(erp=MockERP(), telemetry=True)
 ```
 
-Data is written to `~/.openquote/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and package version. To push to a custom endpoint: `OPENQUOTE_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
+Data is written to `~/.erfa/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and package version. To push to a custom endpoint: `ERFA_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
 
 ## Documentation
 

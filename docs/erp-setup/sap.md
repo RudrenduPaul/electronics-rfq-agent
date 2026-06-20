@@ -4,7 +4,7 @@
 
 - SAP ECC 6.0+ or SAP S/4HANA
 - SAP NetWeaver RFC Library (free download from SAP Support Portal)
-- pyrfc Python package: `pip install openquote[sap]`
+- pyrfc Python package: `pip install electronics-rfq-agent[sap]`
 
 ## SAP NetWeaver RFC Library installation
 
@@ -20,11 +20,11 @@
 ## Environment variables
 
 ```bash
-OPENQUOTE_SAP_HOST=your-sap-host.company.com
-OPENQUOTE_SAP_SYSNR=00
-OPENQUOTE_SAP_CLIENT=100
-OPENQUOTE_SAP_USER=your_rfc_username
-OPENQUOTE_SAP_PASSWORD=your_rfc_password
+ERFA_SAP_HOST=your-sap-host.company.com
+ERFA_SAP_SYSNR=00
+ERFA_SAP_CLIENT=100
+ERFA_SAP_USER=your_rfc_username
+ERFA_SAP_PASSWORD=your_rfc_password
 ```
 
 ## Required SAP authorizations
@@ -47,8 +47,8 @@ OPENQUOTE_SAP_PASSWORD=your_rfc_password
 ## Usage
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import SAPMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import SAPMCP
 
 agent = QuoteAgent(erp=SAPMCP(plant="0001"))
 ```
@@ -56,5 +56,5 @@ agent = QuoteAgent(erp=SAPMCP(plant="0001"))
 ## Development without SAP access
 
 ```bash
-OPENQUOTE_USE_MOCK=true python examples/01-basic-quote/basic_quote.py
+ERFA_USE_MOCK=true python examples/01-basic-quote/basic_quote.py
 ```

@@ -1,10 +1,10 @@
 services:
-  openquote:
+  electronics-rfq-agent:
     build: .
     environment:
-      - OPENQUOTE_USE_MOCK=true
+      - ERFA_USE_MOCK=true
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENQUOTE_MODEL=${OPENQUOTE_MODEL:-claude-sonnet-4-6}
+      - ERFA_MODEL=${ERFA_MODEL:-claude-sonnet-4-6}
     volumes:
       - ./rfqs:/app/rfqs:ro
     ports:
@@ -21,7 +21,7 @@ services:
     command: >
       bash -c "pip install -q pydantic>=2.7 httpx>=0.27 &&
                PYTHONPATH=/app python -c '
-from openquote.mcp.mock.backend import MockERP
+from electronics_rfq_agent.mcp.mock.backend import MockERP
 import asyncio, json
 print(\"Mock ERP backend ready with 200 parts\")
 asyncio.run(asyncio.sleep(86400))

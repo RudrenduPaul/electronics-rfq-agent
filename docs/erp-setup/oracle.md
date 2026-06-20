@@ -16,9 +16,9 @@
 ## Environment variables
 
 ```bash
-OPENQUOTE_ORACLE_BASE_URL=https://your-tenant.oraclecloud.com
-OPENQUOTE_ORACLE_CLIENT_ID=your_client_id
-OPENQUOTE_ORACLE_CLIENT_SECRET=your_client_secret
+ERFA_ORACLE_BASE_URL=https://your-tenant.oraclecloud.com
+ERFA_ORACLE_CLIENT_ID=your_client_id
+ERFA_ORACLE_CLIENT_SECRET=your_client_secret
 ```
 
 ## Endpoints used
@@ -31,8 +31,8 @@ OPENQUOTE_ORACLE_CLIENT_SECRET=your_client_secret
 ## Usage
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import OracleMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import OracleMCP
 
 agent = QuoteAgent(erp=OracleMCP())
 ```

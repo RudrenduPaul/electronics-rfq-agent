@@ -10,7 +10,7 @@
 
 Do NOT open a public GitHub issue for security vulnerabilities.
 
-**Email:** security@openquote.ai
+**Email:** electronics.rfq.agent.oss.security@gmail.com
 **Response SLA:** 48 hours acknowledgement, 7 days fix timeline
 
 We follow responsible disclosure: public disclosure happens 90 days after report or after patch ships, whichever is first.

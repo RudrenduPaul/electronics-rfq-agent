@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openquote"
+name = "electronics-rfq-agent"
 version = "0.1.0"
 description = "AI quoting agent for electronics distributors. RFQ in, quote out in seconds."
 readme = "README.md"
@@ -57,7 +57,7 @@ dev = [
 ]
 
 [project.scripts]
-openquote = "openquote.cli:main"
+erfa = "electronics_rfq_agent.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/RudrenduPaul/electronics-rfq-agent"
@@ -66,7 +66,7 @@ Documentation = "https://github.com/RudrenduPaul/electronics-rfq-agent/tree/main
 "Bug Tracker" = "https://github.com/RudrenduPaul/electronics-rfq-agent/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/openquote"]
+packages = ["src/electronics_rfq_agent"]
 
 [tool.ruff]
 target-version = "py310"
@@ -80,7 +80,7 @@ ignore = ["S101"]
 "tests/*" = ["S", "PLR2004", "PLC0415", "B017", "B027"]
 "benchmarks/*" = ["S", "PLR2004", "T201", "PLC0415"]
 "examples/*" = ["S", "T201"]
-"src/openquote/cli.py" = ["B008"]
+"src/electronics_rfq_agent/cli.py" = ["B008"]
 
 [tool.mypy]
 strict = true
@@ -90,7 +90,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "openquote.parser"
+module = "electronics_rfq_agent.parser"
 warn_unused_ignores = false
 
 [tool.pytest.ini_options]

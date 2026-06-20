@@ -28,18 +28,18 @@ check_quote     ← flag if total > $5K or any parts missing
 ## Install
 
 ```bash
-pip install 'openquote[langchain]' langgraph
+pip install 'electronics-rfq-agent[langchain]' langgraph
 ```
 
 ## Run
 
 ```bash
 ANTHROPIC_API_KEY=sk-...       \
-  OPENQUOTE_USE_MOCK=true      \
+  ERFA_USE_MOCK=true      \
   python examples/04-langgraph-agent/langgraph_quote.py
 ```
 
-`OPENQUOTE_USE_MOCK=true` is set automatically in the script — you do not need
+`ERFA_USE_MOCK=true` is set automatically in the script — you do not need
 a real ERP system. `ANTHROPIC_API_KEY` is required for RFQ document parsing.
 
 ## Connect to a real ERP
@@ -47,7 +47,7 @@ a real ERP system. `ANTHROPIC_API_KEY` is required for RFQ document parsing.
 Replace `MockERP()` in `generate_quote()` with any `ERPMCPServer` implementation:
 
 ```python
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent.mcp import EpicorMCP
 
 async def generate_quote(state: QuoteState) -> dict:
     erp = EpicorMCP(

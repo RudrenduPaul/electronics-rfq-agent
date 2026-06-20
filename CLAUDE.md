@@ -1,8 +1,8 @@
-# CLAUDE.md -- openquote
+# CLAUDE.md -- Electronics RFQ Agent
 
 ## Project Identity
 
-- **Product:** openquote -- AI quoting agent for electronics distributors
+- **Product:** Electronics RFQ Agent -- AI quoting agent for electronics distributors
 - **Repo:** github.com/RudrenduPaul/electronics-rfq-agent
 - **Language:** Python 3.10+
 - **License:** MIT
@@ -27,7 +27,7 @@ Before marking any task done, verify all of these:
 2. **Types:** `uv run mypy src/ --strict` -- zero errors, zero `# type: ignore` without explaining comment
 3. **Tests:** `uv run pytest tests/ --cov=src/ --cov-fail-under=80` -- 80% minimum
 4. **Security:** `trivy fs .` -- no HIGH or CRITICAL unfixed CVEs
-5. **Benchmarks:** if you changed any of `openquote/agent.py`, `openquote/parser.py`, or any `openquote/mcp/` file, run `uv run pytest benchmarks/` and include the delta
+5. **Benchmarks:** if you changed any of `electronics_rfq_agent/agent.py`, `electronics_rfq_agent/parser.py`, or any `electronics_rfq_agent/mcp/` file, run `uv run pytest benchmarks/` and include the delta
 
 Do NOT mark complete if any fail. Fix the root cause.
 
@@ -35,8 +35,8 @@ Do NOT mark complete if any fail. Fix the root cause.
 
 Enter plan mode for any task that:
 - Touches more than 2 files
-- Changes a public API surface (anything in `openquote/__init__.py`)
-- Adds a new ERP integration (new file in `openquote/mcp/`)
+- Changes a public API surface (anything in `electronics_rfq_agent/__init__.py`)
+- Adds a new ERP integration (new file in `electronics_rfq_agent/mcp/`)
 - Modifies CI pipeline
 
 Write the plan first. If something goes wrong mid-task, stop and re-plan.
@@ -54,7 +54,7 @@ Write the plan first. If something goes wrong mid-task, stop and re-plan.
 
 - Add features not explicitly requested
 - Skip tests to make CI pass faster
-- Use mocks in integration tests (real APIs only, or the official mock backends in `openquote/mcp/mock/`)
+- Use mocks in integration tests (real APIs only, or the official mock backends in `electronics_rfq_agent/mcp/mock/`)
 - Commit with `--no-verify`
 - Merge anything that regresses benchmarks without explicit approval
 - Accept AI-generated code without running and validating it
@@ -64,11 +64,11 @@ Write the plan first. If something goes wrong mid-task, stop and re-plan.
 
 | File | Purpose |
 |---|---|
-| `openquote/mcp/` | MCP servers for SAP, Epicor, Oracle, Dynamics |
-| `openquote/mcp/mock/` | Mock ERP backends for local development |
-| `openquote/parser.py` | RFQ document parser |
-| `openquote/agent.py` | Quote generation agent |
-| `openquote/models.py` | Pydantic models: RFQLineItem, QuoteLineItem, Quote |
+| `electronics_rfq_agent/mcp/` | MCP servers for SAP, Epicor, Oracle, Dynamics |
+| `electronics_rfq_agent/mcp/mock/` | Mock ERP backends for local development |
+| `electronics_rfq_agent/parser.py` | RFQ document parser |
+| `electronics_rfq_agent/agent.py` | Quote generation agent |
+| `electronics_rfq_agent/models.py` | Pydantic models: RFQLineItem, QuoteLineItem, Quote |
 | `benchmarks/` | All benchmarks -- reproducible in under 5 minutes |
 | `CONTRIBUTING.md` | Contribution guide |
 | `SECURITY.md` | CVE disclosure policy |

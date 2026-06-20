@@ -1,4 +1,4 @@
-"""CLI tests for `openquote quote`.
+"""CLI tests for `erfa quote`.
 
 Uses Typer's CliRunner — no process spawning, no real ERP or Anthropic calls.
 QuoteAgent is patched at the module level so run_sync() returns a fixture.
@@ -13,8 +13,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from openquote.cli import app
-from openquote.models import Quote, QuoteLineItem, RFQLineItem
+from electronics_rfq_agent.cli import app
+from electronics_rfq_agent.models import Quote, QuoteLineItem, RFQLineItem
 
 runner = CliRunner()
 
@@ -54,7 +54,7 @@ class TestCLIBasic:
     def test_quote_exits_zero_with_mock(self, tmp_path: pytest.TempdirFactory) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy content")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert result.exit_code == 0, result.output
@@ -66,11 +66,11 @@ class TestCLIBasic:
     def test_quote_parse_error_exits_nonzero(
         self, tmp_path: pytest.TempdirFactory
     ) -> None:
-        from openquote.models import RFQParseError
+        from electronics_rfq_agent.models import RFQParseError
 
         rfq = tmp_path / "bad.pdf"  # type: ignore[operator]
         rfq.write_bytes(b"not a real pdf")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.side_effect = RFQParseError(
                 "Claude returned invalid JSON: ..."
             )
@@ -82,7 +82,7 @@ class TestCLIBasic:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "RES-0402-10K-1PCT" in result.output
@@ -93,7 +93,7 @@ class TestCLIBasic:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "[+]" in result.output
@@ -103,7 +103,7 @@ class TestCLIBasic:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = MISSING_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "[-]" in result.output
@@ -113,7 +113,7 @@ class TestCLIBasic:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SUBSTITUTED_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert "[~]" in result.output
@@ -125,7 +125,7 @@ class TestCLIMargin:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             runner.invoke(app, ["quote", str(rfq), "--mock", "--margin", "0.25"])
         mock_cls.assert_called_once()
@@ -135,7 +135,7 @@ class TestCLIMargin:
     def test_default_margin_is_015(self, tmp_path: pytest.TempdirFactory) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             runner.invoke(app, ["quote", str(rfq), "--mock"])
         call_kwargs = mock_cls.call_args
@@ -146,18 +146,18 @@ class TestCLIMockFlag:
     def test_env_var_triggers_mock(self, tmp_path: pytest.TempdirFactory) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
-            with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+            with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
                 result = runner.invoke(app, ["quote", str(rfq)])
         assert result.exit_code == 0, result.output
 
     def test_mock_flag_uses_mock_erp(self, tmp_path: pytest.TempdirFactory) -> None:
-        from openquote.mcp.mock.backend import MockERP
+        from electronics_rfq_agent.mcp.mock.backend import MockERP
 
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             runner.invoke(app, ["quote", str(rfq), "--mock"])
         erp_arg = mock_cls.call_args.kwargs.get("erp")
@@ -166,14 +166,14 @@ class TestCLIMockFlag:
     def test_without_mock_flag_uses_epicor(
         self, tmp_path: pytest.TempdirFactory
     ) -> None:
-        from openquote.mcp.epicor import EpicorMCP
+        from electronics_rfq_agent.mcp.epicor import EpicorMCP
 
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             with patch.dict(os.environ, {}, clear=False):
-                os.environ.pop("OPENQUOTE_USE_MOCK", None)
+                os.environ.pop("ERFA_USE_MOCK", None)
                 runner.invoke(app, ["quote", str(rfq)])
         erp_arg = mock_cls.call_args.kwargs.get("erp")
         assert isinstance(erp_arg, EpicorMCP)
@@ -185,7 +185,7 @@ class TestCLISummary:
     ) -> None:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(app, ["quote", str(rfq), "--mock"])
         assert SIMPLE_QUOTE.summary() in result.output
@@ -197,7 +197,7 @@ class TestCLISummary:
         rfq.write_text("dummy")
         mock_agent = MagicMock()
         mock_agent.run_sync.return_value = SIMPLE_QUOTE
-        with patch("openquote.agent.QuoteAgent", return_value=mock_agent):
+        with patch("electronics_rfq_agent.agent.QuoteAgent", return_value=mock_agent):
             runner.invoke(app, ["quote", str(rfq), "--mock"])
         mock_agent.run_sync.assert_called_once_with(rfq)
 
@@ -207,7 +207,7 @@ class TestCLIOutput:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
         out = tmp_path / "quote.json"  # type: ignore[operator]
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             result = runner.invoke(
                 app, ["quote", str(rfq), "--mock", "--output", str(out)]
@@ -224,7 +224,7 @@ class TestCLIOutput:
         rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
         rfq.write_text("dummy")
         out = tmp_path / "q.json"  # type: ignore[operator]
-        with patch("openquote.agent.QuoteAgent") as mock_cls:
+        with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
             runner.invoke(app, ["quote", str(rfq), "--mock", "--output", str(out)])
         import json
@@ -301,7 +301,7 @@ class TestTelemetry:
     def test_collector_writes_to_local_file(
         self, tmp_path: pytest.TempdirFactory
     ) -> None:
-        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+        from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
         log = tmp_path / "tel.jsonl"  # type: ignore[operator]
         col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
@@ -326,7 +326,7 @@ class TestTelemetry:
     def test_collector_appends_multiple_events(
         self, tmp_path: pytest.TempdirFactory
     ) -> None:
-        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+        from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
         log = tmp_path / "tel.jsonl"  # type: ignore[operator]
         col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
@@ -344,20 +344,20 @@ class TestTelemetry:
         assert len(lines) == 2
 
     def test_collector_from_env_returns_none_by_default(self) -> None:
-        from openquote.telemetry import collector_from_env
+        from electronics_rfq_agent.telemetry import collector_from_env
 
-        with patch.dict(os.environ, {"OPENQUOTE_TELEMETRY": "false"}):
+        with patch.dict(os.environ, {"ERFA_TELEMETRY": "false"}):
             assert collector_from_env() is None
 
     def test_collector_from_env_returns_collector_when_enabled(self) -> None:
-        from openquote.telemetry import TelemetryCollector, collector_from_env
+        from electronics_rfq_agent.telemetry import TelemetryCollector, collector_from_env
 
-        with patch.dict(os.environ, {"OPENQUOTE_TELEMETRY": "true"}):
+        with patch.dict(os.environ, {"ERFA_TELEMETRY": "true"}):
             col = collector_from_env()
         assert isinstance(col, TelemetryCollector)
 
     def test_http_failure_is_silent(self, tmp_path: pytest.TempdirFactory) -> None:
-        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+        from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent
 
         log = tmp_path / "tel.jsonl"  # type: ignore[operator]
         col = TelemetryCollector(

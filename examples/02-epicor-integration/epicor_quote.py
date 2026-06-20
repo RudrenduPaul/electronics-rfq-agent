@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import asyncio
 
-from openquote import QuoteAgent
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import EpicorMCP
 
 
 async def main() -> None:

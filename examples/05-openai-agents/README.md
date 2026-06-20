@@ -12,7 +12,7 @@ workflow.
 ## Install
 
 ```bash
-pip install openquote[openai] openai-agents
+pip install electronics-rfq-agent[openai] openai-agents
 ```
 
 ## Run
@@ -23,11 +23,11 @@ OPENAI_API_KEY=sk-...       \
   python examples/05-openai-agents/openai_quote.py
 ```
 
-`OPENQUOTE_USE_MOCK=true` is set automatically in the script.
+`ERFA_USE_MOCK=true` is set automatically in the script.
 
 - `OPENAI_API_KEY` — used by the OpenAI agent for reasoning (GPT-4o)
-- `ANTHROPIC_API_KEY` — used by openquote's RFQ parser (Claude)
-- No real ERP system needed with `OPENQUOTE_USE_MOCK=true`
+- `ANTHROPIC_API_KEY` — used by Electronics RFQ Agent's RFQ parser (Claude)
+- No real ERP system needed with `ERFA_USE_MOCK=true`
 
 ## How it works
 
@@ -55,7 +55,7 @@ User message: "Please quote this RFQ: ..."
 Replace `MockERP()` in `generate_quote` with any `ERPMCPServer`:
 
 ```python
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent.mcp import EpicorMCP
 
 @function_tool
 async def generate_quote(rfq_text: str) -> str:

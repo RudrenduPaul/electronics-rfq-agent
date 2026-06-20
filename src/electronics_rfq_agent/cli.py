@@ -1,10 +1,10 @@
-"""Command-line interface for openquote.
+"""Command-line interface for Electronics RFQ Agent.
 
 Usage:
-    openquote quote rfq.xlsx
-    openquote quote rfq.pdf --mock --output quote.json
-    openquote audit quote.json
-    OPENQUOTE_USE_MOCK=true openquote quote rfq.xlsx
+    erfa quote rfq.xlsx
+    erfa quote rfq.pdf --mock --output quote.json
+    erfa audit quote.json
+    ERFA_USE_MOCK=true erfa quote rfq.xlsx
 """
 
 from __future__ import annotations
@@ -16,11 +16,11 @@ from pathlib import Path
 
 import typer
 
-from openquote.mcp.base import ERPMCPServer
+from electronics_rfq_agent.mcp.base import ERPMCPServer
 
 app = typer.Typer(
-    name="openquote",
-    help="AI quoting agent for electronics distributors. RFQ in, quote out.",
+    name="erfa",
+    help="Electronics RFQ Agent — AI quoting agent for electronics distributors. RFQ in, quote out.",
     add_completion=False,
     no_args_is_help=True,
 )
@@ -47,8 +47,8 @@ def quote(
     ),
 ) -> None:
     """Parse an RFQ document and print a draft quote."""
-    from openquote.agent import QuoteAgent  # noqa: PLC0415
-    from openquote.models import RFQParseError  # noqa: PLC0415
+    from electronics_rfq_agent.agent import QuoteAgent  # noqa: PLC0415
+    from electronics_rfq_agent.models import RFQParseError  # noqa: PLC0415
 
     erp = _build_erp(mock=mock)
     agent = QuoteAgent(erp=erp, margin_pct=margin)
@@ -86,7 +86,7 @@ def quote(
 @app.command()
 def audit(
     quote_file: Path = typer.Argument(
-        ..., help="Quote JSON file produced by `openquote quote --output`"
+        ..., help="Quote JSON file produced by `erfa quote --output`"
     ),
 ) -> None:
     """Print a full audit report for a saved quote.
@@ -169,12 +169,12 @@ def _summary_line(found: int, subst: int, missing: int) -> None:
 
 
 def _build_erp(*, mock: bool) -> ERPMCPServer:
-    from openquote.mcp.mock import MockERP  # noqa: PLC0415
+    from electronics_rfq_agent.mcp.mock import MockERP  # noqa: PLC0415
 
-    if mock or os.environ.get("OPENQUOTE_USE_MOCK", "").lower() == "true":
+    if mock or os.environ.get("ERFA_USE_MOCK", "").lower() == "true":
         return MockERP()
 
-    from openquote.mcp.epicor import EpicorMCP  # noqa: PLC0415
+    from electronics_rfq_agent.mcp.epicor import EpicorMCP  # noqa: PLC0415
 
     return EpicorMCP()
 

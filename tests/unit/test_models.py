@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from openquote.models import (
+from electronics_rfq_agent.models import (
     ERPConfig,
     ERPPartResult,
     Quote,

@@ -8,31 +8,31 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 ## Priority 1 — Correctness / Credibility ✅ All done (0.1.1)
 
 - [x] **A1: Fix `run_sync()` for existing event loops**
-  Files: `src/openquote/agent.py:89`
+  Files: `src/electronics_rfq_agent/agent.py:89`
   Fix: detect running loop, use `nest_asyncio`. Added `nest_asyncio` to core deps.
 
 - [x] **A2: Add semaphore to `asyncio.gather()` in `agent.py:62`**
-  Files: `src/openquote/agent.py:62`, `src/openquote/agent.py:29` (constructor)
+  Files: `src/electronics_rfq_agent/agent.py:62`, `src/electronics_rfq_agent/agent.py:29` (constructor)
   Fix: `asyncio.Semaphore(max_concurrent=10)` configurable via `QuoteAgent(max_concurrent=10)`.
 
 - [x] **A3: Wrap SAP PyRFC calls in `asyncio.to_thread()`**
-  Files: `src/openquote/mcp/sap.py` — all async methods
+  Files: `src/electronics_rfq_agent/mcp/sap.py` — all async methods
   Fix: each BAPI call wrapped in `asyncio.to_thread()`.
 
 - [x] **A4: Guard `response.content[0].text` in `parser.py:88` and `parser.py:186`**
-  Files: `src/openquote/parser.py`
+  Files: `src/electronics_rfq_agent/parser.py`
   Fix: `RFQParseError` exception class; both call sites guarded with explicit check + raise.
 
 - [x] **Q3: Refactor SAP get_price() double-BAPI-call**
-  Files: `src/openquote/mcp/sap.py:~140`
+  Files: `src/electronics_rfq_agent/mcp/sap.py:~140`
   Fix: get_price() now uses direct BAPI call, does not re-call get_part().
 
 - [x] **Q4: Distinguish SAP connection errors from part-not-found**
-  Files: `src/openquote/mcp/sap.py:105-106`
+  Files: `src/electronics_rfq_agent/mcp/sap.py:105-106`
   Fix: `ERPConnectionError` raised for connection/auth failures; `None` returned for part-not-found.
 
 - [x] **P5: Fix Excel multi-sheet parsing**
-  Files: `src/openquote/parser.py:95`
+  Files: `src/electronics_rfq_agent/parser.py:95`
   Fix: iterates `wb.worksheets`, runs `_find_header_row()` on each, parses first valid sheet.
 
 - [x] **README: Fix SAP "Supported" claim**
@@ -44,15 +44,15 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 ## Priority 2 — Code Quality / Honesty ✅ All done (0.1.1)
 
 - [x] **Q1: Delete dead `_lookup_part()` method**
-  Files: `src/openquote/agent.py`
+  Files: `src/electronics_rfq_agent/agent.py`
   Fix: removed.
 
 - [x] **Q2: Fix `datetime.utcnow` deprecation**
-  Files: `src/openquote/models.py`
+  Files: `src/electronics_rfq_agent/models.py`
   Fix: `datetime.now(timezone.utc)`.
 
 - [x] **Q3: Wire `ERPConfig` to connectors via `from_config()` classmethods**
-  Files: `src/openquote/mcp/epicor.py`, `sap.py`, `oracle.py`, `dynamics.py`
+  Files: `src/electronics_rfq_agent/mcp/epicor.py`, `sap.py`, `oracle.py`, `dynamics.py`
   Fix: `@classmethod from_config(cls, cfg: ERPConfig)` on all four connectors.
 
 - [x] **Q4b: Rename `bench_parse_accuracy()` and add real parse accuracy benchmark**
@@ -67,9 +67,9 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 
 ## Priority 3 — Strategic / UX ✅ Done (0.1.1)
 
-- [x] **S1: Add CLI entry point: `openquote quote rfq.xlsx`**
-  Files: `src/openquote/cli.py`, `pyproject.toml`
-  Fix: Typer CLI. `openquote quote rfq.xlsx [--mock] [--margin 0.15]`.
+- [x] **S1: Add CLI entry point: `erfa quote rfq.xlsx`**
+  Files: `src/electronics_rfq_agent/cli.py`, `pyproject.toml`
+  Fix: Typer CLI. `erfa quote rfq.xlsx [--mock] [--margin 0.15]`.
 
 ---
 
@@ -112,17 +112,17 @@ All items below passed the scope challenge (fix root cause, no scope creep).
 ## Engineering (session 2026-06-19) ✅ All done
 
 - [x] **B1: Extract shared OAuth2 helper to eliminate DRY violation**
-  Files: `src/openquote/mcp/_oauth.py` (new), `oracle.py`, `dynamics.py`
+  Files: `src/electronics_rfq_agent/mcp/_oauth.py` (new), `oracle.py`, `dynamics.py`
   Fix: `fetch_client_credentials_token()` shared helper; Oracle + Dynamics each keep own token state.
   Commit: d5280ed
 
 - [x] **B2: Deduplicate ERP lookups for repeated part numbers per run**
-  Files: `src/openquote/agent.py:68-83`
+  Files: `src/electronics_rfq_agent/agent.py:68-83`
   Fix: `asyncio.Task` cache keyed on `(part_number, quantity)`; duplicate lines share one ERP call.
   Commit: c43157a
 
 - [x] **B3: Prevent concurrent token refreshes; validate tenant_id UUID format**
-  Files: `src/openquote/mcp/oracle.py`, `dynamics.py`
+  Files: `src/electronics_rfq_agent/mcp/oracle.py`, `dynamics.py`
   Fix: `asyncio.Lock` per connector instance guards the token check-and-refresh; `DynamicsMCP.__init__`
   validates `tenant_id` against UUID regex at construction time.
   Commit: a990b61

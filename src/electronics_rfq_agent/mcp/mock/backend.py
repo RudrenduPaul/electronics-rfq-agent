@@ -5,8 +5,8 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPPartResult
+from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.models import ERPPartResult
 
 _CATALOG_PATH = Path(__file__).parent / "data" / "catalog.json"
 

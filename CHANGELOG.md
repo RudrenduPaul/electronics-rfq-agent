@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to openquote are documented here.
+All notable changes to Electronics RFQ Agent are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -30,7 +30,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - `ERPConnectionError` — public exception for ERP connection/auth failures
 - `RFQParseError` — public exception for unparseable RFQ documents
-- CLI: `openquote quote rfq.xlsx [--mock] [--margin 0.15]` (Typer)
+- CLI: `erfa quote rfq.xlsx [--mock] [--margin 0.15]` (Typer)
 - 18 new tests: OAuth2 token flows (Dynamics, Oracle), mock-pyrfc SAP paths, parser edge cases, `run_sync()` under active event loop
 
 ## [0.1.0] - 2026-06-19
@@ -46,7 +46,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `MockERP`: in-memory mock ERP backend with 200 realistic electronics parts for local development
 - Pydantic v2 models: `RFQLineItem`, `ERPPartResult`, `QuoteLineItem`, `Quote`, `ERPConfig`
 - `ERPConfig.__repr__` masks `api_key` and `password` fields
-- `docker-compose.yml` for self-hosted deployment (no ERP system required with `OPENQUOTE_USE_MOCK=true`)
+- `docker-compose.yml` for self-hosted deployment (no ERP system required with `ERFA_USE_MOCK=true`)
 - CI pipeline: lint (ruff) + type-check (mypy strict) + tests (pytest, 80% coverage) + security (trivy) across Python 3.10/3.11/3.12
 - Reproducible benchmarks: `python benchmarks/run.py` completes in under 5 minutes using mock backend
 - OpenSSF Scorecard workflow (weekly)
