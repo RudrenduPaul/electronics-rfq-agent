@@ -104,7 +104,7 @@ class QuoteAgent:
         elapsed = time.monotonic() - start
         if is_tty:
             _console.print(
-                f"[green]Quote complete[/green] — "
+                f"[green]Quote complete[/green]: "
                 f"{len(rfq_lines)} lines in {elapsed:.1f}s"
             )
         if self._telemetry is not None:

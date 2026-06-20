@@ -20,7 +20,7 @@ from electronics_rfq_agent.mcp.base import ERPMCPServer
 
 app = typer.Typer(
     name="erfa",
-    help="Electronics RFQ Agent — AI quoting agent for electronics distributors. RFQ in, quote out.",
+    help="Electronics RFQ Agent: AI quoting agent for electronics distributors. RFQ in, quote out.",
     add_completion=False,
     no_args_is_help=True,
 )
@@ -109,7 +109,7 @@ def audit(
     total = data.get("total_price", "0.00")
     currency = data.get("currency", "USD")
 
-    typer.echo(f"Audit Report — Quote {quote_id}")
+    typer.echo(f"Audit Report - Quote {quote_id}")
     typer.echo(f"RFQ Source : {rfq_source}")
     typer.echo(f"Lines      : {len(lines)}")
     typer.echo(f"Total      : {currency} {total}")
