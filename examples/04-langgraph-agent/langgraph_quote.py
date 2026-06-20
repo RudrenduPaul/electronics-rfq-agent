@@ -25,7 +25,8 @@ try:
     from langgraph.graph import END, StateGraph
 except ImportError as exc:
     raise ImportError(
-        "LangGraph not installed. Run: pip install 'electronics-rfq-agent[langchain]' langgraph"
+        "LangGraph not installed. "
+        "Run: pip install 'electronics-rfq-agent[langchain]' langgraph"
     ) from exc
 
 from electronics_rfq_agent import QuoteAgent
