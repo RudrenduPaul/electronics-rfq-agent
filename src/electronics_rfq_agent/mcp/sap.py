@@ -17,7 +17,7 @@ class SAPMCP(ERPMCPServer):
     """SAP ECC / S/4HANA connector using PyRFC BAPI calls.
 
     Requires the SAP NetWeaver RFC Library and pyrfc to be installed.
-    pyrfc is not available on PyPI — see docs/erp-setup/sap.md for manual
+    pyrfc is not available on PyPI -- see docs/erp-setup/sap.md for manual
     installation instructions.
 
     Required SAP authorizations:
@@ -78,17 +78,22 @@ class SAPMCP(ERPMCPServer):
             except ImportError as exc:
                 raise ImportError(
                     "pyrfc is required for SAP connectivity. "
-                    "pyrfc is not available on PyPI — the SAP NetWeaver RFC Library "
+                    "pyrfc is not available on PyPI -- the SAP NetWeaver RFC Library "
                     "must be installed manually. See docs/erp-setup/sap.md."
                 ) from exc
-            self._conn = await asyncio.to_thread(
-                pyrfc.Connection,
-                ashost=self._host,
-                sysnr=self._sysnr,
-                client=self._client,
-                user=self._user,
-                passwd=self._password,
-            )
+            try:
+                self._conn = await asyncio.to_thread(
+                    pyrfc.Connection,
+                    ashost=self._host,
+                    sysnr=self._sysnr,
+                    client=self._client,
+                    user=self._user,
+                    passwd=self._password,
+                )
+            except Exception as exc:
+                raise ERPConnectionError(
+                    f"SAP connection failed for host {self._host!r}: {exc}"
+                ) from exc
             return self._conn
 
     async def search_parts(self, query: str, limit: int = 20) -> list[ERPPartResult]:
@@ -105,6 +110,7 @@ class SAPMCP(ERPMCPServer):
                 ],
             )
         matnrs = [m["MATNR"] for m in result.get("MATNRLIST", [])[:limit]]
+        await self._get_conn()
         parts = await asyncio.gather(*[self.get_part(m) for m in matnrs])
         return [p for p in parts if p is not None]
 
@@ -119,10 +125,20 @@ class SAPMCP(ERPMCPServer):
         mat_general, mat_plant = detail
         price_data = await self._bapi_pricing(part_number)
 
+        if price_data:
+            unit_price: Decimal = Decimal(str(price_data.get("PRICE") or "0"))
+        else:
+            erp_price = mat_general.get("MOVING_PRICE") or mat_general.get(
+                "STANDARD_PRICE"
+            )
+            unit_price = (
+                Decimal(str(erp_price)) if erp_price is not None else Decimal("0")
+            )
+
         return ERPPartResult(
             part_number=str(mat_general.get("MATERIAL", part_number)),
             description=str(mat_general.get("MATL_DESC", "")),
-            unit_price=Decimal(str(price_data.get("PRICE") or "0")),
+            unit_price=unit_price,
             available_qty=int(mat_plant.get("TOTAL_STOCK") or 0),
             lead_time_days=int(mat_plant.get("REPLENISHMENT_LEAD_TIME") or 0),
             manufacturer=str(mat_general.get("MANUFACTURER", "")),
@@ -138,9 +154,11 @@ class SAPMCP(ERPMCPServer):
         return Decimal(str(price_data.get("PRICE") or "0"))
 
     async def close(self) -> None:
-        if self._conn is not None:
-            await asyncio.to_thread(self._conn.close)
-            self._conn = None
+        async with self._bapi_lock:
+            async with self._conn_lock:
+                if self._conn is not None:
+                    await asyncio.to_thread(self._conn.close)
+                    self._conn = None
 
     async def _bapi_material_detail(
         self, part_number: str

@@ -106,6 +106,13 @@ def audit(
         typer.echo(f"error: invalid JSON in {quote_file}: {exc}", err=True)
         raise typer.Exit(code=1) from exc
 
+    if not isinstance(data, dict):
+        typer.echo(
+            f"error: expected a JSON object in {quote_file}, got {type(data).__name__}",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
     lines = data.get("lines", [])
     rfq_source = data.get("rfq_source", "unknown")
     quote_id = data.get("id", "")[:8]

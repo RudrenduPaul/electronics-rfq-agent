@@ -181,6 +181,19 @@ class TestEpicorHTTP:
         await epicor.close()
         assert epicor._client is None
 
+    def test_map_part_defaults(self) -> None:
+        result = EpicorMCP._map_part({})
+        assert result.part_number == ""
+        assert result.unit_price == Decimal("0")
+        assert result.available_qty == 0
+
+    def test_map_part_with_null_fields(self) -> None:
+        result = EpicorMCP._map_part(
+            {"UnitPrice": None, "OnHandQty": None, "LeadTime": None}
+        )
+        assert result.unit_price == Decimal("0")
+        assert result.available_qty == 0
+
 
 # ---------------------------------------------------------------------------
 # Oracle HTTP tests
@@ -314,6 +327,19 @@ class TestOracleMCPHTTP:
         assert result.part_number == ""
         assert result.unit_price == Decimal("0")
         assert result.available_qty == 0
+
+    def test_map_item_with_null_fields(self) -> None:
+        result = OracleMCP._map_item(
+            {
+                "ItemNumber": "X",
+                "ListPrice": None,
+                "OnHandQuantity": None,
+                "LeadTime": None,
+            }
+        )
+        assert result.unit_price == Decimal("0")
+        assert result.available_qty == 0
+        assert result.lead_time_days == 0
 
     def test_map_item_full(self) -> None:
         result = OracleMCP._map_item(
@@ -560,6 +586,19 @@ class TestDynamicsMCPHTTP:
         assert result.part_number == ""
         assert result.unit_price == Decimal("0")
         assert result.available_qty == 0
+
+    def test_map_product_with_null_fields(self) -> None:
+        result = DynamicsMCP._map_product(
+            {
+                "productnumber": "X",
+                "price": None,
+                "quantityonhand": None,
+                "leadtime": None,
+            }
+        )
+        assert result.unit_price == Decimal("0")
+        assert result.available_qty == 0
+        assert result.lead_time_days == 0
 
     def test_map_product_full(self) -> None:
         result = DynamicsMCP._map_product(
