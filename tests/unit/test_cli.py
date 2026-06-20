@@ -157,9 +157,13 @@ class TestCLIMockFlag:
 
         rfq = tmp_path / "rfq.txt"
         rfq.write_text("dummy")
+        env_overrides = {
+            "ERFA_EPICOR_URL": "https://epicor.test.example.com",
+            "ERFA_EPICOR_API_KEY": "dGVzdDp0ZXN0",
+        }
         with patch("electronics_rfq_agent.agent.QuoteAgent") as mock_cls:
             mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
-            with patch.dict(os.environ, {}, clear=False):
+            with patch.dict(os.environ, env_overrides, clear=False):
                 os.environ.pop("ERFA_USE_MOCK", None)
                 runner.invoke(app, ["quote", str(rfq)])
         erp_arg = mock_cls.call_args.kwargs.get("erp")

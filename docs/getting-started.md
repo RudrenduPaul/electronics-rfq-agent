@@ -81,7 +81,7 @@ See `.env.example` for the full list.
 | Format | Parser |
 |---|---|
 | PDF | Claude vision API (reads tables and text) |
-| Excel (.xlsx, .xls) | openpyxl (reads first sheet, auto-detects header row) |
+| Excel (.xlsx, .xls) | openpyxl (searches all worksheets for BOM header row, parses first match) |
 | Word (.docx) | python-docx (reads all tables) |
 | Plain text | Claude API (sends text directly) |
 

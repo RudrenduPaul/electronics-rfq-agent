@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import os
+import re
 from decimal import Decimal
 from typing import Any
 
-from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.mcp.base import ERPMCPServer, _sanitize
 from electronics_rfq_agent.models import ERPConfig, ERPConnectionError, ERPPartResult
 
 # pyrfc raises ABAPApplicationError for "material not found" responses.
@@ -58,11 +60,39 @@ class SAPMCP(ERPMCPServer):
         self._user = user or os.environ.get("ERFA_SAP_USER", "")
         self._password = password or os.environ.get("ERFA_SAP_PASSWORD", "")
         self._plant = plant
+        if not use_mock:
+            self._validate_connection_params()
         self._conn: Any | None = None
         # pyrfc connections are not thread-safe; serialise all BAPI calls.
         self._bapi_lock = asyncio.Lock()
         # Separate lock guards lazy connection initialisation.
         self._conn_lock = asyncio.Lock()
+
+    def _validate_connection_params(self) -> None:
+        if not self._host:
+            raise ValueError("SAP host must not be empty")
+        try:
+            addr = ipaddress.ip_address(self._host)
+            if addr.is_loopback or addr.is_link_local or addr.is_private:
+                raise ValueError(
+                    f"SAP host {self._host!r} resolves to a disallowed address range"
+                )
+        except ValueError as exc:
+            if "disallowed address range" in str(exc):
+                raise
+            _hostname_re = r"[A-Za-z0-9]([A-Za-z0-9\-\.]{0,253}[A-Za-z0-9])?"
+            if not re.fullmatch(_hostname_re, self._host):
+                raise ValueError(
+                    f"SAP host {self._host!r} is not a valid hostname or IP address"
+                ) from exc
+        if not re.fullmatch(r"\d{2}", self._sysnr):
+            raise ValueError(
+                f"SAP sysnr {self._sysnr!r} must be a 2-digit numeric string"
+            )
+        if not re.fullmatch(r"\d{3}", self._client):
+            raise ValueError(
+                f"SAP client {self._client!r} must be a 3-digit numeric string"
+            )
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> SAPMCP:
@@ -106,11 +136,10 @@ class SAPMCP(ERPMCPServer):
                 conn.call,
                 "BAPI_MATERIAL_GETLIST",
                 MATNRSELECTION=[
-                    {"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{query}*"}
+                    {"SIGN": "I", "OPTION": "CP", "MATNR_LOW": f"*{_sanitize(query)}*"}
                 ],
             )
         matnrs = [m["MATNR"] for m in result.get("MATNRLIST", [])[:limit]]
-        await self._get_conn()
         parts = await asyncio.gather(*[self.get_part(m) for m in matnrs])
         return [p for p in parts if p is not None]
 

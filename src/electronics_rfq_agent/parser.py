@@ -62,7 +62,11 @@ class RFQParser:
         import anthropic  # noqa: PLC0415
 
         client = anthropic.AsyncAnthropic()
-        pdf_data = base64.standard_b64encode(path.read_bytes()).decode("utf-8")
+        try:
+            raw_bytes = path.read_bytes()
+        except (FileNotFoundError, OSError) as exc:
+            raise RFQParseError(f"Cannot read {path}: {exc}") from exc
+        pdf_data = base64.standard_b64encode(raw_bytes).decode("utf-8")
         response = await client.messages.create(
             model=self.model,
             max_tokens=4096,
@@ -99,7 +103,10 @@ class RFQParser:
     def _parse_excel(self, path: Path) -> list[RFQLineItem]:
         import openpyxl  # noqa: PLC0415
 
-        wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+        try:
+            wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+        except (FileNotFoundError, OSError) as exc:
+            raise RFQParseError(f"Cannot read {path}: {exc}") from exc
 
         # Search all sheets for one with a recognizable BOM header.
         # Active sheet is often a cover/summary page; the BOM may be on another sheet.
@@ -143,7 +150,10 @@ class RFQParser:
     def _parse_word(self, path: Path) -> list[RFQLineItem]:
         from docx import Document  # noqa: PLC0415
 
-        doc = Document(str(path))
+        try:
+            doc = Document(str(path))
+        except (FileNotFoundError, OSError) as exc:
+            raise RFQParseError(f"Cannot read {path}: {exc}") from exc
         items: list[RFQLineItem] = []
         line_number = 1
 
@@ -211,9 +221,21 @@ class RFQParser:
         # json.loads returns Any at runtime; guard against models returning a
         # JSON object or scalar instead of the expected array.
         if not isinstance(raw, list):
-            raise RFQParseError(
-                f"Model returned a JSON {type(raw).__name__}, expected an array"
-            )
+            if isinstance(raw, dict):
+                extracted: list[Any] | None = None
+                for key in ("items", "line_items", "results", "data"):
+                    if key in raw and isinstance(raw[key], list):
+                        extracted = raw[key]
+                        break
+                if extracted is None:
+                    raise RFQParseError(
+                        f"Model returned a JSON {type(raw).__name__}, expected an array"
+                    )
+                raw = extracted
+            else:
+                raise RFQParseError(
+                    f"Model returned a JSON {type(raw).__name__}, expected an array"
+                )
         items: list[RFQLineItem] = []
         for i, row in enumerate(raw, start=1):
             try:

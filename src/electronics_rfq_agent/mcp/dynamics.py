@@ -6,14 +6,16 @@ import re
 import time
 from decimal import Decimal
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
 from electronics_rfq_agent.mcp._oauth import fetch_client_credentials_token
-from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.mcp.base import ERPMCPServer, _sanitize
 from electronics_rfq_agent.models import ERPConfig, ERPPartResult
 
 _AZURE_TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"  # noqa: S105
+_MAX_RESPONSE_BYTES = 10 * 1024 * 1024  # 10 MB
 _UUID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
     re.IGNORECASE,
@@ -65,6 +67,13 @@ class DynamicsMCP(ERPMCPServer):
         self._token_lock = asyncio.Lock()
         if self._tenant_id and not _UUID_RE.match(self._tenant_id):
             raise ValueError(f"tenant_id must be a valid UUID; got {self._tenant_id!r}")
+        if not use_mock:
+            _parsed = urlparse(self._base_url)
+            if _parsed.scheme != "https" or not _parsed.netloc:
+                raise ValueError(
+                    "DynamicsMCP base_url must be https:// with a non-empty host;"
+                    f" got {self._base_url!r}"
+                )
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> DynamicsMCP:
@@ -118,7 +127,7 @@ class DynamicsMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client()
-        safe_query = query.replace("'", "''")
+        safe_query = _sanitize(query).replace("'", "''")
         response = await client.get(
             "/products",
             headers={"Authorization": f"Bearer {token}"},
@@ -132,7 +141,15 @@ class DynamicsMCP(ERPMCPServer):
             },
         )
         response.raise_for_status()
-        return [self._map_product(p) for p in response.json().get("value", [])]
+        content_length = int(response.headers.get("content-length", 0))
+        if content_length > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Dynamics 365 response too large: {content_length} bytes")
+        body = response.content
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Dynamics 365 response too large: {len(body)} bytes")
+        import json as _json  # noqa: PLC0415
+
+        return [self._map_product(p) for p in _json.loads(body).get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
@@ -140,7 +157,7 @@ class DynamicsMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client()
-        safe_pn = part_number.replace("'", "''")
+        safe_pn = _sanitize(part_number).replace("'", "''")
         response = await client.get(
             "/products",
             headers={"Authorization": f"Bearer {token}"},
@@ -151,7 +168,15 @@ class DynamicsMCP(ERPMCPServer):
             },
         )
         response.raise_for_status()
-        values = response.json().get("value", [])
+        content_length = int(response.headers.get("content-length", 0))
+        if content_length > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Dynamics 365 response too large: {content_length} bytes")
+        body = response.content
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Dynamics 365 response too large: {len(body)} bytes")
+        import json as _json  # noqa: PLC0415
+
+        values = _json.loads(body).get("value", [])
         return self._map_product(values[0]) if values else None
 
     async def close(self) -> None:

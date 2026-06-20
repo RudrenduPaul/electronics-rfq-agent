@@ -5,7 +5,7 @@ Run with: python benchmarks/run.py
 Requires: ERFA_USE_MOCK=true (default) or a real ERP connection.
 
 Measures:
-1. Parse accuracy on synthetic test RFQs
+1. JSON deserialization throughput (no AI parsing, no Anthropic API call)
 2. ERP lookup latency (P50, P99) per line item
 3. End-to-end quote generation time for 10, 25, 50-line RFQs
 """

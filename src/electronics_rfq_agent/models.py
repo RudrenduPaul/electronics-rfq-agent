@@ -32,7 +32,7 @@ class RFQLineItem(BaseModel):
         sanitized = v.strip()
         if not sanitized:
             raise ValueError("part_number cannot be empty after stripping whitespace")
-        if any(ord(c) < 32 for c in sanitized if c not in ("\t",)):  # noqa: PLR2004
+        if any(ord(c) < 32 or ord(c) > 126 for c in sanitized):  # noqa: PLR2004
             raise ValueError("part_number contains invalid control characters")
         return sanitized
 
@@ -88,7 +88,7 @@ class Quote(BaseModel):
             ),
             Decimal("0"),
         )
-        if abs(computed - self.total_price) > Decimal("0.01"):
+        if abs(computed - self.total_price) >= Decimal("0.01"):
             raise ValueError(
                 f"total_price {self.total_price} does not match computed sum {computed}"
             )

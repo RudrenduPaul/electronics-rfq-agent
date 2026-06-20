@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 import asyncio
+import json as _json
 import os
 import time
 from decimal import Decimal
 from typing import Any
 from urllib.parse import quote as urlquote
+from urllib.parse import urlparse
 
 import httpx
 
 from electronics_rfq_agent.mcp._oauth import fetch_client_credentials_token
-from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.mcp.base import ERPMCPServer, _sanitize
 from electronics_rfq_agent.models import ERPConfig, ERPPartResult
+
+_MAX_RESPONSE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 class OracleMCP(ERPMCPServer):
@@ -44,6 +48,13 @@ class OracleMCP(ERPMCPServer):
         self._base_url = (
             base_url or os.environ.get("ERFA_ORACLE_BASE_URL", "")
         ).rstrip("/")
+        if not use_mock:
+            _parsed = urlparse(self._base_url)
+            if _parsed.scheme != "https" or not _parsed.netloc:
+                raise ValueError(
+                    "OracleMCP base_url must be an https:// URL with a non-empty host;"
+                    f" got {self._base_url!r}"
+                )
         self._client_id = client_id or os.environ.get("ERFA_ORACLE_CLIENT_ID", "")
         self._client_secret = client_secret or os.environ.get(
             "ERFA_ORACLE_CLIENT_SECRET", ""
@@ -100,7 +111,9 @@ class OracleMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client()
-        safe_query = query.replace("%", r"\%").replace("_", r"\_").replace("'", "''")
+        safe_query = (
+            _sanitize(query).replace("%", r"\%").replace("_", r"\_").replace("'", "''")
+        )
         response = await client.get(
             "/fscmRestApi/resources/11.13.18.05/items",
             headers={"Authorization": f"Bearer {token}"},
@@ -114,7 +127,13 @@ class OracleMCP(ERPMCPServer):
             },
         )
         response.raise_for_status()
-        return [self._map_item(item) for item in response.json().get("items", [])]
+        content_length = int(response.headers.get("content-length", 0))
+        if content_length > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Oracle SCM response too large: {content_length} bytes")
+        body = response.content
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Oracle SCM response too large: {len(body)} bytes")
+        return [self._map_item(item) for item in _json.loads(body).get("items", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
@@ -122,7 +141,7 @@ class OracleMCP(ERPMCPServer):
 
         token = await self._ensure_token()
         client = self._get_client()
-        encoded_pn = urlquote(part_number, safe="")
+        encoded_pn = urlquote(_sanitize(part_number), safe="")
         response = await client.get(
             f"/fscmRestApi/resources/11.13.18.05/items/{encoded_pn}",
             headers={"Authorization": f"Bearer {token}"},
@@ -130,7 +149,13 @@ class OracleMCP(ERPMCPServer):
         if response.status_code == 404:  # noqa: PLR2004
             return None
         response.raise_for_status()
-        return self._map_item(response.json())
+        content_length = int(response.headers.get("content-length", 0))
+        if content_length > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Oracle SCM response too large: {content_length} bytes")
+        body = response.content
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError(f"Oracle SCM response too large: {len(body)} bytes")
+        return self._map_item(_json.loads(body))
 
     async def close(self) -> None:
         if self._client is not None:

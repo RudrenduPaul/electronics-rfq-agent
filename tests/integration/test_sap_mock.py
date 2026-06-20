@@ -22,7 +22,10 @@ class TestSAPMCPInit:
         assert sap._mock is not None
 
     def test_no_mock_when_env_not_set(self) -> None:
-        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+        with patch.dict(
+            os.environ,
+            {"ERFA_USE_MOCK": "false", "ERFA_SAP_HOST": "sap.test"},
+        ):
             sap = SAPMCP()
         assert sap._mock is None
 
@@ -129,7 +132,7 @@ class TestSAPMCPGetConn:
     @pytest.mark.asyncio
     async def test_returns_existing_conn_if_set(self) -> None:
         with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
-            sap = SAPMCP()
+            sap = SAPMCP(host="sap.test", sysnr="00", client="100")
         mock_conn = object()
         sap._conn = mock_conn
         # Should return existing conn without trying to import pyrfc

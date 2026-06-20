@@ -46,3 +46,12 @@ class ERPMCPServer(ABC):
 
     async def close(self) -> None:  # noqa: B027
         """Release resources. Override in subclasses that hold connections."""
+
+
+def _sanitize(value: str) -> str:
+    """Strip ASCII control characters from user-supplied ERP query strings.
+
+    Prevents newline-hash injection where \\n# in an OData predicate hides
+    trailing arguments from path validation.
+    """
+    return "".join(c for c in value if ord(c) >= 32 and ord(c) != 127)  # noqa: PLR2004
