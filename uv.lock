@@ -2911,6 +2911,11 @@ langchain = [
     { name = "langchain-core" },
     { name = "langgraph" },
 ]
+langgraph = [
+    { name = "langchain" },
+    { name = "langchain-core" },
+    { name = "langgraph" },
+]
 openai = [
     { name = "openai" },
 ]
@@ -2921,8 +2926,11 @@ requires-dist = [
     { name = "crewai", marker = "extra == 'crewai'", specifier = ">=0.80" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "langchain", marker = "extra == 'langchain'", specifier = ">=0.3" },
+    { name = "langchain", marker = "extra == 'langgraph'", specifier = ">=0.3" },
     { name = "langchain-core", marker = "extra == 'langchain'", specifier = ">=0.3" },
+    { name = "langchain-core", marker = "extra == 'langgraph'", specifier = ">=0.3" },
     { name = "langgraph", marker = "extra == 'langchain'", specifier = ">=0.2" },
+    { name = "langgraph", marker = "extra == 'langgraph'", specifier = ">=0.2" },
     { name = "mcp", specifier = ">=1.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
     { name = "nest-asyncio", specifier = ">=1.6" },
@@ -2943,7 +2951,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.12" },
     { name = "types-openpyxl", marker = "extra == 'dev'" },
 ]
-provides-extras = ["sap", "langchain", "crewai", "openai", "agents", "dev"]
+provides-extras = ["sap", "langchain", "langgraph", "crewai", "openai", "agents", "dev"]
 
 [[package]]
 name = "opentelemetry-api"

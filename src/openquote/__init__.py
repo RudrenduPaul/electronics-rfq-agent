@@ -26,6 +26,7 @@ from openquote.models import (
     RFQLineItem,
     RFQParseError,
 )
+from openquote.telemetry import TelemetryCollector, TelemetryEvent
 
 __version__ = "0.1.0"
 __all__ = [
@@ -43,5 +44,7 @@ __all__ = [
     "QuoteLineItem",
     "RFQLineItem",
     "RFQParseError",
+    "TelemetryCollector",
+    "TelemetryEvent",
     "__version__",
 ]
