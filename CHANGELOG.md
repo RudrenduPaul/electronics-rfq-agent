@@ -52,4 +52,4 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - OpenSSF Scorecard workflow (weekly)
 - Dependabot configuration (weekly pip patches, monthly GitHub Actions updates)
 
-[0.1.0]: https://github.com/RudrenduPaul/openquote-ai/releases/tag/v0.1.0
+[0.1.0]: https://github.com/RudrenduPaul/electronics-rfq-agent/releases/tag/v0.1.0

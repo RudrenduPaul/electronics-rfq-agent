@@ -1,10 +1,10 @@
 # openquote
 
-[![CI](https://github.com/RudrenduPaul/openquote-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/openquote-ai/actions/workflows/ci.yml)
+[![CI](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/openquote.svg)](https://badge.fury.io/py/openquote)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/openquote-ai/badge)](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/openquote-ai)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent/badge)](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent)
 
 Your sales engineers are spending 2-4 hours turning RFQ documents into quotes. This does it in 30 seconds.
 
@@ -30,8 +30,8 @@ print(quote.summary())
 Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
 
 ```bash
-git clone https://github.com/RudrenduPaul/openquote-ai
-cd openquote-ai
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
+cd electronics-rfq-agent
 uv run python benchmarks/run.py
 ```
 
@@ -78,13 +78,52 @@ The MCP architecture means adding a new ERP is writing one file. The parser hand
 ## Self-host in 60 seconds
 
 ```bash
-git clone https://github.com/RudrenduPaul/openquote-ai
-cd openquote-ai
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
+cd electronics-rfq-agent
 cp .env.example .env   # add your ERP credentials and Anthropic API key
 docker compose up -d
 ```
 
 Your quote data never leaves your environment.
+
+## CLI
+
+```bash
+# Generate a quote from an RFQ file
+openquote quote rfq.xlsx --mock
+
+# Save the quote as JSON for later inspection
+openquote quote rfq.xlsx --mock --output quote.json
+
+# Audit what happened: what was found, substituted, or missing and why
+openquote audit quote.json
+```
+
+**Audit output example:**
+
+```
+Audit Report — Quote a1b2c3d4
+RFQ Source : rfq.xlsx
+Lines      : 5
+Total      : USD 42.30
+
+FOUND (3)
+------------------------------------------------------------
+  L  1  RES-0402-10K-1PCT               qty=100  unit=0.0055  ext=0.55
+  L  2  CAP-100NF-50V-X7R-0402          qty=50   unit=0.0121  ext=0.61
+  L  4  IC-LM358-SOIC8                  qty=10   unit=1.6500  ext=16.50
+
+SUBSTITUTED (1)
+------------------------------------------------------------
+  L  3  RES-0402-1K-5PCT                → RES-0402-1K-1PCT
+         Reason : Substituted 'RES-0402-1K-5PCT' with 'RES-0402-1K-1PCT'
+
+NOT FOUND (1)
+------------------------------------------------------------
+  L  5  CUSTOM-CONNECTOR-DB9-M          Part 'CUSTOM-CONNECTOR-DB9-M' not found in ERP catalog
+
+Fill rate: 80%  (3 found / 1 substituted / 1 not found)
+```
 
 ## Integrations
 
@@ -93,7 +132,7 @@ openquote works with any agent framework that supports MCP:
 | Framework | Install | Example |
 |---|---|---|
 | Claude (built-in) | `pip install openquote` | [01-basic-quote](examples/01-basic-quote/) |
-| LangGraph | `pip install 'openquote[langchain]' langgraph` | [04-langgraph-agent](examples/04-langgraph-agent/) |
+| LangGraph | `pip install 'openquote[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
 | OpenAI Agents SDK | `pip install openquote[agents]` | [05-openai-agents](examples/05-openai-agents/) |
 | CrewAI | `pip install openquote[crewai]` | — |
 
@@ -114,6 +153,25 @@ for line in quote.lines:
 print(quote.summary())
 ```
 
+## Design partner telemetry (opt-in)
+
+Design partners can enable anonymized usage telemetry to share aggregate data — no part numbers, prices, or customer information is ever recorded.
+
+```bash
+OPENQUOTE_TELEMETRY=true openquote quote rfq.xlsx --mock
+```
+
+Or in Python:
+
+```python
+from openquote import QuoteAgent, TelemetryCollector
+from openquote.mcp.mock import MockERP
+
+agent = QuoteAgent(erp=MockERP(), telemetry=True)
+```
+
+Data written to `~/.openquote/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and openquote version. To push to a custom endpoint: `OPENQUOTE_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
+
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
@@ -127,5 +185,5 @@ print(quote.summary())
 
 ## Community
 
-GitHub Discussions: [Ask questions, share ideas](https://github.com/RudrenduPaul/openquote-ai/discussions)
+GitHub Discussions: [Ask questions, share ideas](https://github.com/RudrenduPaul/electronics-rfq-agent/discussions)
 Discord: coming soon

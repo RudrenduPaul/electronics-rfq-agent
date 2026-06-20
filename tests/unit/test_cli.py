@@ -200,3 +200,177 @@ class TestCLISummary:
         with patch("openquote.agent.QuoteAgent", return_value=mock_agent):
             runner.invoke(app, ["quote", str(rfq), "--mock"])
         mock_agent.run_sync.assert_called_once_with(rfq)
+
+
+class TestCLIOutput:
+    def test_output_flag_saves_json_file(self, tmp_path: pytest.TempdirFactory) -> None:
+        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+        rfq.write_text("dummy")
+        out = tmp_path / "quote.json"  # type: ignore[operator]
+        with patch("openquote.agent.QuoteAgent") as mock_cls:
+            mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
+            result = runner.invoke(
+                app, ["quote", str(rfq), "--mock", "--output", str(out)]
+            )
+        assert result.exit_code == 0, result.output
+        assert out.exists()
+        import json
+
+        data = json.loads(out.read_text())
+        assert "lines" in data
+        assert "total_price" in data
+
+    def test_output_flag_json_is_valid(self, tmp_path: pytest.TempdirFactory) -> None:
+        rfq = tmp_path / "rfq.txt"  # type: ignore[operator]
+        rfq.write_text("dummy")
+        out = tmp_path / "q.json"  # type: ignore[operator]
+        with patch("openquote.agent.QuoteAgent") as mock_cls:
+            mock_cls.return_value.run_sync.return_value = SIMPLE_QUOTE
+            runner.invoke(app, ["quote", str(rfq), "--mock", "--output", str(out)])
+        import json
+
+        data = json.loads(out.read_text())
+        assert data["rfq_source"] == "test.txt"
+
+
+class TestCLIAudit:
+    def _write_quote_json(self, path: object) -> None:
+        import json
+
+        data = SIMPLE_QUOTE.to_dict()
+        path.write_text(json.dumps(data))  # type: ignore[union-attr]
+
+    def test_audit_exits_zero_on_valid_file(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        f = tmp_path / "q.json"  # type: ignore[operator]
+        self._write_quote_json(f)
+        result = runner.invoke(app, ["audit", str(f)])
+        assert result.exit_code == 0, result.output
+
+    def test_audit_shows_found_section(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        f = tmp_path / "q.json"  # type: ignore[operator]
+        self._write_quote_json(f)
+        result = runner.invoke(app, ["audit", str(f)])
+        assert "FOUND" in result.output
+
+    def test_audit_shows_fill_rate(self, tmp_path: pytest.TempdirFactory) -> None:
+        f = tmp_path / "q.json"  # type: ignore[operator]
+        self._write_quote_json(f)
+        result = runner.invoke(app, ["audit", str(f)])
+        assert "Fill rate" in result.output
+
+    def test_audit_missing_file_exits_nonzero(self) -> None:
+        result = runner.invoke(app, ["audit", "/no/such/file.json"])
+        assert result.exit_code != 0
+
+    def test_audit_invalid_json_exits_nonzero(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        f = tmp_path / "bad.json"  # type: ignore[operator]
+        f.write_text("not json {{{")  # type: ignore[union-attr]
+        result = runner.invoke(app, ["audit", str(f)])
+        assert result.exit_code != 0
+
+    def test_audit_shows_not_found_section(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        import json
+
+        f = tmp_path / "q.json"  # type: ignore[operator]
+        data = MISSING_QUOTE.to_dict()
+        f.write_text(json.dumps(data))  # type: ignore[union-attr]
+        result = runner.invoke(app, ["audit", str(f)])
+        assert "NOT FOUND" in result.output
+
+    def test_audit_shows_substituted_section(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        import json
+
+        f = tmp_path / "q.json"  # type: ignore[operator]
+        data = SUBSTITUTED_QUOTE.to_dict()
+        f.write_text(json.dumps(data))  # type: ignore[union-attr]
+        result = runner.invoke(app, ["audit", str(f)])
+        assert "SUBSTITUTED" in result.output
+
+
+class TestTelemetry:
+    def test_collector_writes_to_local_file(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+
+        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
+        col.record(
+            TelemetryEvent(
+                erp_type="MockERP",
+                line_count=5,
+                found_count=4,
+                not_found_count=1,
+                substituted_count=0,
+                duration_ms=250,
+            )
+        )
+        import json
+
+        lines = log.read_text().strip().splitlines()  # type: ignore[union-attr]
+        assert len(lines) == 1
+        data = json.loads(lines[0])
+        assert data["erp_type"] == "MockERP"
+        assert data["line_count"] == 5
+
+    def test_collector_appends_multiple_events(
+        self, tmp_path: pytest.TempdirFactory
+    ) -> None:
+        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+
+        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        col = TelemetryCollector(log_path=log)  # type: ignore[arg-type]
+        ev = TelemetryEvent(
+            erp_type="EpicorMCP",
+            line_count=2,
+            found_count=2,
+            not_found_count=0,
+            substituted_count=0,
+            duration_ms=100,
+        )
+        col.record(ev)
+        col.record(ev)
+        lines = log.read_text().strip().splitlines()  # type: ignore[union-attr]
+        assert len(lines) == 2
+
+    def test_collector_from_env_returns_none_by_default(self) -> None:
+        from openquote.telemetry import collector_from_env
+
+        with patch.dict(os.environ, {"OPENQUOTE_TELEMETRY": "false"}):
+            assert collector_from_env() is None
+
+    def test_collector_from_env_returns_collector_when_enabled(self) -> None:
+        from openquote.telemetry import TelemetryCollector, collector_from_env
+
+        with patch.dict(os.environ, {"OPENQUOTE_TELEMETRY": "true"}):
+            col = collector_from_env()
+        assert isinstance(col, TelemetryCollector)
+
+    def test_http_failure_is_silent(self, tmp_path: pytest.TempdirFactory) -> None:
+        from openquote.telemetry import TelemetryCollector, TelemetryEvent
+
+        log = tmp_path / "tel.jsonl"  # type: ignore[operator]
+        col = TelemetryCollector(
+            log_path=log,  # type: ignore[arg-type]
+            endpoint="http://127.0.0.1:1/nonexistent",
+        )
+        ev = TelemetryEvent(
+            erp_type="MockERP",
+            line_count=1,
+            found_count=1,
+            not_found_count=0,
+            substituted_count=0,
+            duration_ms=10,
+        )
+        col.record(ev)
+        assert log.read_text().strip() != ""  # type: ignore[union-attr]

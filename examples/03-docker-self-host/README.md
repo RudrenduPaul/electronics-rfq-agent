@@ -3,7 +3,7 @@
 No cloud services required except the Anthropic API.
 
 ```bash
-git clone https://github.com/RudrenduPaul/openquote-ai
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
 cd openquote-ai
 cp .env.example .env
 # Edit .env: add your ANTHROPIC_API_KEY

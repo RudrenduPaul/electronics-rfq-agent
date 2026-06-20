@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "Rudrendu Paul", email = "rkpaul.venture@gmail.com"},
+    {name = "Rudrendu Paul", email = "electronics.rfq.agent.oss.security@gmail.com"},
     {name = "Sourav Nandy"},
 ]
 keywords = ["erp", "mcp", "quoting", "electronics", "distribution", "ai", "rfq", "supply-chain"]
@@ -40,6 +40,7 @@ dependencies = [
 [project.optional-dependencies]
 sap = []
 langchain = ["langchain>=0.3", "langchain-core>=0.3", "langgraph>=0.2"]
+langgraph = ["langchain>=0.3", "langchain-core>=0.3", "langgraph>=0.2"]
 crewai = ["crewai>=0.80"]
 openai = ["openai>=1.0"]
 agents = ["openai-agents>=0.0.7", "openai>=1.0"]
@@ -59,10 +60,10 @@ dev = [
 openquote = "openquote.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/RudrenduPaul/openquote-ai"
-Repository = "https://github.com/RudrenduPaul/openquote-ai"
-Documentation = "https://github.com/RudrenduPaul/openquote-ai/tree/main/docs"
-"Bug Tracker" = "https://github.com/RudrenduPaul/openquote-ai/issues"
+Homepage = "https://github.com/RudrenduPaul/electronics-rfq-agent"
+Repository = "https://github.com/RudrenduPaul/electronics-rfq-agent"
+Documentation = "https://github.com/RudrenduPaul/electronics-rfq-agent/tree/main/docs"
+"Bug Tracker" = "https://github.com/RudrenduPaul/electronics-rfq-agent/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openquote"]
