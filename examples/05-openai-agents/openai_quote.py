@@ -1,4 +1,4 @@
-"""OpenAI Agents SDK example: openquote as a function tool.
+"""OpenAI Agents SDK example: Electronics RFQ Agent as a function tool.
 
 The agent accepts a natural-language request that includes an RFQ and calls
 generate_quote to produce a priced draft. The agent can answer follow-up
@@ -6,12 +6,12 @@ questions ("which parts are missing?", "what's the total?") or route the
 quote to an approval workflow using additional tools.
 
 Requirements:
-    pip install openquote[openai] openai-agents
+    pip install electronics-rfq-agent[openai] openai-agents
 
 Environment:
     OPENAI_API_KEY    — required for the OpenAI agent
     ANTHROPIC_API_KEY — required for RFQ document parsing
-    OPENQUOTE_USE_MOCK=true is set automatically below (no real ERP needed)
+    ERFA_USE_MOCK=true is set automatically below (no real ERP needed)
 
 Run:
     OPENAI_API_KEY=sk-...       \\
@@ -24,7 +24,7 @@ from __future__ import annotations
 import asyncio
 import os
 
-os.environ.setdefault("OPENQUOTE_USE_MOCK", "true")
+os.environ.setdefault("ERFA_USE_MOCK", "true")
 
 try:
     from agents import Agent, Runner, function_tool
@@ -33,8 +33,8 @@ except ImportError as exc:
         "OpenAI Agents SDK not installed. Run: pip install openai-agents"
     ) from exc
 
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
 
 SAMPLE_RFQ = """
 RFQ from Acme Electronics — 2026-06-19

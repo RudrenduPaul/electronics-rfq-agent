@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from openquote.agent import QuoteAgent
-from openquote.mcp.mock.backend import MockERP
-from openquote.models import Quote, RFQLineItem
+from electronics_rfq_agent.agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock.backend import MockERP
+from electronics_rfq_agent.models import Quote, RFQLineItem
 
 
 @pytest.fixture

@@ -74,16 +74,16 @@ jobs:
             smoke: |
               python -c "
               import langgraph
-              from openquote import QuoteAgent
-              from openquote.mcp.mock import MockERP
+              from electronics_rfq_agent import QuoteAgent
+              from electronics_rfq_agent.mcp.mock import MockERP
               print('langchain extra OK')
               "
           - extra: agents
             smoke: |
               python -c "
               from agents import Agent, function_tool
-              from openquote import QuoteAgent
-              from openquote.mcp.mock import MockERP
+              from electronics_rfq_agent import QuoteAgent
+              from electronics_rfq_agent.mcp.mock import MockERP
               print('agents extra OK')
               "
 

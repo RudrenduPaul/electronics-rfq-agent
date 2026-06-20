@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from openquote.parser import RFQParser
+from electronics_rfq_agent.parser import RFQParser
 
 SAMPLE_JSON_STR = json.dumps(
     [
@@ -342,7 +342,7 @@ class TestParseRouting:
             mock_client = MagicMock()
             mock_client.messages.create = AsyncMock(return_value=mock_response)
 
-            from openquote.models import RFQParseError
+            from electronics_rfq_agent.models import RFQParseError
 
             with patch("anthropic.AsyncAnthropic", return_value=mock_client):
                 with pytest.raises(RFQParseError, match="no parseable text"):
@@ -360,7 +360,7 @@ class TestParseRouting:
         mock_client = MagicMock()
         mock_client.messages.create = AsyncMock(return_value=mock_response)
 
-        from openquote.models import RFQParseError
+        from electronics_rfq_agent.models import RFQParseError
 
         with patch("anthropic.AsyncAnthropic", return_value=mock_client):
             with pytest.raises(RFQParseError, match="no parseable text"):

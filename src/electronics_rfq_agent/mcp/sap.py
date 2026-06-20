@@ -5,8 +5,8 @@ import os
 from decimal import Decimal
 from typing import Any
 
-from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPConfig, ERPConnectionError, ERPPartResult
+from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.models import ERPConfig, ERPConnectionError, ERPPartResult
 
 # pyrfc raises ABAPApplicationError for "material not found" responses.
 # All other exceptions are treated as connection/auth failures.
@@ -25,14 +25,14 @@ class SAPMCP(ERPMCPServer):
     - M_MATE_STA: MMSTA (material status)
     - M_MSEG_BWA: BWART (movement type)
 
-    Set OPENQUOTE_USE_MOCK=true to skip SAP and use in-memory mock instead.
+    Set ERFA_USE_MOCK=true to skip SAP and use in-memory mock instead.
 
     Required env vars (or pass to constructor):
-    - OPENQUOTE_SAP_HOST: SAP application server hostname
-    - OPENQUOTE_SAP_SYSNR: system number (e.g. "00")
-    - OPENQUOTE_SAP_CLIENT: client (e.g. "100")
-    - OPENQUOTE_SAP_USER: RFC username
-    - OPENQUOTE_SAP_PASSWORD: RFC password
+    - ERFA_SAP_HOST: SAP application server hostname
+    - ERFA_SAP_SYSNR: system number (e.g. "00")
+    - ERFA_SAP_CLIENT: client (e.g. "100")
+    - ERFA_SAP_USER: RFC username
+    - ERFA_SAP_PASSWORD: RFC password
     """
 
     def __init__(  # noqa: PLR0913
@@ -44,19 +44,19 @@ class SAPMCP(ERPMCPServer):
         password: str | None = None,
         plant: str = "0001",
     ) -> None:
-        use_mock = os.environ.get("OPENQUOTE_USE_MOCK", "").lower() == "true"
+        use_mock = os.environ.get("ERFA_USE_MOCK", "").lower() == "true"
         if use_mock:
-            from openquote.mcp.mock.backend import MockERP  # noqa: PLC0415
+            from electronics_rfq_agent.mcp.mock.backend import MockERP  # noqa: PLC0415
 
             self._mock: MockERP | None = MockERP()
         else:
             self._mock = None
 
-        self._host = host or os.environ.get("OPENQUOTE_SAP_HOST", "")
-        self._sysnr = sysnr or os.environ.get("OPENQUOTE_SAP_SYSNR", "00")
-        self._client = client or os.environ.get("OPENQUOTE_SAP_CLIENT", "100")
-        self._user = user or os.environ.get("OPENQUOTE_SAP_USER", "")
-        self._password = password or os.environ.get("OPENQUOTE_SAP_PASSWORD", "")
+        self._host = host or os.environ.get("ERFA_SAP_HOST", "")
+        self._sysnr = sysnr or os.environ.get("ERFA_SAP_SYSNR", "00")
+        self._client = client or os.environ.get("ERFA_SAP_CLIENT", "100")
+        self._user = user or os.environ.get("ERFA_SAP_USER", "")
+        self._password = password or os.environ.get("ERFA_SAP_PASSWORD", "")
         self._plant = plant
         self._conn: Any | None = None
         # pyrfc connections are not thread-safe; serialise all BAPI calls.

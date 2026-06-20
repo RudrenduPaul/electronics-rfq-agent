@@ -1,4 +1,4 @@
-# Getting started with openquote
+# Getting started with Electronics RFQ Agent
 
 ## Prerequisites
 
@@ -9,13 +9,13 @@
 ## Installation
 
 ```bash
-pip install openquote
+pip install electronics-rfq-agent
 ```
 
 For SAP connectivity:
 
 ```bash
-pip install openquote[sap]
+pip install electronics-rfq-agent[sap]
 # Also install SAP NetWeaver RFC Library -- see docs/erp-setup/sap.md
 ```
 
@@ -25,8 +25,8 @@ pip install openquote[sap]
 
 ```python
 import asyncio
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
 
 async def main():
     agent = QuoteAgent(erp=MockERP())
@@ -41,8 +41,8 @@ asyncio.run(main())
 Or synchronously:
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
 
 agent = QuoteAgent(erp=MockERP())
 quote = agent.run_sync("path/to/rfq.xlsx")
@@ -52,8 +52,8 @@ print(quote.summary())
 ### With Epicor Kinetic
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import EpicorMCP
 
 erp = EpicorMCP(
     base_url="https://your-epicor.company.com",
@@ -69,10 +69,10 @@ quote = agent.run_sync("rfq.pdf")
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `ANTHROPIC_API_KEY` | Yes (for PDF/text parsing) | -- | Anthropic API key |
-| `OPENQUOTE_MODEL` | No | `claude-sonnet-4-6` | Anthropic model for parsing |
-| `OPENQUOTE_USE_MOCK` | No | `false` | Force mock backend for all connectors |
-| `OPENQUOTE_EPICOR_URL` | Epicor only | -- | Epicor base URL |
-| `OPENQUOTE_EPICOR_API_KEY` | Epicor only | -- | Epicor Basic auth credentials |
+| `ERFA_MODEL` | No | `claude-sonnet-4-6` | Anthropic model for parsing |
+| `ERFA_USE_MOCK` | No | `false` | Force mock backend for all connectors |
+| `ERFA_EPICOR_URL` | Epicor only | -- | Epicor base URL |
+| `ERFA_EPICOR_API_KEY` | Epicor only | -- | Epicor Basic auth credentials |
 
 See `.env.example` for the full list.
 
@@ -121,8 +121,8 @@ agent = QuoteAgent(erp=erp, margin_pct=0.20)  # 20% margin
 ### With Oracle Cloud SCM
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp.oracle import OracleMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.oracle import OracleMCP
 
 erp = OracleMCP(
     base_url="https://your-tenant.oraclecloud.com",
@@ -136,14 +136,14 @@ quote = agent.run_sync("rfq.xlsx")
 Or load from environment variables:
 
 ```bash
-export OPENQUOTE_ORACLE_BASE_URL="https://your-tenant.oraclecloud.com"
-export OPENQUOTE_ORACLE_CLIENT_ID="your-client-id"
-export OPENQUOTE_ORACLE_CLIENT_SECRET="your-client-secret"
+export ERFA_ORACLE_BASE_URL="https://your-tenant.oraclecloud.com"
+export ERFA_ORACLE_CLIENT_ID="your-client-id"
+export ERFA_ORACLE_CLIENT_SECRET="your-client-secret"
 ```
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp.oracle import OracleMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.oracle import OracleMCP
 
 agent = QuoteAgent(erp=OracleMCP(), margin_pct=0.15)
 quote = agent.run_sync("rfq.xlsx")
@@ -154,8 +154,8 @@ Oracle uses OAuth 2.0 client credentials flow. The token is fetched automaticall
 ### With Microsoft Dynamics 365
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp.dynamics import DynamicsMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.dynamics import DynamicsMCP
 
 erp = DynamicsMCP(
     tenant_id="your-azure-ad-tenant-id",
@@ -170,10 +170,10 @@ quote = agent.run_sync("rfq.pdf")
 Or from environment variables:
 
 ```bash
-export OPENQUOTE_DYNAMICS_TENANT_ID="your-tenant-id"
-export OPENQUOTE_DYNAMICS_CLIENT_ID="your-client-id"
-export OPENQUOTE_DYNAMICS_CLIENT_SECRET="your-client-secret"
-export OPENQUOTE_DYNAMICS_BASE_URL="https://your-org.api.crm.dynamics.com"
+export ERFA_DYNAMICS_TENANT_ID="your-tenant-id"
+export ERFA_DYNAMICS_CLIENT_ID="your-client-id"
+export ERFA_DYNAMICS_CLIENT_SECRET="your-client-secret"
+export ERFA_DYNAMICS_BASE_URL="https://your-org.api.crm.dynamics.com"
 ```
 
 Dynamics uses OAuth 2.0 via Azure AD. Register an app in Azure Portal, grant it Dynamics CRM user_impersonation scope, and create a client secret. The connector fetches a token automatically and refreshes it on 401.
@@ -183,10 +183,10 @@ Dynamics uses OAuth 2.0 via Azure AD. Register an app in Azure Portal, grant it 
 `ERPConfig` is a Pydantic model that centralizes ERP credentials. All four connectors expose a `from_config()` classmethod:
 
 ```python
-from openquote.models import ERPConfig
-from openquote.mcp.epicor import EpicorMCP
-from openquote.mcp.oracle import OracleMCP
-from openquote.mcp.dynamics import DynamicsMCP
+from electronics_rfq_agent.models import ERPConfig
+from electronics_rfq_agent.mcp.epicor import EpicorMCP
+from electronics_rfq_agent.mcp.oracle import OracleMCP
+from electronics_rfq_agent.mcp.dynamics import DynamicsMCP
 
 # Load from a config file, database, or secret manager
 cfg = ERPConfig(

@@ -19,8 +19,8 @@ sys.modules.setdefault("pyrfc", _FAKE_PYRFC)
 @pytest.fixture
 def sap_live():
     """SAPMCP instance in live mode with a mocked pyrfc Connection."""
-    with patch.dict("os.environ", {"OPENQUOTE_USE_MOCK": "false"}):
-        from openquote.mcp.sap import SAPMCP
+    with patch.dict("os.environ", {"ERFA_USE_MOCK": "false"}):
+        from electronics_rfq_agent.mcp.sap import SAPMCP
 
         sap = SAPMCP(
             host="sap.test.local",
@@ -102,7 +102,7 @@ class TestSAPLivePaths:
     async def test_get_part_connection_error_raises(self, sap_live) -> None:
         sap, mock_conn = sap_live
 
-        from openquote.models import ERPConnectionError
+        from electronics_rfq_agent.models import ERPConnectionError
 
         mock_conn.call.side_effect = ConnectionError("SAP unreachable")
 
@@ -191,11 +191,11 @@ class TestSAPLivePaths:
         assert results[0].part_number == "RES-0402-10K"
 
     def test_from_config(self) -> None:
-        from openquote.mcp.sap import SAPMCP
-        from openquote.models import ERPConfig
+        from electronics_rfq_agent.mcp.sap import SAPMCP
+        from electronics_rfq_agent.models import ERPConfig
 
         cfg = ERPConfig(erp_type="sap", username="rfcuser", password="rfcpass")
-        with patch.dict("os.environ", {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict("os.environ", {"ERFA_USE_MOCK": "true"}):
             sap = SAPMCP.from_config(cfg)
         assert sap._user == "rfcuser"
         assert sap._password == "rfcpass"

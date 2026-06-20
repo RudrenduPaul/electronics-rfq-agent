@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from types import TracebackType
 
-from openquote.models import ERPPartResult
+from electronics_rfq_agent.models import ERPPartResult
 
 
 class ERPMCPServer(ABC):

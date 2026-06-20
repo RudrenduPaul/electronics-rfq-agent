@@ -17,10 +17,10 @@
 ## Environment variables
 
 ```bash
-OPENQUOTE_DYNAMICS_TENANT_ID=your-tenant-id
-OPENQUOTE_DYNAMICS_CLIENT_ID=your-client-id
-OPENQUOTE_DYNAMICS_CLIENT_SECRET=your-client-secret
-OPENQUOTE_DYNAMICS_BASE_URL=https://your-org.api.crm.dynamics.com
+ERFA_DYNAMICS_TENANT_ID=your-tenant-id
+ERFA_DYNAMICS_CLIENT_ID=your-client-id
+ERFA_DYNAMICS_CLIENT_SECRET=your-client-secret
+ERFA_DYNAMICS_BASE_URL=https://your-org.api.crm.dynamics.com
 ```
 
 ## Endpoints used
@@ -33,8 +33,8 @@ OPENQUOTE_DYNAMICS_BASE_URL=https://your-org.api.crm.dynamics.com
 ## Usage
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import DynamicsMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import DynamicsMCP
 
 agent = QuoteAgent(erp=DynamicsMCP())
 ```
