@@ -1,4 +1,4 @@
-"""Electronics RFQ Agent — AI quoting agent for electronics distributors.
+"""Electronics RFQ Agent: AI quoting agent for electronics distributors.
 
 Quick start:
 
