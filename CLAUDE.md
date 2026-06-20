@@ -3,7 +3,7 @@
 ## Project Identity
 
 - **Product:** openquote -- AI quoting agent for electronics distributors
-- **Repo:** github.com/RudrenduPaul/openquote-ai
+- **Repo:** github.com/RudrenduPaul/electronics-rfq-agent
 - **Language:** Python 3.10+
 - **License:** MIT
 - **Goal:** OSS traction (GitHub stars from ERP/MCP developer community) + design partner pipeline (automation engineers at distributors)

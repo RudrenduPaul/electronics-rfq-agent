@@ -14,7 +14,7 @@ We aim to review PRs within 72 hours (weekdays). If you've waited 5 days with no
 ## Development setup
 
 ```bash
-git clone https://github.com/RudrenduPaul/openquote-ai
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
 cd openquote-ai
 pip install uv
 uv sync --extra dev
@@ -79,4 +79,4 @@ uv run python benchmarks/run.py
 ## Community
 
 Discord: [Join the community](https://discord.gg/openquote) *(coming soon)*
-GitHub Discussions: [Ask questions, share ideas](https://github.com/RudrenduPaul/openquote-ai/discussions)
+GitHub Discussions: [Ask questions, share ideas](https://github.com/RudrenduPaul/electronics-rfq-agent/discussions)

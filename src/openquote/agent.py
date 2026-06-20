@@ -15,6 +15,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from openquote.mcp.base import ERPMCPServer
 from openquote.models import ERPConnectionError, Quote, QuoteLineItem, RFQLineItem
 from openquote.parser import RFQParser
+from openquote.telemetry import TelemetryCollector, TelemetryEvent, collector_from_env
 
 _console = Console(stderr=True)
 
@@ -35,12 +36,19 @@ class QuoteAgent:
         model: str | None = None,
         margin_pct: float = 0.15,
         max_concurrent: int = 10,
+        telemetry: bool | TelemetryCollector = False,
     ) -> None:
         self.erp = erp
         self.model = model or os.environ.get("OPENQUOTE_MODEL", "claude-sonnet-4-6")
         self.margin_pct = Decimal(str(margin_pct))
         self._parser = RFQParser(model=self.model)
         self._semaphore = asyncio.Semaphore(max_concurrent)
+        if isinstance(telemetry, TelemetryCollector):
+            self._telemetry: TelemetryCollector | None = telemetry
+        elif telemetry:
+            self._telemetry = TelemetryCollector()
+        else:
+            self._telemetry = collector_from_env()
 
     async def run(self, rfq_source: str | Path) -> Quote:
         """Parse the RFQ and generate a draft quote.
@@ -93,11 +101,28 @@ class QuoteAgent:
             total_price=total,
         )
 
+        elapsed = time.monotonic() - start
         if is_tty:
-            elapsed = time.monotonic() - start
             _console.print(
                 f"[green]Quote complete[/green] — "
                 f"{len(rfq_lines)} lines in {elapsed:.1f}s"
+            )
+        if self._telemetry is not None:
+            from openquote import __version__  # noqa: PLC0415
+
+            counts = {"found": 0, "not_found": 0, "substituted": 0}
+            for ln in quote.lines:
+                counts[ln.status] = counts.get(ln.status, 0) + 1
+            self._telemetry.record(
+                TelemetryEvent(
+                    erp_type=type(self.erp).__name__,
+                    line_count=len(quote.lines),
+                    found_count=counts["found"],
+                    not_found_count=counts["not_found"],
+                    substituted_count=counts["substituted"],
+                    duration_ms=int(elapsed * 1000),
+                    openquote_version=__version__,
+                )
             )
         return quote
 
