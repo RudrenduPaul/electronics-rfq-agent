@@ -11,7 +11,7 @@ RUN uv pip install --system -e .
 
 COPY . .
 
-ENV OPENQUOTE_USE_MOCK=true
+ENV ERFA_USE_MOCK=true
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "-c", "from openquote import QuoteAgent; print('openquote ready')"]
+CMD ["python", "-c", "from electronics_rfq_agent import QuoteAgent; print('electronics-rfq-agent ready')"]

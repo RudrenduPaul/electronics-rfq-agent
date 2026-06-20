@@ -63,7 +63,7 @@ class TestRFQLineItem:
     def test_frozen_model_immutable(self) -> None:
         item = RFQLineItem(line_number=1, part_number="ABC", quantity=1)
         with pytest.raises(Exception):
-            item.part_number = "NEW"  # type: ignore[misc]
+            item.part_number = "NEW"
 
     def test_negative_quantity_raises(self) -> None:
         with pytest.raises(ValidationError):
@@ -386,7 +386,7 @@ class TestERPConfig:
 
     def test_valid_erp_types(self) -> None:
         for etype in ("epicor", "sap", "oracle", "dynamics", "mock"):
-            cfg = ERPConfig(erp_type=etype)  # type: ignore[arg-type]
+            cfg = ERPConfig(erp_type=etype)
             assert cfg.erp_type == etype
 
     def test_invalid_erp_type_raises(self) -> None:

@@ -112,24 +112,26 @@ class TestSAPMCPWithMock:
 
 
 class TestSAPMCPGetConn:
-    def test_pyrfc_import_error_message(self) -> None:
+    @pytest.mark.asyncio
+    async def test_pyrfc_import_error_message(self) -> None:
         with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP(
                 host="sap.test", sysnr="00", client="100", user="u", password="p"
             )
         with patch.dict("sys.modules", {"pyrfc": None}):
             with pytest.raises(ImportError) as exc_info:
-                sap._get_conn()
+                await sap._get_conn()
             assert (
                 "pyrfc" in str(exc_info.value).lower()
                 or "sap" in str(exc_info.value).lower()
             )
 
-    def test_returns_existing_conn_if_set(self) -> None:
+    @pytest.mark.asyncio
+    async def test_returns_existing_conn_if_set(self) -> None:
         with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP()
         mock_conn = object()
         sap._conn = mock_conn
         # Should return existing conn without trying to import pyrfc
-        conn = sap._get_conn()
+        conn = await sap._get_conn()
         assert conn is mock_conn

@@ -9,6 +9,7 @@ Optional HTTP push: ERFA_TELEMETRY_ENDPOINT=https://your-endpoint/ingest
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import time
@@ -60,7 +61,12 @@ class TelemetryCollector:
     def record(self, event: TelemetryEvent) -> None:
         self._write_local(event)
         if self._endpoint:
-            self._push_http(event)
+            try:
+                loop = asyncio.get_running_loop()
+                _task = loop.create_task(self._push_http_async(event))
+                _task.add_done_callback(lambda _: None)
+            except RuntimeError:
+                self._push_http_sync(event)
 
     def _write_local(self, event: TelemetryEvent) -> None:
         try:
@@ -70,7 +76,20 @@ class TelemetryCollector:
         except Exception:  # noqa: S110 — telemetry must never crash a quote run
             pass
 
-    def _push_http(self, event: TelemetryEvent) -> None:
+    async def _push_http_async(self, event: TelemetryEvent) -> None:
+        try:
+            import httpx  # noqa: PLC0415
+
+            async with httpx.AsyncClient() as client:
+                await client.post(
+                    self._endpoint,
+                    json=event.to_dict(),
+                    timeout=5.0,
+                )
+        except Exception:  # noqa: S110 — telemetry must never crash a quote run
+            pass
+
+    def _push_http_sync(self, event: TelemetryEvent) -> None:
         try:
             import httpx  # noqa: PLC0415
 

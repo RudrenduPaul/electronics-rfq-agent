@@ -15,9 +15,11 @@ _FAKE_PYRFC = MagicMock()
 _FAKE_PYRFC.Connection = MagicMock
 sys.modules.setdefault("pyrfc", _FAKE_PYRFC)
 
+from electronics_rfq_agent.mcp.sap import SAPMCP  # noqa: E402
+
 
 @pytest.fixture
-def sap_live():
+def sap_live() -> tuple[SAPMCP, MagicMock]:
     """SAPMCP instance in live mode with a mocked pyrfc Connection."""
     with patch.dict("os.environ", {"ERFA_USE_MOCK": "false"}):
         from electronics_rfq_agent.mcp.sap import SAPMCP
@@ -65,10 +67,10 @@ _BAPI_GETLIST_RESPONSE = {
 
 class TestSAPLivePaths:
     @pytest.mark.asyncio
-    async def test_get_part_found(self, sap_live) -> None:
+    async def test_get_part_found(self, sap_live: tuple[SAPMCP, MagicMock]) -> None:
         sap, mock_conn = sap_live
 
-        def _call_side_effect(bapi: str, **kwargs):  # type: ignore[no-untyped-def]
+        def _call_side_effect(bapi: str, **kwargs: object) -> dict[str, object]:
             if bapi == "BAPI_MATERIAL_GET_DETAIL":
                 return _BAPI_MATERIAL_RESPONSE
             if bapi == "BAPI_MATERIAL_GETPRICINGINFO":
@@ -87,7 +89,9 @@ class TestSAPLivePaths:
         assert result.manufacturer == "Yageo"
 
     @pytest.mark.asyncio
-    async def test_get_part_not_found_abap_error(self, sap_live) -> None:
+    async def test_get_part_not_found_abap_error(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
 
         class ABAPApplicationError(Exception):
@@ -99,7 +103,9 @@ class TestSAPLivePaths:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_part_connection_error_raises(self, sap_live) -> None:
+    async def test_get_part_connection_error_raises(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
 
         from electronics_rfq_agent.models import ERPConnectionError
@@ -110,7 +116,9 @@ class TestSAPLivePaths:
             await sap.get_part("RES-001")
 
     @pytest.mark.asyncio
-    async def test_get_part_empty_material_data_returns_none(self, sap_live) -> None:
+    async def test_get_part_empty_material_data_returns_none(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
         mock_conn.call.return_value = {"MATERIAL_GENERAL_DATA": {}}
 
@@ -118,7 +126,9 @@ class TestSAPLivePaths:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_price_direct_bapi(self, sap_live) -> None:
+    async def test_get_price_direct_bapi(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         """get_price() should NOT call get_part() — uses the pricing BAPI directly."""
         sap, mock_conn = sap_live
         mock_conn.call.return_value = _BAPI_PRICING_RESPONSE
@@ -131,7 +141,9 @@ class TestSAPLivePaths:
         assert not any("BAPI_MATERIAL_GET_DETAIL" in c for c in call_args)
 
     @pytest.mark.asyncio
-    async def test_get_price_not_found_returns_none(self, sap_live) -> None:
+    async def test_get_price_not_found_returns_none(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
         mock_conn.call.return_value = {"PRICINGDATA": {}}
 
@@ -139,10 +151,12 @@ class TestSAPLivePaths:
         assert price is None
 
     @pytest.mark.asyncio
-    async def test_check_inventory_sufficient(self, sap_live) -> None:
+    async def test_check_inventory_sufficient(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
 
-        def _call_side_effect(bapi: str, **kwargs):  # type: ignore[no-untyped-def]
+        def _call_side_effect(bapi: str, **kwargs: object) -> dict[str, object]:
             if bapi == "BAPI_MATERIAL_GET_DETAIL":
                 return _BAPI_MATERIAL_RESPONSE
             if bapi == "BAPI_MATERIAL_GETPRICINGINFO":
@@ -154,10 +168,12 @@ class TestSAPLivePaths:
         assert await sap.check_inventory("RES-0402-10K", 100) is True
 
     @pytest.mark.asyncio
-    async def test_check_inventory_insufficient(self, sap_live) -> None:
+    async def test_check_inventory_insufficient(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
 
-        def _call_side_effect(bapi: str, **kwargs):  # type: ignore[no-untyped-def]
+        def _call_side_effect(bapi: str, **kwargs: object) -> dict[str, object]:
             if bapi == "BAPI_MATERIAL_GET_DETAIL":
                 return {
                     "MATERIAL_GENERAL_DATA": {"MATERIAL": "RES-001", "MATL_DESC": "R"},
@@ -172,10 +188,12 @@ class TestSAPLivePaths:
         assert await sap.check_inventory("RES-001", 10000) is False
 
     @pytest.mark.asyncio
-    async def test_search_parts_calls_getlist(self, sap_live) -> None:
+    async def test_search_parts_calls_getlist(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
         sap, mock_conn = sap_live
 
-        def _call_side_effect(bapi: str, **kwargs):  # type: ignore[no-untyped-def]
+        def _call_side_effect(bapi: str, **kwargs: object) -> dict[str, object]:
             if bapi == "BAPI_MATERIAL_GETLIST":
                 return _BAPI_GETLIST_RESPONSE
             if bapi == "BAPI_MATERIAL_GET_DETAIL":

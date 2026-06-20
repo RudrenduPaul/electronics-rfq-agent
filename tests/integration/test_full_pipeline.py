@@ -166,6 +166,7 @@ class TestFullPipeline:
         # Cost price at qty=100 gets 10% discount
         cost = part.unit_price * Decimal("0.90")
         expected_sell = (cost * Decimal("1.20")).quantize(Decimal("0.0001"))
+        assert found[0].unit_price is not None
         assert abs(found[0].unit_price - expected_sell) < Decimal("0.001")
 
     @pytest.mark.asyncio

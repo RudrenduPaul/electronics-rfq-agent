@@ -20,16 +20,9 @@ services:
       - .:/app:ro
     command: >
       bash -c "pip install -q pydantic>=2.7 httpx>=0.27 &&
-               PYTHONPATH=/app python -c '
+               PYTHONPATH=/app/src python -c '
 from electronics_rfq_agent.mcp.mock.backend import MockERP
 import asyncio, json
 print(\"Mock ERP backend ready with 200 parts\")
 asyncio.run(asyncio.sleep(86400))
 '"
-    ports:
-      - "8001:8001"
-    healthcheck:
-      test: ["CMD", "python", "-c", "print(\"ok\")"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
