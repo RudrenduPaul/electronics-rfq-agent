@@ -12,10 +12,10 @@ import httpx
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPConnectionError, Quote, QuoteLineItem, RFQLineItem
-from openquote.parser import RFQParser
-from openquote.telemetry import TelemetryCollector, TelemetryEvent, collector_from_env
+from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.models import ERPConnectionError, Quote, QuoteLineItem, RFQLineItem
+from electronics_rfq_agent.parser import RFQParser
+from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent, collector_from_env
 
 _console = Console(stderr=True)
 
@@ -39,7 +39,7 @@ class QuoteAgent:
         telemetry: bool | TelemetryCollector = False,
     ) -> None:
         self.erp = erp
-        self.model = model or os.environ.get("OPENQUOTE_MODEL", "claude-sonnet-4-6")
+        self.model = model or os.environ.get("ERFA_MODEL", "claude-sonnet-4-6")
         self.margin_pct = Decimal(str(margin_pct))
         self._parser = RFQParser(model=self.model)
         self._semaphore = asyncio.Semaphore(max_concurrent)
@@ -108,7 +108,7 @@ class QuoteAgent:
                 f"{len(rfq_lines)} lines in {elapsed:.1f}s"
             )
         if self._telemetry is not None:
-            from openquote import __version__  # noqa: PLC0415
+            from electronics_rfq_agent import __version__  # noqa: PLC0415
 
             counts = {"found": 0, "not_found": 0, "substituted": 0}
             for ln in quote.lines:
@@ -121,7 +121,7 @@ class QuoteAgent:
                     not_found_count=counts["not_found"],
                     substituted_count=counts["substituted"],
                     duration_ms=int(elapsed * 1000),
-                    openquote_version=__version__,
+                    erfa_version=__version__,
                 )
             )
         return quote

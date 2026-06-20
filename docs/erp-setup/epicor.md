@@ -19,16 +19,16 @@ Use the output as your `api_key`.
 ## Environment variables
 
 ```bash
-OPENQUOTE_EPICOR_URL=https://your-epicor.company.com
-OPENQUOTE_EPICOR_API_KEY=dXNlcm5hbWU6cGFzc3dvcmQ=  # base64(user:pass)
-OPENQUOTE_EPICOR_COMPANY=EPIC  # your Epicor company code
+ERFA_EPICOR_URL=https://your-epicor.company.com
+ERFA_EPICOR_API_KEY=dXNlcm5hbWU6cGFzc3dvcmQ=  # base64(user:pass)
+ERFA_EPICOR_COMPANY=EPIC  # your Epicor company code
 ```
 
 ## Usage
 
 ```python
-from openquote import QuoteAgent
-from openquote.mcp import EpicorMCP
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp import EpicorMCP
 
 agent = QuoteAgent(erp=EpicorMCP())  # reads from env vars
 ```

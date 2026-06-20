@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from openquote.agent import QuoteAgent
-from openquote.mcp.mock.backend import MockERP
-from openquote.models import ERPConnectionError, Quote, RFQLineItem
+from electronics_rfq_agent.agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock.backend import MockERP
+from electronics_rfq_agent.models import ERPConnectionError, Quote, RFQLineItem
 
 
 @pytest.fixture
@@ -31,12 +31,12 @@ class TestQuoteAgentInit:
     def test_env_model_override(
         self, mock_erp: MockERP, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("OPENQUOTE_MODEL", "claude-haiku-3")
+        monkeypatch.setenv("ERFA_MODEL", "claude-haiku-3")
         agent = QuoteAgent(erp=mock_erp)
         assert agent.model == "claude-haiku-3"
 
     def test_parser_created(self, mock_erp: MockERP) -> None:
-        from openquote.parser import RFQParser
+        from electronics_rfq_agent.parser import RFQParser
 
         agent = QuoteAgent(erp=mock_erp)
         assert isinstance(agent._parser, RFQParser)

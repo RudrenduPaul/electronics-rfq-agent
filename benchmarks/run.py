@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""End-to-end openquote benchmark suite.
+"""End-to-end Electronics RFQ Agent benchmark suite.
 
 Run with: python benchmarks/run.py
-Requires: OPENQUOTE_USE_MOCK=true (default) or a real ERP connection.
+Requires: ERFA_USE_MOCK=true (default) or a real ERP connection.
 
 Measures:
 1. Parse accuracy on synthetic test RFQs
@@ -19,12 +19,12 @@ import statistics
 import time
 from pathlib import Path
 
-os.environ.setdefault("OPENQUOTE_USE_MOCK", "true")
+os.environ.setdefault("ERFA_USE_MOCK", "true")
 
-from openquote.agent import QuoteAgent
-from openquote.mcp.mock.backend import MockERP
-from openquote.models import RFQLineItem
-from openquote.parser import RFQParser
+from electronics_rfq_agent.agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock.backend import MockERP
+from electronics_rfq_agent.models import RFQLineItem
+from electronics_rfq_agent.parser import RFQParser
 
 RESULTS_DIR = Path(__file__).parent / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
@@ -132,7 +132,7 @@ def bench_json_deserialize() -> dict[str, object]:
 
 async def main() -> None:
     print("=" * 60)
-    print("openquote benchmark suite")
+    print("Electronics RFQ Agent benchmark suite")
     print("Mock ERP backend -- no ERP system required")
     print(f"Catalog size: {MOCK_ERP.part_count()} parts")
     print("=" * 60)
@@ -165,14 +165,14 @@ async def main() -> None:
     print(f"   Note: {accuracy['note']}")
     print()
 
-    print("4. Comparison: openquote vs manual (human baseline)")
+    print("4. Comparison: Electronics RFQ Agent vs manual (human baseline)")
     print("   Manual process (2-4 hours per 50-line RFQ):")
     print("   Low estimate  7200s (2 hours)")
     print("   High estimate 14400s (4 hours)")
     qt = next(r for r in results if r["n_lines"] == 50)
     speedup_low = 7200 / qt["elapsed_s"]
     speedup_high = 14400 / qt["elapsed_s"]
-    print(f"   openquote:    {qt['elapsed_s']:.2f}s")
+    print(f"   Electronics RFQ Agent:    {qt['elapsed_s']:.2f}s")
     print(f"   Speedup:      {speedup_low:.0f}x - {speedup_high:.0f}x faster")
     print()
 
@@ -186,7 +186,7 @@ async def main() -> None:
         json.dump(output, f, indent=2)
     print(f"Results written to {baseline_path}")
     print()
-    print("To reproduce: OPENQUOTE_USE_MOCK=true python benchmarks/run.py")
+    print("To reproduce: ERFA_USE_MOCK=true python benchmarks/run.py")
 
 
 if __name__ == "__main__":

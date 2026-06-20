@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from openquote.mcp.epicor import EpicorMCP
-from openquote.mcp.mock.backend import MockERP
+from electronics_rfq_agent.mcp.epicor import EpicorMCP
+from electronics_rfq_agent.mcp.mock.backend import MockERP
 
 
 class TestMockERPSearch:
@@ -100,7 +100,7 @@ class TestMockERPGetPart:
 
     @pytest.mark.asyncio
     async def test_get_part_returns_erp_part_result(self, mock_erp: MockERP) -> None:
-        from openquote.models import ERPPartResult
+        from electronics_rfq_agent.models import ERPPartResult
 
         result = await mock_erp.get_part("RES-0402-10K-1PCT")
         assert isinstance(result, ERPPartResult)
@@ -220,7 +220,7 @@ class TestMockERPContextManager:
 class TestEpicorMCPWithMock:
     @pytest.fixture
     def epicor_mock(self) -> EpicorMCP:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             return EpicorMCP()
 
     @pytest.mark.asyncio

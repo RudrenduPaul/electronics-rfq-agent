@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from openquote.mcp.mock.backend import MockERP
-from openquote.models import ERPPartResult, RFQLineItem
+from electronics_rfq_agent.mcp.mock.backend import MockERP
+from electronics_rfq_agent.models import ERPPartResult, RFQLineItem
 
 
 @pytest.fixture

@@ -1,10 +1,10 @@
 """Opt-in, anonymized telemetry for design-partner usage tracking.
 
-Enable by setting OPENQUOTE_TELEMETRY=true or passing telemetry=True to
+Enable by setting ERFA_TELEMETRY=true or passing telemetry=True to
 QuoteAgent.  No part numbers, prices, or customer data are ever recorded.
 
-Data written to: ~/.openquote/telemetry.jsonl  (one JSON object per line)
-Optional HTTP push: OPENQUOTE_TELEMETRY_ENDPOINT=https://your-endpoint/ingest
+Data written to: ~/.erfa/telemetry.jsonl  (one JSON object per line)
+Optional HTTP push: ERFA_TELEMETRY_ENDPOINT=https://your-endpoint/ingest
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ class TelemetryEvent:
     not_found_count: int
     substituted_count: int
     duration_ms: int
-    openquote_version: str = field(default="")
+    erfa_version: str = field(default="")
     ts: float = field(default_factory=time.time)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +39,7 @@ class TelemetryEvent:
             "not_found": self.not_found_count,
             "substituted": self.substituted_count,
             "duration_ms": self.duration_ms,
-            "version": self.openquote_version,
+            "version": self.erfa_version,
         }
 
 
@@ -54,8 +54,8 @@ class TelemetryCollector:
         log_path: Path | None = None,
         endpoint: str | None = None,
     ) -> None:
-        self._log_path = log_path or Path.home() / ".openquote" / "telemetry.jsonl"
-        self._endpoint = endpoint or os.environ.get("OPENQUOTE_TELEMETRY_ENDPOINT", "")
+        self._log_path = log_path or Path.home() / ".erfa" / "telemetry.jsonl"
+        self._endpoint = endpoint or os.environ.get("ERFA_TELEMETRY_ENDPOINT", "")
 
     def record(self, event: TelemetryEvent) -> None:
         self._write_local(event)
@@ -84,7 +84,7 @@ class TelemetryCollector:
 
 
 def collector_from_env() -> TelemetryCollector | None:
-    """Return a TelemetryCollector if OPENQUOTE_TELEMETRY=true, else None."""
-    if os.environ.get("OPENQUOTE_TELEMETRY", "").lower() == "true":
+    """Return a TelemetryCollector if ERFA_TELEMETRY=true, else None."""
+    if os.environ.get("ERFA_TELEMETRY", "").lower() == "true":
         return TelemetryCollector()
     return None

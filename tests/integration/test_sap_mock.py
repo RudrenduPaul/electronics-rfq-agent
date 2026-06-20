@@ -6,28 +6,28 @@ from unittest.mock import patch
 
 import pytest
 
-from openquote.mcp.sap import SAPMCP
+from electronics_rfq_agent.mcp.sap import SAPMCP
 
 
 @pytest.fixture
 def sap_mock() -> SAPMCP:
-    with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+    with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
         return SAPMCP()
 
 
 class TestSAPMCPInit:
     def test_uses_mock_when_env_set(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             sap = SAPMCP()
         assert sap._mock is not None
 
     def test_no_mock_when_env_not_set(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP()
         assert sap._mock is None
 
     def test_accepts_constructor_params(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP(
                 host="sap.test",
                 sysnr="00",
@@ -42,12 +42,12 @@ class TestSAPMCPInit:
         assert sap._password == "secret"
 
     def test_default_plant(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             sap = SAPMCP()
         assert sap._plant == "0001"
 
     def test_custom_plant(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             sap = SAPMCP(plant="1000")
         assert sap._plant == "1000"
 
@@ -113,7 +113,7 @@ class TestSAPMCPWithMock:
 
 class TestSAPMCPGetConn:
     def test_pyrfc_import_error_message(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP(
                 host="sap.test", sysnr="00", client="100", user="u", password="p"
             )
@@ -126,7 +126,7 @@ class TestSAPMCPGetConn:
             )
 
     def test_returns_existing_conn_if_set(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             sap = SAPMCP()
         mock_conn = object()
         sap._conn = mock_conn

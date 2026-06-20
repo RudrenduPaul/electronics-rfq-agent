@@ -31,7 +31,7 @@ No ERP system required. The mock backend loads 200 realistic electronics parts.
 
 ```bash
 # ERP lookup latency only (no API calls needed)
-OPENQUOTE_USE_MOCK=true uv run pytest benchmarks/ -k "erp_latency" -v
+ERFA_USE_MOCK=true uv run pytest benchmarks/ -k "erp_latency" -v
 
 # Full suite
 uv run python benchmarks/run.py

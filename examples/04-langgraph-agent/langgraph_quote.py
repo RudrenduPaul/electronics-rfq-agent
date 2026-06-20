@@ -8,7 +8,7 @@ customer-specific pricing, human-in-the-loop review, etc.).
 
 Run:
     ANTHROPIC_API_KEY=sk-... \\
-      OPENQUOTE_USE_MOCK=true \\
+      ERFA_USE_MOCK=true \\
       uv run python examples/04-langgraph-agent/langgraph_quote.py
 """
 
@@ -19,18 +19,18 @@ import os
 from decimal import Decimal
 from typing import Any, TypedDict
 
-os.environ.setdefault("OPENQUOTE_USE_MOCK", "true")
+os.environ.setdefault("ERFA_USE_MOCK", "true")
 
 try:
     from langgraph.graph import END, StateGraph
 except ImportError as exc:
     raise ImportError(
-        "LangGraph not installed. Run: pip install 'openquote[langchain]' langgraph"
+        "LangGraph not installed. Run: pip install 'electronics-rfq-agent[langchain]' langgraph"
     ) from exc
 
-from openquote import QuoteAgent
-from openquote.mcp.mock import MockERP
-from openquote.models import Quote
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
+from electronics_rfq_agent.models import Quote
 
 SAMPLE_RFQ = """
 RFQ from Acme Electronics — 2026-06-19

@@ -8,7 +8,7 @@ cd openquote-ai
 cp .env.example .env
 # Edit .env: add your ANTHROPIC_API_KEY
 docker compose up -d
-docker compose exec openquote python examples/01-basic-quote/basic_quote.py
+docker compose exec electronics-rfq-agent python examples/01-basic-quote/basic_quote.py
 ```
 
 Your quote data never leaves your environment.

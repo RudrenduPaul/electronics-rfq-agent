@@ -10,9 +10,9 @@ import httpx
 import pytest
 import respx
 
-from openquote.mcp.dynamics import DynamicsMCP
-from openquote.mcp.epicor import EpicorMCP
-from openquote.mcp.oracle import OracleMCP
+from electronics_rfq_agent.mcp.dynamics import DynamicsMCP
+from electronics_rfq_agent.mcp.epicor import EpicorMCP
+from electronics_rfq_agent.mcp.oracle import OracleMCP
 
 
 # ---------------------------------------------------------------------------
@@ -22,7 +22,7 @@ class TestEpicorHTTP:
     @pytest.fixture
     def epicor(self) -> EpicorMCP:
         """Epicor instance pointing at a fake URL, no mock env var set."""
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             return EpicorMCP(
                 base_url="https://epicor.test.local",
                 api_key="dGVzdDp0ZXN0",
@@ -164,7 +164,7 @@ class TestEpicorHTTP:
         await epicor.close()
 
     def test_get_client_creates_once(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             epicor = EpicorMCP(
                 base_url="https://epicor.test.local",
                 api_key="key123",
@@ -175,7 +175,7 @@ class TestEpicorHTTP:
 
     @pytest.mark.asyncio
     async def test_context_manager_closes_client(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             async with EpicorMCP() as epicor:
                 assert epicor is not None
         # After exit, client should be None
@@ -188,7 +188,7 @@ class TestEpicorHTTP:
 class TestOracleMCPHTTP:
     @pytest.fixture
     def oracle(self) -> OracleMCP:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             return OracleMCP(
                 base_url="https://oracle.test.local",
                 client_id="client123",
@@ -425,7 +425,7 @@ class TestOracleMCPHTTP:
 class TestDynamicsMCPHTTP:
     @pytest.fixture
     def dynamics(self) -> DynamicsMCP:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "false"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             return DynamicsMCP(
                 tenant_id="12345678-1234-1234-1234-123456789abc",
                 client_id="client456",
@@ -627,7 +627,7 @@ class TestDynamicsMCPHTTP:
 
     @pytest.mark.asyncio
     async def test_with_mock_env(self) -> None:
-        with patch.dict(os.environ, {"OPENQUOTE_USE_MOCK": "true"}):
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
             dyn = DynamicsMCP()
         results = await dyn.search_parts("RES", limit=3)
         assert len(results) > 0

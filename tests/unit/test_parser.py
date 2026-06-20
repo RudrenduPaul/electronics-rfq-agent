@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from openquote.models import RFQLineItem, RFQParseError
-from openquote.parser import RFQParser
+from electronics_rfq_agent.models import RFQLineItem, RFQParseError
+from electronics_rfq_agent.parser import RFQParser
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ class TestRFQParserInit:
         assert p.model == "claude-opus-4-5"
 
     def test_env_model_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENQUOTE_MODEL", "claude-haiku-3")
+        monkeypatch.setenv("ERFA_MODEL", "claude-haiku-3")
         p = RFQParser()
         assert p.model == "claude-haiku-3"
 

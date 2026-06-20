@@ -7,20 +7,20 @@ from urllib.parse import quote as urlquote
 
 import httpx
 
-from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPConfig, ERPPartResult
+from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.models import ERPConfig, ERPPartResult
 
 
 class EpicorMCP(ERPMCPServer):
     """Epicor Kinetic REST API connector.
 
     Connects to /api/v2/odata/Company/ endpoints.
-    Set OPENQUOTE_USE_MOCK=true to use the in-memory mock backend.
+    Set ERFA_USE_MOCK=true to use the in-memory mock backend.
 
     Required env vars (or pass to constructor):
-    - OPENQUOTE_EPICOR_URL: base URL, e.g. https://epicor.company.com
-    - OPENQUOTE_EPICOR_API_KEY: base64-encoded user:password for Basic auth
-    - OPENQUOTE_EPICOR_COMPANY: Epicor company code (default: EPIC)
+    - ERFA_EPICOR_URL: base URL, e.g. https://epicor.company.com
+    - ERFA_EPICOR_API_KEY: base64-encoded user:password for Basic auth
+    - ERFA_EPICOR_COMPANY: Epicor company code (default: EPIC)
     """
 
     def __init__(
@@ -30,19 +30,19 @@ class EpicorMCP(ERPMCPServer):
         company: str | None = None,
         timeout: float = 30.0,
     ) -> None:
-        use_mock = os.environ.get("OPENQUOTE_USE_MOCK", "").lower() == "true"
+        use_mock = os.environ.get("ERFA_USE_MOCK", "").lower() == "true"
         if use_mock:
-            from openquote.mcp.mock.backend import MockERP  # noqa: PLC0415
+            from electronics_rfq_agent.mcp.mock.backend import MockERP  # noqa: PLC0415
 
             self._mock: MockERP | None = MockERP()
         else:
             self._mock = None
 
         self._base_url = (
-            base_url or os.environ.get("OPENQUOTE_EPICOR_URL", "")
+            base_url or os.environ.get("ERFA_EPICOR_URL", "")
         ).rstrip("/")
-        self._api_key = api_key or os.environ.get("OPENQUOTE_EPICOR_API_KEY", "")
-        self._company = company or os.environ.get("OPENQUOTE_EPICOR_COMPANY", "EPIC")
+        self._api_key = api_key or os.environ.get("ERFA_EPICOR_API_KEY", "")
+        self._company = company or os.environ.get("ERFA_EPICOR_COMPANY", "EPIC")
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
 

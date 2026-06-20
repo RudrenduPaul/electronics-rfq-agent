@@ -9,21 +9,21 @@ from urllib.parse import quote as urlquote
 
 import httpx
 
-from openquote.mcp._oauth import fetch_client_credentials_token
-from openquote.mcp.base import ERPMCPServer
-from openquote.models import ERPConfig, ERPPartResult
+from electronics_rfq_agent.mcp._oauth import fetch_client_credentials_token
+from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.models import ERPConfig, ERPPartResult
 
 
 class OracleMCP(ERPMCPServer):
     """Oracle Cloud SCM REST API connector.
 
     Connects to Oracle Fusion Cloud Supply Chain Management REST APIs.
-    Set OPENQUOTE_USE_MOCK=true to use the in-memory mock backend.
+    Set ERFA_USE_MOCK=true to use the in-memory mock backend.
 
     Required env vars (or pass to constructor):
-    - OPENQUOTE_ORACLE_BASE_URL: e.g. https://your-tenant.oraclecloud.com
-    - OPENQUOTE_ORACLE_CLIENT_ID: OAuth2 client ID
-    - OPENQUOTE_ORACLE_CLIENT_SECRET: OAuth2 client secret
+    - ERFA_ORACLE_BASE_URL: e.g. https://your-tenant.oraclecloud.com
+    - ERFA_ORACLE_CLIENT_ID: OAuth2 client ID
+    - ERFA_ORACLE_CLIENT_SECRET: OAuth2 client secret
     """
 
     def __init__(
@@ -33,20 +33,20 @@ class OracleMCP(ERPMCPServer):
         client_secret: str | None = None,
         timeout: float = 30.0,
     ) -> None:
-        use_mock = os.environ.get("OPENQUOTE_USE_MOCK", "").lower() == "true"
+        use_mock = os.environ.get("ERFA_USE_MOCK", "").lower() == "true"
         if use_mock:
-            from openquote.mcp.mock.backend import MockERP  # noqa: PLC0415
+            from electronics_rfq_agent.mcp.mock.backend import MockERP  # noqa: PLC0415
 
             self._mock: MockERP | None = MockERP()
         else:
             self._mock = None
 
         self._base_url = (
-            base_url or os.environ.get("OPENQUOTE_ORACLE_BASE_URL", "")
+            base_url or os.environ.get("ERFA_ORACLE_BASE_URL", "")
         ).rstrip("/")
-        self._client_id = client_id or os.environ.get("OPENQUOTE_ORACLE_CLIENT_ID", "")
+        self._client_id = client_id or os.environ.get("ERFA_ORACLE_CLIENT_ID", "")
         self._client_secret = client_secret or os.environ.get(
-            "OPENQUOTE_ORACLE_CLIENT_SECRET", ""
+            "ERFA_ORACLE_CLIENT_SECRET", ""
         )
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None

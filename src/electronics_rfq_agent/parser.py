@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from openquote.models import RFQLineItem, RFQParseError
+from electronics_rfq_agent.models import RFQLineItem, RFQParseError
 
 
 class RFQParser:
@@ -18,7 +18,7 @@ class RFQParser:
 
     Args:
         model: Anthropic model to use for AI-assisted parsing.
-               Defaults to OPENQUOTE_MODEL env var or claude-sonnet-4-6.
+               Defaults to ERFA_MODEL env var or claude-sonnet-4-6.
     """
 
     _SYSTEM_PROMPT = (
@@ -36,7 +36,7 @@ class RFQParser:
     )
 
     def __init__(self, model: str | None = None) -> None:
-        self.model = model or os.environ.get("OPENQUOTE_MODEL", "claude-sonnet-4-6")
+        self.model = model or os.environ.get("ERFA_MODEL", "claude-sonnet-4-6")
 
     async def parse(self, source: str | Path) -> list[RFQLineItem]:
         """Parse an RFQ from a file path or text string."""

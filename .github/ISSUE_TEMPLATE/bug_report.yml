@@ -22,8 +22,8 @@ body:
       label: Steps to reproduce
       description: Minimum code to reproduce the issue.
       placeholder: |
-        from openquote import QuoteAgent
-        from openquote.mcp.mock import MockERP
+        from electronics_rfq_agent import QuoteAgent
+        from electronics_rfq_agent.mcp.mock import MockERP
         agent = QuoteAgent(erp=MockERP())
         # ...
     validations:
@@ -40,7 +40,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: openquote version
+      label: electronics-rfq-agent version
       placeholder: "0.1.0"
     validations:
       required: true
