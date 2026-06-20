@@ -1,4 +1,4 @@
-# openquote
+# Electronics RFQ Agent
 
 [![CI](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/openquote.svg)](https://badge.fury.io/py/openquote)
@@ -8,7 +8,7 @@
 
 Your sales engineers are spending 2-4 hours turning RFQ documents into quotes. This does it in 30 seconds.
 
-openquote is a Python library that reads RFQ documents (PDF, Excel, Word), looks up every line item against your ERP catalog, and outputs a draft quote. It connects to SAP, Epicor, Oracle, and Microsoft Dynamics through MCP servers, so it works with Claude, GPT-4, or any agent framework that speaks MCP.
+Electronics RFQ Agent is a Python library that reads RFQ documents (PDF, Excel, Word), looks up every line item against your ERP catalog, and outputs a draft quote. It connects to SAP, Epicor, Oracle, and Microsoft Dynamics through MCP servers, so it works with Claude, GPT-4, or any agent framework that speaks MCP.
 
 ```bash
 pip install openquote
@@ -43,13 +43,13 @@ uv run python benchmarks/run.py
 | 25 lines | <0.1ms | <0.1ms | <0.1s |
 | 50 lines | <0.1ms | <0.1ms | <0.1s |
 
-*These numbers reflect the ERP lookup and quote assembly portion only — the benchmark mocks the RFQ parser so no Anthropic API call is made. In a real run, AI document parsing (one Claude API call per document) adds 5–15s depending on document size and API latency. Real ERP latency adds 100–500ms per line item over the network. Manual baseline for a 50-line RFQ: 2–4 hours.*
+*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
 
 ## Why we built this
 
 We were working with electronics distributors who had 3-5 sales engineers spending most of their day on quote entry. Every tool we found was either tied to one specific ERP or required a 6-month integration project. We wanted something that worked with what distributors already had, could be self-hosted (quote data is sensitive), and was actually extensible.
 
-The MCP architecture means adding a new ERP is writing one file. The parser handles the document formats distributors actually send -- which includes hand-filled PDFs, multi-sheet Excel files, and the occasional scanned table.
+The MCP architecture means adding a new ERP is writing one file. The parser handles the document formats distributors actually send: hand-filled PDFs, multi-sheet Excel files, and the occasional scanned table.
 
 ## ERP support
 
@@ -65,7 +65,7 @@ The MCP architecture means adding a new ERP is writing one file. The parser hand
 
 ## vs. alternatives
 
-| | openquote | Manual process | SAP Joule | Generic AI (ChatGPT) |
+| | Electronics RFQ Agent | Manual process | SAP Joule | Generic AI (ChatGPT) |
 |---|---|---|---|---|
 | Multi-ERP support | SAP + Epicor + Oracle + Dynamics | N/A | SAP only | No ERP access |
 | Quote time (50 lines) | ~15s | 2-4 hours | N/A | N/A |
@@ -102,7 +102,7 @@ openquote audit quote.json
 **Audit output example:**
 
 ```
-Audit Report — Quote a1b2c3d4
+Audit Report - Quote a1b2c3d4
 RFQ Source : rfq.xlsx
 Lines      : 5
 Total      : USD 42.30
@@ -115,7 +115,7 @@ FOUND (3)
 
 SUBSTITUTED (1)
 ------------------------------------------------------------
-  L  3  RES-0402-1K-5PCT                → RES-0402-1K-1PCT
+  L  3  RES-0402-1K-5PCT                -> RES-0402-1K-1PCT
          Reason : Substituted 'RES-0402-1K-5PCT' with 'RES-0402-1K-1PCT'
 
 NOT FOUND (1)
@@ -127,18 +127,18 @@ Fill rate: 80%  (3 found / 1 substituted / 1 not found)
 
 ## Integrations
 
-openquote works with any agent framework that supports MCP:
+Electronics RFQ Agent works with any agent framework that supports MCP:
 
 | Framework | Install | Example |
 |---|---|---|
 | Claude (built-in) | `pip install openquote` | [01-basic-quote](examples/01-basic-quote/) |
 | LangGraph | `pip install 'openquote[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
 | OpenAI Agents SDK | `pip install openquote[agents]` | [05-openai-agents](examples/05-openai-agents/) |
-| CrewAI | `pip install openquote[crewai]` | — |
+| CrewAI | `pip install openquote[crewai]` | -- |
 
 ## Quick start with mock ERP
 
-No ERP system required to try openquote:
+No ERP system required to try it out:
 
 ```python
 from openquote import QuoteAgent
@@ -155,7 +155,7 @@ print(quote.summary())
 
 ## Design partner telemetry (opt-in)
 
-Design partners can enable anonymized usage telemetry to share aggregate data — no part numbers, prices, or customer information is ever recorded.
+If you are a design partner, you can turn on anonymized telemetry. No part numbers, prices, or customer data is ever recorded.
 
 ```bash
 OPENQUOTE_TELEMETRY=true openquote quote rfq.xlsx --mock
@@ -170,7 +170,7 @@ from openquote.mcp.mock import MockERP
 agent = QuoteAgent(erp=MockERP(), telemetry=True)
 ```
 
-Data written to `~/.openquote/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and openquote version. To push to a custom endpoint: `OPENQUOTE_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
+Data is written to `~/.openquote/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and package version. To push to a custom endpoint: `OPENQUOTE_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
 
 ## Documentation
 
