@@ -13,9 +13,18 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from electronics_rfq_agent.mcp.base import ERPMCPServer
-from electronics_rfq_agent.models import ERPConnectionError, Quote, QuoteLineItem, RFQLineItem
+from electronics_rfq_agent.models import (
+    ERPConnectionError,
+    Quote,
+    QuoteLineItem,
+    RFQLineItem,
+)
 from electronics_rfq_agent.parser import RFQParser
-from electronics_rfq_agent.telemetry import TelemetryCollector, TelemetryEvent, collector_from_env
+from electronics_rfq_agent.telemetry import (
+    TelemetryCollector,
+    TelemetryEvent,
+    collector_from_env,
+)
 
 _console = Console(stderr=True)
 

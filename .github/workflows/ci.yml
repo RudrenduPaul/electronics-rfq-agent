@@ -38,7 +38,7 @@ jobs:
       - name: Tests with coverage
         run: uv run pytest tests/ --cov=src --cov-report=xml --cov-fail-under=80
         env:
-          OPENQUOTE_USE_MOCK: "true"
+          ERFA_USE_MOCK: "true"
           ANTHROPIC_API_KEY: "test-key-not-real"
 
       - name: Upload coverage

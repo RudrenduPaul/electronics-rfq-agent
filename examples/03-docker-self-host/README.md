@@ -4,7 +4,7 @@ No cloud services required except the Anthropic API.
 
 ```bash
 git clone https://github.com/RudrenduPaul/electronics-rfq-agent
-cd openquote-ai
+cd electronics-rfq-agent
 cp .env.example .env
 # Edit .env: add your ANTHROPIC_API_KEY
 docker compose up -d

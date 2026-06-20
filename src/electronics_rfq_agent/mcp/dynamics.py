@@ -49,12 +49,8 @@ class DynamicsMCP(ERPMCPServer):
         else:
             self._mock = None
 
-        self._tenant_id = tenant_id or os.environ.get(
-            "ERFA_DYNAMICS_TENANT_ID", ""
-        )
-        self._client_id = client_id or os.environ.get(
-            "ERFA_DYNAMICS_CLIENT_ID", ""
-        )
+        self._tenant_id = tenant_id or os.environ.get("ERFA_DYNAMICS_TENANT_ID", "")
+        self._client_id = client_id or os.environ.get("ERFA_DYNAMICS_CLIENT_ID", "")
         self._client_secret = client_secret or os.environ.get(
             "ERFA_DYNAMICS_CLIENT_SECRET", ""
         )

@@ -20,7 +20,10 @@ from electronics_rfq_agent.mcp.base import ERPMCPServer
 
 app = typer.Typer(
     name="erfa",
-    help="Electronics RFQ Agent: AI quoting agent for electronics distributors. RFQ in, quote out.",
+    help=(
+        "Electronics RFQ Agent: AI quoting agent for electronics distributors."
+        " RFQ in, quote out."
+    ),
     add_completion=False,
     no_args_is_help=True,
 )
