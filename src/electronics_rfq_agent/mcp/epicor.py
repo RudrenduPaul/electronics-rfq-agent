@@ -116,8 +116,8 @@ class EpicorMCP(ERPMCPServer):
         return ERPPartResult(
             part_number=str(data.get("PartNum", "")),
             description=str(data.get("PartDescription", "")),
-            unit_price=Decimal(str(data.get("UnitPrice", "0"))),
-            available_qty=int(data.get("OnHandQty", 0)),
-            lead_time_days=int(data.get("LeadTime", 0)),
+            unit_price=Decimal(str(data.get("UnitPrice") or "0")),
+            available_qty=int(data.get("OnHandQty") or 0),
+            lead_time_days=int(data.get("LeadTime") or 0),
             manufacturer=str(data.get("VendorName", "")),
         )

@@ -71,21 +71,7 @@ jobs:
       matrix:
         include:
           - extra: langchain
-            smoke: |
-              python -c "
-              import langgraph
-              from electronics_rfq_agent import QuoteAgent
-              from electronics_rfq_agent.mcp.mock import MockERP
-              print('langchain extra OK')
-              "
           - extra: agents
-            smoke: |
-              python -c "
-              from agents import Agent, function_tool
-              from electronics_rfq_agent import QuoteAgent
-              from electronics_rfq_agent.mcp.mock import MockERP
-              print('agents extra OK')
-              "
 
     steps:
       - uses: actions/checkout@v4
@@ -98,5 +84,22 @@ jobs:
       - name: Install core + extra
         run: uv sync --extra dev --extra ${{ matrix.extra }}
 
-      - name: Smoke test import
-        run: uv run bash -c "${{ matrix.smoke }}"
+      - name: Smoke test import (langchain)
+        if: matrix.extra == 'langchain'
+        run: |
+          uv run python -c "
+          import langgraph
+          from electronics_rfq_agent import QuoteAgent
+          from electronics_rfq_agent.mcp.mock import MockERP
+          print('langchain extra OK')
+          "
+
+      - name: Smoke test import (agents)
+        if: matrix.extra == 'agents'
+        run: |
+          uv run python -c "
+          from agents import Agent, function_tool
+          from electronics_rfq_agent import QuoteAgent
+          from electronics_rfq_agent.mcp.mock import MockERP
+          print('agents extra OK')
+          "

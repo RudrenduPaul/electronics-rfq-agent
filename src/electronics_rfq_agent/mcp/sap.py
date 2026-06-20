@@ -61,37 +61,41 @@ class SAPMCP(ERPMCPServer):
         self._conn: Any | None = None
         # pyrfc connections are not thread-safe; serialise all BAPI calls.
         self._bapi_lock = asyncio.Lock()
+        # Separate lock guards lazy connection initialisation.
+        self._conn_lock = asyncio.Lock()
 
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> SAPMCP:
         """Construct from an ERPConfig instance."""
         return cls(user=cfg.username, password=cfg.password)
 
-    def _get_conn(self) -> Any:
-        if self._conn is not None:
+    async def _get_conn(self) -> Any:
+        async with self._conn_lock:
+            if self._conn is not None:
+                return self._conn
+            try:
+                import pyrfc  # noqa: PLC0415
+            except ImportError as exc:
+                raise ImportError(
+                    "pyrfc is required for SAP connectivity. "
+                    "pyrfc is not available on PyPI — the SAP NetWeaver RFC Library "
+                    "must be installed manually. See docs/erp-setup/sap.md."
+                ) from exc
+            self._conn = await asyncio.to_thread(
+                pyrfc.Connection,
+                ashost=self._host,
+                sysnr=self._sysnr,
+                client=self._client,
+                user=self._user,
+                passwd=self._password,
+            )
             return self._conn
-        try:
-            import pyrfc  # noqa: PLC0415
-        except ImportError as exc:
-            raise ImportError(
-                "pyrfc is required for SAP connectivity. "
-                "pyrfc is not available on PyPI — the SAP NetWeaver RFC Library "
-                "must be installed manually. See docs/erp-setup/sap.md."
-            ) from exc
-        self._conn = pyrfc.Connection(
-            ashost=self._host,
-            sysnr=self._sysnr,
-            client=self._client,
-            user=self._user,
-            passwd=self._password,
-        )
-        return self._conn
 
     async def search_parts(self, query: str, limit: int = 20) -> list[ERPPartResult]:
         if self._mock is not None:
             return await self._mock.search_parts(query, limit)
 
-        conn = self._get_conn()
+        conn = await self._get_conn()
         async with self._bapi_lock:
             result: dict[str, Any] = await asyncio.to_thread(
                 conn.call,
@@ -118,9 +122,9 @@ class SAPMCP(ERPMCPServer):
         return ERPPartResult(
             part_number=str(mat_general.get("MATERIAL", part_number)),
             description=str(mat_general.get("MATL_DESC", "")),
-            unit_price=Decimal(str(price_data.get("PRICE", "0"))),
-            available_qty=int(mat_plant.get("TOTAL_STOCK", 0)),
-            lead_time_days=int(mat_plant.get("REPLENISHMENT_LEAD_TIME", 0)),
+            unit_price=Decimal(str(price_data.get("PRICE") or "0")),
+            available_qty=int(mat_plant.get("TOTAL_STOCK") or 0),
+            lead_time_days=int(mat_plant.get("REPLENISHMENT_LEAD_TIME") or 0),
             manufacturer=str(mat_general.get("MANUFACTURER", "")),
         )
 
@@ -131,17 +135,17 @@ class SAPMCP(ERPMCPServer):
         price_data = await self._bapi_pricing(part_number)
         if not price_data:
             return None
-        return Decimal(str(price_data.get("PRICE", "0")))
+        return Decimal(str(price_data.get("PRICE") or "0"))
 
     async def close(self) -> None:
         if self._conn is not None:
-            self._conn.close()
+            await asyncio.to_thread(self._conn.close)
             self._conn = None
 
     async def _bapi_material_detail(
         self, part_number: str
     ) -> tuple[dict[str, Any], dict[str, Any]] | None:
-        conn = self._get_conn()
+        conn = await self._get_conn()
         try:
             async with self._bapi_lock:
                 result: dict[str, Any] = await asyncio.to_thread(
@@ -164,7 +168,7 @@ class SAPMCP(ERPMCPServer):
         return mat_general, mat_plant
 
     async def _bapi_pricing(self, part_number: str) -> dict[str, Any]:
-        conn = self._get_conn()
+        conn = await self._get_conn()
         try:
             async with self._bapi_lock:
                 result: dict[str, Any] = await asyncio.to_thread(

@@ -176,9 +176,9 @@ class TestEpicorHTTP:
     @pytest.mark.asyncio
     async def test_context_manager_closes_client(self) -> None:
         with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
-            async with EpicorMCP() as epicor:
-                assert epicor is not None
-        # After exit, client should be None
+            epicor = EpicorMCP()
+        assert epicor is not None
+        await epicor.close()
         assert epicor._client is None
 
 

@@ -4,6 +4,7 @@ import asyncio
 import os
 import sys
 import time
+import warnings
 from decimal import Decimal
 from pathlib import Path
 from typing import Literal
@@ -51,7 +52,7 @@ class QuoteAgent:
         self.model = model or os.environ.get("ERFA_MODEL", "claude-sonnet-4-6")
         self.margin_pct = Decimal(str(margin_pct))
         self._parser = RFQParser(model=self.model)
-        self._semaphore = asyncio.Semaphore(max_concurrent)
+        self._max_concurrent = max_concurrent
         if isinstance(telemetry, TelemetryCollector):
             self._telemetry: TelemetryCollector | None = telemetry
         elif telemetry:
@@ -68,6 +69,7 @@ class QuoteAgent:
         Returns:
             A Quote with all line items looked up against the ERP.
         """
+        semaphore = asyncio.Semaphore(self._max_concurrent)
         start = time.monotonic()
         is_tty = sys.stderr.isatty()
 
@@ -83,13 +85,15 @@ class QuoteAgent:
             progress.update(task_id, description=f"Parsed {len(rfq_lines)} line items")
             progress.update(task_id, description="Looking up parts in ERP...")
             # One asyncio Task per unique (part_number, quantity) pair.
-            # Duplicate lines share the same Task — ERP is called once, not N times.
+            # Duplicate lines share the same Task -- ERP is called once, not N times.
             task_cache: dict[tuple[str, int], asyncio.Task[QuoteLineItem]] = {}
 
             async def _cached_lookup(ln: RFQLineItem) -> QuoteLineItem:
                 key = (ln.part_number, ln.quantity)
                 if key not in task_cache:
-                    task_cache[key] = asyncio.create_task(self._gated_lookup(ln))
+                    task_cache[key] = asyncio.create_task(
+                        self._gated_lookup(ln, semaphore)
+                    )
                 result = await task_cache[key]
                 if result.rfq_line is ln:
                     return result
@@ -143,11 +147,16 @@ class QuoteAgent:
             return asyncio.run(self.run(rfq_source))
         import nest_asyncio  # noqa: PLC0415
 
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, module="nest_asyncio"
+        )
         nest_asyncio.apply()
         return loop.run_until_complete(self.run(rfq_source))
 
-    async def _gated_lookup(self, line: RFQLineItem) -> QuoteLineItem:
-        async with self._semaphore:
+    async def _gated_lookup(
+        self, line: RFQLineItem, semaphore: asyncio.Semaphore
+    ) -> QuoteLineItem:
+        async with semaphore:
             return await self._lookup_line(line)
 
     async def _lookup_line(self, line: RFQLineItem) -> QuoteLineItem:
