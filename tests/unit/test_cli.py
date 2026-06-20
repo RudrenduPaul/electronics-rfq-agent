@@ -248,9 +248,7 @@ class TestCLIAudit:
         result = runner.invoke(app, ["audit", str(f)])
         assert result.exit_code == 0, result.output
 
-    def test_audit_shows_found_section(
-        self, tmp_path: pytest.TempdirFactory
-    ) -> None:
+    def test_audit_shows_found_section(self, tmp_path: pytest.TempdirFactory) -> None:
         f = tmp_path / "q.json"  # type: ignore[operator]
         self._write_quote_json(f)
         result = runner.invoke(app, ["audit", str(f)])
@@ -350,7 +348,10 @@ class TestTelemetry:
             assert collector_from_env() is None
 
     def test_collector_from_env_returns_collector_when_enabled(self) -> None:
-        from electronics_rfq_agent.telemetry import TelemetryCollector, collector_from_env
+        from electronics_rfq_agent.telemetry import (
+            TelemetryCollector,
+            collector_from_env,
+        )
 
         with patch.dict(os.environ, {"ERFA_TELEMETRY": "true"}):
             col = collector_from_env()

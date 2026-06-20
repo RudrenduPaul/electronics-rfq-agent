@@ -38,9 +38,7 @@ class EpicorMCP(ERPMCPServer):
         else:
             self._mock = None
 
-        self._base_url = (
-            base_url or os.environ.get("ERFA_EPICOR_URL", "")
-        ).rstrip("/")
+        self._base_url = (base_url or os.environ.get("ERFA_EPICOR_URL", "")).rstrip("/")
         self._api_key = api_key or os.environ.get("ERFA_EPICOR_API_KEY", "")
         self._company = company or os.environ.get("ERFA_EPICOR_COMPANY", "EPIC")
         self._timeout = timeout
