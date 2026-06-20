@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -58,6 +59,7 @@ class TelemetryCollector:
         self._log_path = log_path or Path.home() / ".erfa" / "telemetry.jsonl"
         self._endpoint = endpoint or os.environ.get("ERFA_TELEMETRY_ENDPOINT", "")
         self._background_tasks: set[asyncio.Task[None]] = set()
+        self._tasks_lock = threading.Lock()
 
     def record(self, event: TelemetryEvent) -> None:
         self._write_local(event)
@@ -65,8 +67,14 @@ class TelemetryCollector:
             try:
                 loop = asyncio.get_running_loop()
                 _task = loop.create_task(self._push_http_async(event))
-                self._background_tasks.add(_task)
-                _task.add_done_callback(self._background_tasks.discard)
+                with self._tasks_lock:
+                    self._background_tasks.add(_task)
+
+                def _remove_task(t: asyncio.Task[None]) -> None:
+                    with self._tasks_lock:
+                        self._background_tasks.discard(t)
+
+                _task.add_done_callback(_remove_task)
             except RuntimeError:
                 self._push_http_sync(event)
 

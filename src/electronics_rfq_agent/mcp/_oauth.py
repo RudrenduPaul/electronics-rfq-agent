@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json as _json
 import time
 
 import httpx
+
+_MAX_TOKEN_RESPONSE_BYTES = 65_536
 
 
 async def fetch_client_credentials_token(
@@ -28,7 +31,16 @@ async def fetch_client_credentials_token(
     async with httpx.AsyncClient(timeout=timeout, verify=True) as auth_client:
         response = await auth_client.post(token_url, data=data)
         response.raise_for_status()
-        payload: dict[str, object] = response.json()
+        content_length = response.headers.get("content-length")
+        if (
+            content_length is not None
+            and int(content_length) > _MAX_TOKEN_RESPONSE_BYTES
+        ):
+            raise ValueError(f"OAuth token response too large: {content_length} bytes")
+        raw_body = response.content
+        if len(raw_body) > _MAX_TOKEN_RESPONSE_BYTES:
+            raise ValueError(f"OAuth token response too large: {len(raw_body)} bytes")
+        payload: dict[str, object] = _json.loads(raw_body)
         access_token = str(payload["access_token"])
         raw_expiry = payload.get("expires_in", 3600)
         expires_in = (

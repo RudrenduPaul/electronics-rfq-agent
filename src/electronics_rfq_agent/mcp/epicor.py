@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import os
+import re
 from decimal import Decimal
 from typing import Any
 from urllib.parse import quote as urlquote
+from urllib.parse import urlparse
 
 import httpx
 
-from electronics_rfq_agent.mcp.base import ERPMCPServer
+from electronics_rfq_agent.mcp.base import ERPMCPServer, _sanitize
 from electronics_rfq_agent.models import ERPConfig, ERPPartResult
+
+_MAX_RESPONSE_BYTES = 10 * 1024 * 1024
+_COMPANY_RE = re.compile(r"^[A-Z0-9_-]{1,10}$")
 
 
 class EpicorMCP(ERPMCPServer):
@@ -38,9 +43,30 @@ class EpicorMCP(ERPMCPServer):
         else:
             self._mock = None
 
-        self._base_url = (base_url or os.environ.get("ERFA_EPICOR_URL", "")).rstrip("/")
-        self._api_key = api_key or os.environ.get("ERFA_EPICOR_API_KEY", "")
-        self._company = company or os.environ.get("ERFA_EPICOR_COMPANY", "EPIC")
+        raw_url = (base_url or os.environ.get("ERFA_EPICOR_URL", "")).rstrip("/")
+        raw_key = api_key or os.environ.get("ERFA_EPICOR_API_KEY", "")
+        raw_company = company or os.environ.get("ERFA_EPICOR_COMPANY", "EPIC")
+
+        if not use_mock:
+            parsed = urlparse(raw_url)
+            if parsed.scheme != "https" or not parsed.netloc:
+                raise ValueError(
+                    f"ERFA_EPICOR_URL must be an https:// URL, got: {raw_url!r}"
+                )
+            if not all(ord(c) >= 32 and ord(c) <= 126 for c in raw_key):  # noqa: PLR2004
+                raise ValueError(
+                    "ERFA_EPICOR_API_KEY must contain only printable ASCII characters"
+                )
+            if not _COMPANY_RE.match(raw_company):
+                raise ValueError(
+                    "ERFA_EPICOR_COMPANY must match ^[A-Z0-9_-]{1,10}$, "
+                    f"got: {raw_company!r}"
+                )
+
+        self._base_url = raw_url
+        self._api_key = raw_key
+        self._company = raw_company
+
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
 
@@ -68,7 +94,7 @@ class EpicorMCP(ERPMCPServer):
             return await self._mock.search_parts(query, limit)
 
         client = self._get_client()
-        safe_query = query.replace("'", "''")
+        safe_query = _sanitize(query).replace("'", "''")
         params: dict[str, str | int] = {
             "$filter": (
                 f"contains(PartNum, '{safe_query}') "
@@ -79,11 +105,15 @@ class EpicorMCP(ERPMCPServer):
                 "PartNum,PartDescription,UnitPrice,OnHandQty,LeadTime,VendorName"
             ),
         }
+        company_path = urlquote(self._company, safe="")
         response = await client.get(
-            f"/api/v2/odata/{self._company}/Erp.BO.PartSvc/Parts",
+            f"/api/v2/odata/{company_path}/Erp.BO.PartSvc/Parts",
             params=params,
         )
         response.raise_for_status()
+        body = await response.aread()
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError("Response too large")
         return [self._map_part(p) for p in response.json().get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
@@ -94,16 +124,21 @@ class EpicorMCP(ERPMCPServer):
         # OData: double single-quotes for string literal escaping; then
         # URL-encode to prevent / and other path chars from corrupting the
         # URL path while keeping the OData quote delimiters intact.
-        safe_pn = part_number.replace("'", "''")
+        safe_pn = _sanitize(part_number).replace("'", "''")
         encoded_pn = urlquote(safe_pn, safe="'")
+        company_path = urlquote(self._company, safe="")
+        safe_company = self._company.replace("'", "''")
         url = (
-            f"/api/v2/odata/{self._company}/Erp.BO.PartSvc/Parts"
-            f"(Company='{self._company}',PartNum='{encoded_pn}')"
+            f"/api/v2/odata/{company_path}/Erp.BO.PartSvc/Parts"
+            f"(Company='{safe_company}',PartNum='{encoded_pn}')"
         )
         response = await client.get(url)
         if response.status_code == 404:  # noqa: PLR2004
             return None
         response.raise_for_status()
+        body = await response.aread()
+        if len(body) > _MAX_RESPONSE_BYTES:
+            raise ValueError("Response too large")
         return self._map_part(response.json())
 
     async def close(self) -> None:

@@ -36,7 +36,7 @@ This policy covers the core library (`src/`). Third-party integrations (SAP PyRF
 
 - All credentials via environment variables, never hardcoded
 - TLS verification enforced on all HTTP clients (`verify=True`)
-- Input validation on all part numbers and file paths
+- Quote-character escaping applied to query fields; full control-character sanitization (newlines, ASCII < 32) tracked in issue #1
 - Sensitive fields (`api_key`, `password`) masked in `__repr__` and logs
 - Dependency updates via Dependabot (weekly patch, monthly minor/major)
 - Trivy vulnerability scanning in CI (blocks on HIGH/CRITICAL)

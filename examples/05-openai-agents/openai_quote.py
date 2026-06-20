@@ -9,8 +9,8 @@ Requirements:
     pip install 'electronics-rfq-agent[agents]'
 
 Environment:
-    OPENAI_API_KEY    — required for the OpenAI agent
-    ANTHROPIC_API_KEY — required for RFQ document parsing
+    OPENAI_API_KEY    - required for the OpenAI agent
+    ANTHROPIC_API_KEY - required for RFQ document parsing
     ERFA_USE_MOCK=true is set automatically below (no real ERP needed)
 
 Run:
@@ -71,7 +71,7 @@ async def generate_quote(rfq_text: str) -> str:
         f"  [{ln.status.upper()[:3]}] {ln.rfq_line.part_number}: "
         f"unit={ln.unit_price or 'N/A'}, qty={ln.rfq_line.quantity}, "
         f"extended={ln.extended_price or 'N/A'}"
-        + (f" — {ln.notes}" if ln.notes else "")
+        + (f" - {ln.notes}" if ln.notes else "")
         for ln in quote.lines
     )
 

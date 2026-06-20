@@ -8,6 +8,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.1] - 2026-06-19
 
+### Changed
+- Package renamed from `openquote` to `electronics-rfq-agent`; CLI command renamed from `openquote` to `erfa`; all import paths changed from `openquote` to `electronics_rfq_agent`
+
 ### Fixed — Engineering review (18 items)
 
 **Architecture**
@@ -52,4 +55,6 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - OpenSSF Scorecard workflow (weekly)
 - Dependabot configuration (weekly pip patches, monthly GitHub Actions updates)
 
+[Unreleased]: https://github.com/RudrenduPaul/electronics-rfq-agent/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/RudrenduPaul/electronics-rfq-agent/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/RudrenduPaul/electronics-rfq-agent/releases/tag/v0.1.0
