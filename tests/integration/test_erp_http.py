@@ -13,6 +13,7 @@ import respx
 from electronics_rfq_agent.mcp.dynamics import DynamicsMCP
 from electronics_rfq_agent.mcp.epicor import EpicorMCP
 from electronics_rfq_agent.mcp.oracle import OracleMCP
+from electronics_rfq_agent.models import ERPConfig
 
 
 # ---------------------------------------------------------------------------
@@ -856,3 +857,39 @@ class TestDynamicsGetPriceHTTPPath:
         price = await dynamics.get_price("RES-0402-10K-1PCT", 1000)
         assert price is not None
         await dynamics.close()
+
+
+# ---------------------------------------------------------------------------
+# DynamicsMCP.from_config() classmethod tests (issue #6)
+# ---------------------------------------------------------------------------
+
+
+class TestDynamicsMCPFromConfig:
+    """DynamicsMCP.from_config() must wire ERPConfig fields to the right attributes."""
+
+    _TENANT = "12345678-1234-1234-1234-123456789abc"
+    _BASE_URL = "https://myorg.api.crm.dynamics.com"
+
+    def test_from_config_sets_tenant_id(self) -> None:
+        cfg = ERPConfig(
+            erp_type="dynamics",
+            api_key=self._TENANT,
+            username="my-client-id",
+            password="my-secret",
+            base_url=self._BASE_URL,
+        )
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            d = DynamicsMCP.from_config(cfg)
+        assert d._tenant_id == self._TENANT
+
+    def test_from_config_sets_base_url(self) -> None:
+        cfg = ERPConfig(
+            erp_type="dynamics",
+            api_key=self._TENANT,
+            username="my-client-id",
+            password="my-secret",
+            base_url=self._BASE_URL,
+        )
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            d = DynamicsMCP.from_config(cfg)
+        assert d._base_url == self._BASE_URL
