@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json as _json
 import os
 import re
 import time
@@ -149,8 +150,6 @@ class DynamicsMCP(ERPMCPServer):
         body = response.content
         if len(body) > _MAX_RESPONSE_BYTES:
             raise ValueError(f"Dynamics 365 response too large: {len(body)} bytes")
-        import json as _json  # noqa: PLC0415
-
         return [self._map_product(p) for p in _json.loads(body).get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
@@ -176,10 +175,15 @@ class DynamicsMCP(ERPMCPServer):
         body = response.content
         if len(body) > _MAX_RESPONSE_BYTES:
             raise ValueError(f"Dynamics 365 response too large: {len(body)} bytes")
-        import json as _json  # noqa: PLC0415
-
         values = _json.loads(body).get("value", [])
         return self._map_product(values[0]) if values else None
+
+    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
+        if self._mock is not None:
+            return await self._mock.get_price(part_number, quantity)
+        # Dynamics 365 Sales standard product catalog has no volume-tier pricing
+        # via the OData API. Return None so the agent uses unit_price from get_part().
+        return None
 
     async def close(self) -> None:
         if self._client is not None:

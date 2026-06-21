@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from electronics_rfq_agent.models import RFQLineItem, RFQParseError
 
 _logger = logging.getLogger(__name__)
@@ -256,7 +258,13 @@ class RFQParser:
                         customer_notes=row.get("customer_notes"),
                     )
                 )
-            except (KeyError, ValueError, AttributeError, TypeError) as exc:
+            except (
+                KeyError,
+                ValueError,
+                AttributeError,
+                TypeError,
+                ValidationError,
+            ) as exc:
                 _logger.warning("Skipped row %d during JSON parse: %s", i, exc)
                 continue
         return items

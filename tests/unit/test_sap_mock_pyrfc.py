@@ -263,3 +263,80 @@ class TestSAPLivePaths:
         finally:
             if saved is not None:
                 sys.modules["pyrfc"] = saved
+
+    @pytest.mark.asyncio
+    async def test_bapi_conn_obtained_inside_bapi_lock(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
+        """Regression: _get_conn() must be called INSIDE _bapi_lock to prevent
+        close() from racing between conn acquisition and the BAPI call."""
+        sap, mock_conn = sap_live
+        mock_conn.call.return_value = _BAPI_MATERIAL_RESPONSE
+
+        lock_held_during_get_conn: list[bool] = []
+        original_get_conn = sap._get_conn
+
+        async def _spy_get_conn() -> MagicMock:
+            lock_held_during_get_conn.append(sap._bapi_lock.locked())
+            return await original_get_conn()
+
+        sap._get_conn = _spy_get_conn  # type: ignore[method-assign]
+        await sap._bapi_material_detail("RES-0402-10K")
+
+        assert lock_held_during_get_conn, "_get_conn was never called"
+        assert all(lock_held_during_get_conn), (
+            "_get_conn() was called while _bapi_lock was NOT held; "
+            "close() can race between conn acquisition and conn.call()"
+        )
+
+    @pytest.mark.asyncio
+    async def test_pricing_bapi_conn_obtained_inside_bapi_lock(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
+        """Regression: _get_conn() must be inside _bapi_lock in _bapi_pricing()."""
+        sap, mock_conn = sap_live
+        mock_conn.call.return_value = _BAPI_PRICING_RESPONSE
+
+        lock_held_during_get_conn: list[bool] = []
+        original_get_conn = sap._get_conn
+
+        async def _spy_get_conn() -> MagicMock:
+            lock_held_during_get_conn.append(sap._bapi_lock.locked())
+            return await original_get_conn()
+
+        sap._get_conn = _spy_get_conn  # type: ignore[method-assign]
+        await sap._bapi_pricing("RES-0402-10K")
+
+        assert lock_held_during_get_conn
+        assert all(lock_held_during_get_conn), (
+            "_get_conn() was called while _bapi_lock was NOT held in _bapi_pricing()"
+        )
+
+    @pytest.mark.asyncio
+    async def test_search_parts_conn_obtained_inside_bapi_lock(
+        self, sap_live: tuple[SAPMCP, MagicMock]
+    ) -> None:
+        """Regression: _get_conn() must be inside _bapi_lock in search_parts()."""
+        sap, mock_conn = sap_live
+
+        def _side_effect(bapi: str, **kw: object) -> dict[str, object]:
+            if bapi == "BAPI_MATERIAL_GETLIST":
+                return {"MATNRLIST": []}
+            return {}
+
+        mock_conn.call.side_effect = _side_effect
+
+        lock_held_during_get_conn: list[bool] = []
+        original_get_conn = sap._get_conn
+
+        async def _spy_get_conn() -> MagicMock:
+            lock_held_during_get_conn.append(sap._bapi_lock.locked())
+            return await original_get_conn()
+
+        sap._get_conn = _spy_get_conn  # type: ignore[method-assign]
+        await sap.search_parts("RES")
+
+        assert lock_held_during_get_conn
+        assert all(lock_held_during_get_conn), (
+            "_get_conn() was called while _bapi_lock was NOT held in search_parts()"
+        )

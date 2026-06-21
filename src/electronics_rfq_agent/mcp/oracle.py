@@ -160,6 +160,14 @@ class OracleMCP(ERPMCPServer):
             raise ValueError(f"Oracle SCM response too large: {len(body)} bytes")
         return self._map_item(_json.loads(body))
 
+    async def get_price(self, part_number: str, quantity: int) -> Decimal | None:
+        if self._mock is not None:
+            return await self._mock.get_price(part_number, quantity)
+        # Oracle SCM REST API embeds ListPrice in the item catalog; there is no
+        # separate volume-pricing endpoint in the standard API. Return None so
+        # the agent uses unit_price from get_part() without a redundant API call.
+        return None
+
     async def close(self) -> None:
         if self._client is not None:
             await self._client.aclose()

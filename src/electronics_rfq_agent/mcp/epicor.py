@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json as _json
 import os
 import re
 from decimal import Decimal
@@ -114,7 +115,7 @@ class EpicorMCP(ERPMCPServer):
         body = await response.aread()
         if len(body) > _MAX_RESPONSE_BYTES:
             raise ValueError("Response too large")
-        return [self._map_part(p) for p in response.json().get("value", [])]
+        return [self._map_part(p) for p in _json.loads(body).get("value", [])]
 
     async def get_part(self, part_number: str) -> ERPPartResult | None:
         if self._mock is not None:
@@ -139,7 +140,7 @@ class EpicorMCP(ERPMCPServer):
         body = await response.aread()
         if len(body) > _MAX_RESPONSE_BYTES:
             raise ValueError("Response too large")
-        return self._map_part(response.json())
+        return self._map_part(_json.loads(body))
 
     async def close(self) -> None:
         if self._client is not None:

@@ -130,8 +130,8 @@ class SAPMCP(ERPMCPServer):
         if self._mock is not None:
             return await self._mock.search_parts(query, limit)
 
-        conn = await self._get_conn()
         async with self._bapi_lock:
+            conn = await self._get_conn()
             result: dict[str, Any] = await asyncio.to_thread(
                 conn.call,
                 "BAPI_MATERIAL_GETLIST",
@@ -192,21 +192,21 @@ class SAPMCP(ERPMCPServer):
     async def _bapi_material_detail(
         self, part_number: str
     ) -> tuple[dict[str, Any], dict[str, Any]] | None:
-        conn = await self._get_conn()
-        try:
-            async with self._bapi_lock:
+        async with self._bapi_lock:
+            conn = await self._get_conn()
+            try:
                 result: dict[str, Any] = await asyncio.to_thread(
                     conn.call,
                     "BAPI_MATERIAL_GET_DETAIL",
                     MATERIAL=part_number,
                     PLANT=self._plant,
                 )
-        except Exception as exc:
-            if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
-                return None
-            raise ERPConnectionError(
-                f"SAP BAPI call failed for {part_number!r}: {exc}"
-            ) from exc
+            except Exception as exc:
+                if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
+                    return None
+                raise ERPConnectionError(
+                    f"SAP BAPI call failed for {part_number!r}: {exc}"
+                ) from exc
 
         mat_general: dict[str, Any] = result.get("MATERIAL_GENERAL_DATA", {})
         if not mat_general:
@@ -215,19 +215,19 @@ class SAPMCP(ERPMCPServer):
         return mat_general, mat_plant
 
     async def _bapi_pricing(self, part_number: str) -> dict[str, Any]:
-        conn = await self._get_conn()
-        try:
-            async with self._bapi_lock:
+        async with self._bapi_lock:
+            conn = await self._get_conn()
+            try:
                 result: dict[str, Any] = await asyncio.to_thread(
                     conn.call,
                     "BAPI_MATERIAL_GETPRICINGINFO",
                     MATERIAL=part_number,
                     PLANT=self._plant,
                 )
-        except Exception as exc:
-            if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
-                return {}
-            raise ERPConnectionError(
-                f"SAP pricing BAPI failed for {part_number!r}: {exc}"
-            ) from exc
+            except Exception as exc:
+                if type(exc).__name__ in _SAP_NOT_FOUND_EXCEPTIONS:
+                    return {}
+                raise ERPConnectionError(
+                    f"SAP pricing BAPI failed for {part_number!r}: {exc}"
+                ) from exc
         return dict(result.get("PRICINGDATA", {}))
