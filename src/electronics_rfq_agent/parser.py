@@ -3,11 +3,14 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
 from electronics_rfq_agent.models import RFQLineItem, RFQParseError
+
+_logger = logging.getLogger(__name__)
 
 
 class RFQParser:
@@ -213,6 +216,10 @@ class RFQParser:
             start = 1
             end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
             cleaned = "\n".join(lines[start:end])
+            if not cleaned.strip():
+                raise RFQParseError(
+                    "Model returned an empty response (fence-only or blank content)"
+                )
 
         try:
             raw = json.loads(cleaned)
@@ -249,7 +256,8 @@ class RFQParser:
                         customer_notes=row.get("customer_notes"),
                     )
                 )
-            except (KeyError, ValueError, AttributeError, TypeError):
+            except (KeyError, ValueError, AttributeError, TypeError) as exc:
+                _logger.warning("Skipped row %d during JSON parse: %s", i, exc)
                 continue
         return items
 
@@ -266,9 +274,16 @@ class RFQParser:
     def _map_columns(header: list[str]) -> dict[str, int]:
         mapping: dict[str, int] = {}
         for i, col in enumerate(header):
-            if any(k in col for k in ("part", "pn", "item", "mpn", "mfr part")):
+            if (
+                any(k in col for k in ("part", "pn", "mpn", "mfr part"))
+                or col == "item"
+                or "item no" in col
+                or "item number" in col
+                or "item#" in col
+                or "item_no" in col
+            ):
                 mapping.setdefault("part_number", i)
-            elif any(k in col for k in ("qty", "quantity", "amount")):
+            elif any(k in col for k in ("qty", "quantity")) or col == "amount":
                 mapping.setdefault("quantity", i)
             elif any(k in col for k in ("mfr", "manufacturer", "brand", "vendor")):
                 mapping.setdefault("manufacturer", i)

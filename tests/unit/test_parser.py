@@ -331,3 +331,83 @@ class TestExcelParsing:
         items = parser._parse_excel(excel_path)
         assert len(items) >= 1
         assert all(isinstance(i, RFQLineItem) for i in items)
+
+
+class TestMapColumnsBugFixes:
+    """Regression tests for column mapping false-positive substring matches."""
+
+    def test_line_item_column_not_mapped_to_part_number(self) -> None:
+        # "line_item" contains "item" but should NOT be treated as a part-number column
+        header = ["line_item", "part_number", "qty"]
+        col = RFQParser._map_columns(header)
+        assert col.get("part_number") == 1, (
+            "part_number should map to 'part_number' column, not 'line_item'"
+        )
+
+    def test_total_amount_column_not_mapped_to_quantity(self) -> None:
+        # "total amount" contains "amount" but is a price column, not a quantity column
+        header = ["part_number", "qty", "total amount"]
+        col = RFQParser._map_columns(header)
+        assert col.get("quantity") == 1, (
+            "quantity should map to 'qty' column, not 'total amount'"
+        )
+        assert col.get("part_number") == 0
+
+    def test_bare_item_still_maps_to_part_number(self) -> None:
+        # Bare "item" (exact column name) should still map to part_number
+        header = ["item", "amount", "vendor"]
+        col = RFQParser._map_columns(header)
+        assert col.get("part_number") == 0
+        assert col.get("quantity") == 1
+
+    def test_item_number_maps_to_part_number(self) -> None:
+        header = ["item number", "qty", "mfr"]
+        col = RFQParser._map_columns(header)
+        assert col.get("part_number") == 0
+
+    def test_item_no_maps_to_part_number(self) -> None:
+        header = ["item no", "quantity", "notes"]
+        col = RFQParser._map_columns(header)
+        assert col.get("part_number") == 0
+
+
+class TestFenceStripping:
+    """Regression tests for JSON fence-stripping edge cases."""
+
+    def test_empty_fence_raises_rfq_parse_error(self, parser: RFQParser) -> None:
+        # A lone opening fence with no content should raise a descriptive error
+        with pytest.raises(RFQParseError, match="empty response"):
+            parser._parse_json_response("```")
+
+    def test_fence_with_only_closing_raises_rfq_parse_error(
+        self, parser: RFQParser
+    ) -> None:
+        with pytest.raises(RFQParseError, match="empty response"):
+            parser._parse_json_response("```\n```")
+
+    def test_fence_with_json_keyword_and_empty_body(self, parser: RFQParser) -> None:
+        with pytest.raises(RFQParseError, match="empty response"):
+            parser._parse_json_response("```json\n```")
+
+
+class TestSkippedRowsWarning:
+    """Regression tests for logging.warning on skipped rows."""
+
+    def test_skipped_rows_emit_warning(
+        self, parser: RFQParser, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        import logging
+
+        bad_json = json.dumps(
+            [
+                {"line_number": 1, "quantity": 10},  # missing part_number → skipped
+                {"line_number": 2, "part_number": "GOOD-PART", "quantity": 5},
+            ]
+        )
+        with caplog.at_level(logging.WARNING, logger="electronics_rfq_agent.parser"):
+            items = parser._parse_json_response(bad_json)
+
+        assert len(items) == 1
+        assert any("Skipped row" in msg for msg in caplog.messages), (
+            "Expected a warning about the skipped row"
+        )

@@ -350,3 +350,33 @@ class TestQuoteAgentWithMockERP:
         assert result.unit_price is not None
         # sell price = cost * 1.10, so must be >= cost
         assert result.unit_price >= part.unit_price
+
+    @pytest.mark.asyncio
+    async def test_zero_unit_price_adds_warning_note(self) -> None:
+        """Parts with zero unit price must get a warning note, not a silent $0 quote."""
+        from unittest.mock import AsyncMock
+
+        from electronics_rfq_agent.models import ERPPartResult
+
+        zero_priced_part = ERPPartResult(
+            part_number="ZERO-PRICE-PART",
+            description="Part with no price set yet",
+            unit_price=Decimal("0"),
+            available_qty=100,
+            lead_time_days=7,
+            manufacturer="TestMfr",
+        )
+        erp = AsyncMock()
+        erp.get_part = AsyncMock(return_value=zero_priced_part)
+        erp.get_price = AsyncMock(return_value=Decimal("0"))
+
+        agent = QuoteAgent(erp=erp, margin_pct=0.10)
+        rfq_line = RFQLineItem(
+            line_number=1, part_number="ZERO-PRICE-PART", quantity=10
+        )
+        result = await agent._lookup_line(rfq_line)
+
+        assert result.status == "found"
+        assert result.unit_price == Decimal("0")
+        assert result.notes is not None
+        assert "zero unit price" in result.notes.lower()

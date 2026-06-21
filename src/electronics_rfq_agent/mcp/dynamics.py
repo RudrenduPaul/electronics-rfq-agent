@@ -65,6 +65,8 @@ class DynamicsMCP(ERPMCPServer):
         # float("inf") means "never expires" — finite values set after a real fetch.
         self._token_expires_at: float = float("inf")
         self._token_lock = asyncio.Lock()
+        if not use_mock and not self._tenant_id:
+            raise ValueError("tenant_id must not be empty")
         if self._tenant_id and not _UUID_RE.match(self._tenant_id):
             raise ValueError(f"tenant_id must be a valid UUID; got {self._tenant_id!r}")
         if not use_mock:

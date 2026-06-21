@@ -46,5 +46,5 @@ async def fetch_client_credentials_token(
         expires_in = (
             int(raw_expiry) if isinstance(raw_expiry, (int, float, str)) else 3600
         )
-        expires_at = time.monotonic() + expires_in - 60
+        expires_at = time.monotonic() + max(expires_in - 60, 1)
     return access_token, expires_at
