@@ -283,6 +283,47 @@ class TestCLIAudit:
         combined = result.output.lower() + (result.stderr or "").lower()
         assert "error" in combined
 
+    def test_audit_malformed_line_missing_status_exits_nonzero(
+        self, tmp_path: Path
+    ) -> None:
+        """Missing 'status' key must produce a clean error, not a Python traceback."""
+        import json
+
+        bad_data = {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "rfq_source": "test.txt",
+            "total_price": "0.00",
+            "currency": "USD",
+            "created_at": "2026-01-01T00:00:00Z",
+            "lines": [{"rfq_line": {"line_number": 1, "part_number": "X"}}],
+        }
+        f = tmp_path / "bad_line.json"
+        f.write_text(json.dumps(bad_data))
+        result = runner.invoke(app, ["audit", str(f)])
+        assert result.exit_code != 0
+        combined = result.output + (result.stderr or "")
+        assert "error" in combined.lower()
+        assert "Traceback" not in combined
+
+    def test_audit_malformed_rfq_line_shows_placeholder(self, tmp_path: Path) -> None:
+        """Missing 'rfq_line' key must show [malformed line] placeholder, not crash."""
+        import json
+
+        bad_data = {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "rfq_source": "test.txt",
+            "total_price": "0.00",
+            "currency": "USD",
+            "created_at": "2026-01-01T00:00:00Z",
+            "lines": [
+                {"status": "found", "unit_price": "1.00", "extended_price": "1.00"}
+            ],
+        }
+        f = tmp_path / "bad_rfq_line.json"
+        f.write_text(json.dumps(bad_data))
+        result = runner.invoke(app, ["audit", str(f)])
+        assert "malformed line" in result.output.lower()
+
 
 class TestTelemetry:
     def test_collector_writes_to_local_file(self, tmp_path: Path) -> None:

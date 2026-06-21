@@ -87,7 +87,7 @@ def quote(
 
 
 @app.command()
-def audit(
+def audit(  # noqa: PLR0912, PLR0915
     quote_file: Path = typer.Argument(
         ..., help="Quote JSON file produced by `erfa quote --output`"
     ),
@@ -125,45 +125,59 @@ def audit(
     typer.echo(f"Total      : {currency} {total}")
     typer.echo("")
 
-    found = [ln for ln in lines if ln["status"] == "found"]
-    subst = [ln for ln in lines if ln["status"] == "substituted"]
-    missing = [ln for ln in lines if ln["status"] == "not_found"]
+    try:
+        found = [ln for ln in lines if ln["status"] == "found"]
+        subst = [ln for ln in lines if ln["status"] == "substituted"]
+        missing = [ln for ln in lines if ln["status"] == "not_found"]
+    except (KeyError, TypeError) as exc:
+        typer.echo(f"error: malformed line data in {quote_file}: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
 
     if found:
         typer.echo(f"FOUND ({len(found)})")
         typer.echo("-" * 60)
         for ln in found:
-            rfq = ln["rfq_line"]
-            typer.echo(
-                f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}"
-                f"  qty={rfq['quantity']}  unit={ln['unit_price']}"
-                f"  ext={ln['extended_price']}"
-            )
+            try:
+                rfq = ln["rfq_line"]
+                typer.echo(
+                    f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}"
+                    f"  qty={rfq['quantity']}  unit={ln['unit_price']}"
+                    f"  ext={ln['extended_price']}"
+                )
+            except (KeyError, TypeError) as exc:
+                typer.echo(f"  [malformed line: {exc}]")
 
     if subst:
         typer.echo("")
         typer.echo(f"SUBSTITUTED ({len(subst)})")
         typer.echo("-" * 60)
         for ln in subst:
-            rfq = ln["rfq_line"]
-            erp_pn = ln.get("erp_result", {}) or {}
-            erp_part = erp_pn.get("part_number", "?")
-            typer.echo(
-                f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}  → {erp_part}"
-            )
-            if ln.get("notes"):
-                typer.echo(f"         Reason : {ln['notes']}")
+            try:
+                rfq = ln["rfq_line"]
+                erp_pn = ln.get("erp_result", {}) or {}
+                erp_part = erp_pn.get("part_number", "?")
+                typer.echo(
+                    f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}"
+                    f"  → {erp_part}"
+                )
+                if ln.get("notes"):
+                    typer.echo(f"         Reason : {ln['notes']}")
+            except (KeyError, TypeError) as exc:
+                typer.echo(f"  [malformed line: {exc}]")
 
     if missing:
         typer.echo("")
         typer.echo(f"NOT FOUND ({len(missing)})")
         typer.echo("-" * 60)
         for ln in missing:
-            rfq = ln["rfq_line"]
-            typer.echo(
-                f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}"
-                f"  {ln.get('notes', '')}"
-            )
+            try:
+                rfq = ln["rfq_line"]
+                typer.echo(
+                    f"  L{rfq['line_number']:>3}  {rfq['part_number']:<30}"
+                    f"  {ln.get('notes', '')}"
+                )
+            except (KeyError, TypeError) as exc:
+                typer.echo(f"  [malformed line: {exc}]")
 
     typer.echo("")
     _summary_line(len(found), len(subst), len(missing))

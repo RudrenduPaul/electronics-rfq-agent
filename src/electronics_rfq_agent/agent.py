@@ -125,7 +125,7 @@ class QuoteAgent:
 
             counts = {"found": 0, "not_found": 0, "substituted": 0}
             for ln in quote.lines:
-                counts[ln.status] = counts.get(ln.status, 0) + 1
+                counts[ln.status] += 1
             self._telemetry.record(
                 TelemetryEvent(
                     erp_type=type(self.erp).__name__,
@@ -190,11 +190,18 @@ class QuoteAgent:
 
         is_exact = part.part_number.upper() == line.part_number.upper()
         status: Literal["found", "substituted"] = "found" if is_exact else "substituted"
-        notes = (
-            None
-            if is_exact
-            else f"Substituted {line.part_number!r} with {part.part_number!r}"
-        )
+
+        notes_parts = []
+        if not is_exact:
+            notes_parts.append(
+                f"Substituted {line.part_number!r} with {part.part_number!r}"
+            )
+        if cost_price == Decimal("0"):
+            notes_parts.append(
+                f"Part {part.part_number!r} has zero unit price in ERP"
+                " — verify pricing manually"
+            )
+        notes = "; ".join(notes_parts) or None
 
         return QuoteLineItem(
             rfq_line=line,

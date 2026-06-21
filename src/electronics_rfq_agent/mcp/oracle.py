@@ -123,7 +123,10 @@ class OracleMCP(ERPMCPServer):
                     f"OR Description LIKE '%{safe_query}%'"
                 ),
                 "limit": limit,
-                "fields": "ItemNumber,Description,ListPrice,PrimaryUOMCode",
+                "fields": (
+                    "ItemNumber,Description,ListPrice,"
+                    "OnHandQuantity,LeadTime,Manufacturer"
+                ),
             },
         )
         response.raise_for_status()

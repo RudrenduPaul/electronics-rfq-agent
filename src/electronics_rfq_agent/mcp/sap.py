@@ -97,7 +97,7 @@ class SAPMCP(ERPMCPServer):
     @classmethod
     def from_config(cls, cfg: ERPConfig) -> SAPMCP:
         """Construct from an ERPConfig instance."""
-        return cls(user=cfg.username, password=cfg.password)
+        return cls(host=cfg.base_url, user=cfg.username, password=cfg.password)
 
     async def _get_conn(self) -> Any:
         async with self._conn_lock:

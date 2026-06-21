@@ -720,3 +720,92 @@ class TestDynamicsMCPHTTP:
         last_api_call = respx.calls[-1].request
         assert last_api_call.headers["Authorization"] == "Bearer second-token"
         await dynamics.close()
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for bug fixes
+# ---------------------------------------------------------------------------
+
+
+class TestDynamicsMCPValidation:
+    def test_empty_tenant_id_raises_in_non_mock_mode(self) -> None:
+        """Empty tenant_id must raise ValueError immediately."""
+        with pytest.raises(ValueError, match="tenant_id must not be empty"):
+            DynamicsMCP(
+                tenant_id="",
+                client_id="client-id",
+                client_secret="secret",
+                base_url="https://org.test.crm.dynamics.com",
+            )
+
+    def test_none_tenant_id_raises_in_non_mock_mode(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No tenant_id and no env var must raise ValueError immediately."""
+        monkeypatch.delenv("ERFA_DYNAMICS_TENANT_ID", raising=False)
+        with pytest.raises(ValueError, match="tenant_id must not be empty"):
+            DynamicsMCP(
+                client_id="client-id",
+                client_secret="secret",
+                base_url="https://org.test.crm.dynamics.com",
+            )
+
+    def test_invalid_uuid_tenant_id_raises(self) -> None:
+        """Non-UUID tenant_id must raise ValueError."""
+        with pytest.raises(ValueError, match="valid UUID"):
+            DynamicsMCP(
+                tenant_id="not-a-uuid",
+                client_id="client-id",
+                client_secret="secret",
+                base_url="https://org.test.crm.dynamics.com",
+            )
+
+
+class TestOAuthExpiresIn:
+    """Regression tests for the expires_in floor clamp in _oauth.py."""
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_short_expires_in_does_not_put_token_in_past(self) -> None:
+        """expires_in=30 (< 60s buffer) must not produce a past expires_at."""
+        import time
+
+        from electronics_rfq_agent.mcp._oauth import fetch_client_credentials_token
+
+        respx.post("https://auth.example.com/token").mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "tok", "expires_in": 30}
+            )
+        )
+        before = time.monotonic()
+        _, expires_at = await fetch_client_credentials_token(
+            token_url="https://auth.example.com/token",
+            client_id="cid",
+            client_secret="sec",
+        )
+        assert expires_at > before, (
+            "expires_at must be in the future even when expires_in < 60"
+        )
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_zero_expires_in_does_not_put_token_in_past(self) -> None:
+        """expires_in=0 must not produce a past expires_at."""
+        import time
+
+        from electronics_rfq_agent.mcp._oauth import fetch_client_credentials_token
+
+        respx.post("https://auth.example.com/token").mock(
+            return_value=httpx.Response(
+                200, json={"access_token": "tok", "expires_in": 0}
+            )
+        )
+        before = time.monotonic()
+        _, expires_at = await fetch_client_credentials_token(
+            token_url="https://auth.example.com/token",
+            client_id="cid",
+            client_secret="sec",
+        )
+        assert expires_at > before, (
+            "expires_at must be in the future even when expires_in=0"
+        )
