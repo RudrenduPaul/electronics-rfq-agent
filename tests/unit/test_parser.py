@@ -411,3 +411,57 @@ class TestSkippedRowsWarning:
         assert any("Skipped row" in msg for msg in caplog.messages), (
             "Expected a warning about the skipped row"
         )
+
+
+class TestValidationErrorHandling:
+    """Regression tests: Pydantic ValidationError must be caught like ValueError.
+
+    Pydantic v2 ValidationError does NOT inherit from ValueError, so a bare
+    ``except (KeyError, ValueError, ...)`` silently re-raised it and crashed
+    the entire parse when the LLM returned a non-ISO required_date.
+    """
+
+    def test_invalid_required_date_is_skipped_not_raised(
+        self, parser: RFQParser, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        import logging
+
+        bad_json = json.dumps(
+            [
+                {
+                    "line_number": 1,
+                    "part_number": "RES-001",
+                    "quantity": 10,
+                    "required_date": "Q2 2024",  # not parseable as ISO date
+                },
+                {
+                    "line_number": 2,
+                    "part_number": "CAP-002",
+                    "quantity": 5,
+                    "required_date": None,
+                },
+            ]
+        )
+        with caplog.at_level(logging.WARNING, logger="electronics_rfq_agent.parser"):
+            items = parser._parse_json_response(bad_json)
+
+        # The bad-date row must be skipped; the good row must survive.
+        assert len(items) == 1
+        assert items[0].part_number == "CAP-002"
+        assert any("Skipped row" in msg for msg in caplog.messages)
+
+    def test_completely_unparseable_date_string_skipped(
+        self, parser: RFQParser
+    ) -> None:
+        bad_json = json.dumps(
+            [
+                {
+                    "line_number": 1,
+                    "part_number": "IC-001",
+                    "quantity": 1,
+                    "required_date": "ASAP",
+                }
+            ]
+        )
+        items = parser._parse_json_response(bad_json)
+        assert items == []  # nothing parseable → empty, no exception

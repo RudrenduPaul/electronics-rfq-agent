@@ -299,27 +299,12 @@ class TestOracleMCPHTTP:
         assert result is True
         await oracle.close()
 
-    @respx.mock
     @pytest.mark.asyncio
-    async def test_get_price_http(self, oracle: OracleMCP) -> None:
-        oracle._access_token = "test-token"
-        respx.get(
-            url__regex=r"https://oracle\.test\.local/fscmRestApi/resources/.*/items/.*"
-        ).mock(
-            return_value=httpx.Response(
-                200,
-                json={
-                    "ItemNumber": "CAP-001",
-                    "Description": "Test Cap",
-                    "ListPrice": "0.025",
-                    "OnHandQuantity": 500,
-                    "LeadTime": 3,
-                    "Manufacturer": "Murata",
-                },
-            )
-        )
+    async def test_get_price_http_returns_none(self, oracle: OracleMCP) -> None:
+        # Oracle SCM REST API has no separate volume-pricing endpoint; get_price()
+        # returns None so the agent falls back to unit_price from get_part().
         price = await oracle.get_price("CAP-001", 10)
-        assert price == Decimal("0.025")
+        assert price is None
         await oracle.close()
 
     def test_map_item_defaults(self) -> None:
@@ -554,31 +539,12 @@ class TestDynamicsMCPHTTP:
         assert result is True
         await dynamics.close()
 
-    @respx.mock
     @pytest.mark.asyncio
-    async def test_get_price_http(self, dynamics: DynamicsMCP) -> None:
-        dynamics._access_token = "test-token"
-        respx.get(
-            url__regex=r"https://org\.test\.crm\.dynamics\.com/api/data/v9\.2/products.*"
-        ).mock(
-            return_value=httpx.Response(
-                200,
-                json={
-                    "value": [
-                        {
-                            "productnumber": "IND-001",
-                            "name": "Inductor",
-                            "price": "0.15",
-                            "quantityonhand": 500,
-                            "leadtime": 5,
-                            "suppliername": "TDK",
-                        }
-                    ]
-                },
-            )
-        )
+    async def test_get_price_http_returns_none(self, dynamics: DynamicsMCP) -> None:
+        # Dynamics 365 Sales has no volume-pricing API endpoint;
+        # get_price() returns None so agent falls back to unit_price from get_part().
         price = await dynamics.get_price("IND-001", 5)
-        assert price == Decimal("0.15")
+        assert price is None
         await dynamics.close()
 
     def test_map_product_defaults(self) -> None:
@@ -809,3 +775,84 @@ class TestOAuthExpiresIn:
         assert expires_at > before, (
             "expires_at must be in the future even when expires_in=0"
         )
+
+
+# ---------------------------------------------------------------------------
+# get_price() override regression tests
+# (Bug: base class called get_part() a second time for Oracle/Dynamics HTTP path)
+# ---------------------------------------------------------------------------
+
+
+class TestOracleGetPriceHTTPPath:
+    """OracleMCP.get_price() must return None for non-mock HTTP path.
+
+    Prior to the fix, OracleMCP inherited ERPMCPServer.get_price() which
+    called get_part() again — one redundant API call per line item.
+    """
+
+    @pytest.fixture
+    def oracle(self) -> OracleMCP:
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            return OracleMCP(
+                base_url="https://oracle.test.local",
+                client_id="cid",
+                client_secret="sec",
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_price_returns_none_for_http_path(
+        self, oracle: OracleMCP
+    ) -> None:
+        """Non-mock get_price() must return None (no extra API call)."""
+        price = await oracle.get_price("RES-001", 100)
+        assert price is None
+
+    @pytest.mark.asyncio
+    async def test_get_price_mock_path_still_returns_value(self) -> None:
+        """Mock path must still provide tier pricing."""
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
+            oracle = OracleMCP(
+                base_url="https://oracle.test.local",
+                client_id="cid",
+                client_secret="sec",
+            )
+        # Mock catalog has RES-0402-10K-1PCT; qty=1000 gets 20% discount tier
+        price = await oracle.get_price("RES-0402-10K-1PCT", 1000)
+        assert price is not None
+        await oracle.close()
+
+
+class TestDynamicsGetPriceHTTPPath:
+    """DynamicsMCP.get_price() must return None for non-mock HTTP path."""
+
+    @pytest.fixture
+    def dynamics(self) -> DynamicsMCP:
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            return DynamicsMCP(
+                tenant_id="12345678-1234-1234-1234-123456789abc",
+                client_id="cid",
+                client_secret="sec",
+                base_url="https://org.test.crm.dynamics.com",
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_price_returns_none_for_http_path(
+        self, dynamics: DynamicsMCP
+    ) -> None:
+        """Non-mock get_price() must return None (no extra API call)."""
+        price = await dynamics.get_price("PROD-001", 50)
+        assert price is None
+
+    @pytest.mark.asyncio
+    async def test_get_price_mock_path_still_returns_value(self) -> None:
+        """Mock path must still provide tier pricing."""
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "true"}):
+            dynamics = DynamicsMCP(
+                tenant_id="12345678-1234-1234-1234-123456789abc",
+                client_id="cid",
+                client_secret="sec",
+                base_url="https://org.test.crm.dynamics.com",
+            )
+        price = await dynamics.get_price("RES-0402-10K-1PCT", 1000)
+        assert price is not None
+        await dynamics.close()
