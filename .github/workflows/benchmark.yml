@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   benchmark:
@@ -29,8 +31,34 @@ jobs:
           ERFA_USE_MOCK: "true"
           ANTHROPIC_API_KEY: "test-key-not-real"
 
+      - name: Generate HTML report
+        run: |
+          uv run python benchmarks/generate_report.py \
+            --sha "${{ github.sha }}" \
+            --output _site/index.html
+
       - name: Store benchmark results
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
           path: benchmarks/results/baseline.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: benchmark
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
