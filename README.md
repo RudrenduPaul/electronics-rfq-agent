@@ -116,26 +116,6 @@ Fill rate: 80%  (3 found / 1 substituted / 1 not found)
 | Dev mock backend | Yes | N/A | No | N/A |
 | MCP compatible | Yes | N/A | No | No |
 
-## Benchmarks
-
-Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
-
-```bash
-git clone https://github.com/RudrenduPaul/electronics-rfq-agent
-cd electronics-rfq-agent
-uv run python benchmarks/run.py
-```
-
-**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
-
-| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
-|---|---|---|---|
-| 10 lines | <0.1ms | <0.1ms | <0.1s |
-| 25 lines | <0.1ms | <0.1ms | <0.1s |
-| 50 lines | <0.1ms | <0.1ms | <0.1s |
-
-*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
-
 ## ERP support
 
 | ERP | Status | Connection | Docs |
@@ -224,6 +204,26 @@ except ERPConnectionError as e:
 
 ERP connection errors during lookup do not raise at the `QuoteAgent` level — the affected line gets `status="not_found"` and the error detail is written to `line.notes`. Only a total parse failure raises `RFQParseError`.
 
+## Benchmarks
+
+Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
+
+```bash
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
+cd electronics-rfq-agent
+uv run python benchmarks/run.py
+```
+
+**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
+
+| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
+|---|---|---|---|
+| 10 lines | <0.1ms | <0.1ms | <0.1s |
+| 25 lines | <0.1ms | <0.1ms | <0.1s |
+| 50 lines | <0.1ms | <0.1ms | <0.1s |
+
+*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
+
 ## Integration matrix
 
 Electronics RFQ Agent works with any agent framework that supports MCP:
@@ -246,6 +246,13 @@ docker compose up -d
 
 Your quote data never leaves your environment.
 
+## Security
+
+- **Supply chain:** SLSA Level 2 via GitHub Actions provenance. All releases signed with Sigstore. SBOM attached to every GitHub Release.
+- **Vulnerability scanning:** Trivy scans on every CI run (HIGH/CRITICAL only, exit on unfixed). CodeQL static analysis on every push.
+- **Dependency pinning:** Dependabot keeps all GitHub Actions and Python dependencies current.
+- **Disclosure:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately via GitHub Security Advisories.
+
 ## Design partner telemetry (opt-in)
 
 If you are a design partner, you can turn on anonymized telemetry. No part numbers, prices, or customer data is ever recorded.
@@ -264,13 +271,6 @@ agent = QuoteAgent(erp=MockERP(), telemetry=True)
 ```
 
 Data is written to `~/.erfa/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and package version. To push to a custom endpoint: `ERFA_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
-
-## Security
-
-- **Supply chain:** SLSA Level 2 via GitHub Actions provenance. All releases signed with Sigstore. SBOM attached to every GitHub Release.
-- **Vulnerability scanning:** Trivy scans on every CI run (HIGH/CRITICAL only, exit on unfixed). CodeQL static analysis on every push.
-- **Dependency pinning:** Dependabot keeps all GitHub Actions and Python dependencies current.
-- **Disclosure:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately via GitHub Security Advisories.
 
 ## Contributing
 
