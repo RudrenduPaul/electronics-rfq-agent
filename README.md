@@ -1,18 +1,55 @@
 # Electronics RFQ Agent
 
+**Your sales engineers are spending 2-4 hours turning RFQ documents into quotes. This does it in 30 seconds.**
+
+Electronics RFQ Agent is a Python library that reads RFQ documents (PDF, Excel, Word), looks up every line item against your ERP catalog, and outputs a draft quote. It connects to SAP, Epicor, Oracle, and Microsoft Dynamics through MCP servers, so it works with Claude, GPT-4, or any agent framework that speaks MCP.
+
+```bash
+erfa quote rfq.xlsx --mock
+```
+
 [![CI](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/electronics-rfq-agent.svg)](https://badge.fury.io/py/electronics-rfq-agent)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent/badge)](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent)
 
-Your sales engineers are spending 2-4 hours turning RFQ documents into quotes. This does it in 30 seconds.
+---
 
-Electronics RFQ Agent is a Python library that reads RFQ documents (PDF, Excel, Word), looks up every line item against your ERP catalog, and outputs a draft quote. It connects to SAP, Epicor, Oracle, and Microsoft Dynamics through MCP servers, so it works with Claude, GPT-4, or any agent framework that speaks MCP.
+## Install
 
 ```bash
 pip install electronics-rfq-agent
+# or
+uv add electronics-rfq-agent
 ```
+
+## The problem this solves
+
+We were working with electronics distributors who had 3-5 sales engineers spending most of their day on quote entry. Every tool we found was either tied to one specific ERP or required a 6-month integration project. We wanted something that worked with what distributors already had, could be self-hosted (quote data is sensitive), and was actually extensible.
+
+The MCP architecture means adding a new ERP is writing one file. The parser handles the document formats distributors actually send: hand-filled PDFs, multi-sheet Excel files, and the occasional scanned table.
+
+## Quickstart
+
+No ERP system required to try it out:
+
+```python
+from electronics_rfq_agent import QuoteAgent
+from electronics_rfq_agent.mcp.mock import MockERP
+
+agent = QuoteAgent(erp=MockERP())
+quote = agent.run_sync("path/to/rfq.xlsx")
+
+for line in quote.lines:
+    print(f"{line.rfq_line.part_number}: {line.status} @ {line.unit_price}")
+
+print(quote.summary())
+```
+
+MockERP applies quantity-based pricing tiers automatically: qty >= 1000 gets 20% off, qty >= 100 gets 10% off, qty >= 10 gets 5% off. List price applies below qty 10. This mirrors real-world volume pricing so benchmarks and integration tests reflect realistic cost curves.
+
+Connect to a real ERP:
 
 ```python
 from electronics_rfq_agent import QuoteAgent
@@ -25,67 +62,6 @@ agent = QuoteAgent(
 quote = agent.run_sync("rfq_2026_0619.xlsx")
 print(quote.summary())
 ```
-
-## Benchmark
-
-Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
-
-```bash
-git clone https://github.com/RudrenduPaul/electronics-rfq-agent
-cd electronics-rfq-agent
-uv run python benchmarks/run.py
-```
-
-**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
-
-| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
-|---|---|---|---|
-| 10 lines | <0.1ms | <0.1ms | <0.1s |
-| 25 lines | <0.1ms | <0.1ms | <0.1s |
-| 50 lines | <0.1ms | <0.1ms | <0.1s |
-
-*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
-
-## Why we built this
-
-We were working with electronics distributors who had 3-5 sales engineers spending most of their day on quote entry. Every tool we found was either tied to one specific ERP or required a 6-month integration project. We wanted something that worked with what distributors already had, could be self-hosted (quote data is sensitive), and was actually extensible.
-
-The MCP architecture means adding a new ERP is writing one file. The parser handles the document formats distributors actually send: hand-filled PDFs, multi-sheet Excel files, and the occasional scanned table.
-
-## ERP support
-
-| ERP | Status | Connection | Docs |
-|---|---|---|---|
-| Epicor Kinetic | Supported | REST API | [Setup](docs/erp-setup/epicor.md) |
-| SAP ECC / S/4HANA | Beta (manual install) | PyRFC (BAPI) | [Setup](docs/erp-setup/sap.md) |
-| Oracle Cloud SCM | Supported | REST API | [Setup](docs/erp-setup/oracle.md) |
-| Microsoft Dynamics 365 | Supported | Graph API | [Setup](docs/erp-setup/dynamics.md) |
-| Mock backend | Built-in | In-memory | No config needed |
-
-> **SAP note:** pyrfc requires the SAP NetWeaver RFC Library, which is not on PyPI and must be downloaded manually from SAP's support portal (S-user required). See [docs/erp-setup/sap.md](docs/erp-setup/sap.md) for step-by-step instructions.
-
-## vs. alternatives
-
-| | Electronics RFQ Agent | Manual process | SAP Joule | Generic AI (ChatGPT) |
-|---|---|---|---|---|
-| Multi-ERP support | SAP + Epicor + Oracle + Dynamics | N/A | SAP only | No ERP access |
-| Quote time (50 lines) | ~15s | 2-4 hours | N/A | N/A |
-| Self-hostable | Yes | N/A | No | No |
-| Data stays local | Yes | Yes | No | No |
-| Open source | MIT | N/A | No | No |
-| Dev mock backend | Yes | N/A | No | N/A |
-| MCP compatible | Yes | N/A | No | No |
-
-## Self-host in 60 seconds
-
-```bash
-git clone https://github.com/RudrenduPaul/electronics-rfq-agent
-cd electronics-rfq-agent
-cp .env.example .env   # add your ERP credentials and Anthropic API key
-docker compose up -d
-```
-
-Your quote data never leaves your environment.
 
 ## CLI
 
@@ -128,35 +104,49 @@ Fill rate: 80%  (3 found / 1 substituted / 1 not found)
 
 > **Zero-price parts:** If a part exists in the ERP catalog but has a unit price of $0.00, the agent quotes $0 rather than skipping the line, and sets `line.notes` to `"Part '<number>' has zero unit price in ERP — verify pricing manually"`. Check `line.notes` for any found or substituted line before sending a quote to a customer.
 
-## Integrations
+## How it differs from the alternatives
 
-Electronics RFQ Agent works with any agent framework that supports MCP:
+| | Electronics RFQ Agent | Manual process | SAP Joule | Generic AI (ChatGPT) |
+|---|---|---|---|---|
+| Multi-ERP support | SAP + Epicor + Oracle + Dynamics | N/A | SAP only | No ERP access |
+| Quote time (50 lines) | ~15s | 2-4 hours | N/A | N/A |
+| Self-hostable | Yes | N/A | No | No |
+| Data stays local | Yes | Yes | No | No |
+| Open source | MIT | N/A | No | No |
+| Dev mock backend | Yes | N/A | No | N/A |
+| MCP compatible | Yes | N/A | No | No |
 
-| Framework | Install | Example |
-|---|---|---|
-| Claude (built-in) | `pip install electronics-rfq-agent` | [01-basic-quote](examples/01-basic-quote/) |
-| LangGraph | `pip install 'electronics-rfq-agent[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
-| OpenAI Agents SDK | `pip install electronics-rfq-agent[agents]` | [05-openai-agents](examples/05-openai-agents/) |
-| CrewAI | `pip install electronics-rfq-agent[crewai]` | -- |
+## Benchmarks
 
-## Quick start with mock ERP
+Measured using the in-memory mock backend (200 realistic parts, no ERP system required). Run it yourself:
 
-No ERP system required to try it out:
-
-```python
-from electronics_rfq_agent import QuoteAgent
-from electronics_rfq_agent.mcp.mock import MockERP
-
-agent = QuoteAgent(erp=MockERP())
-quote = agent.run_sync("path/to/rfq.xlsx")
-
-for line in quote.lines:
-    print(f"{line.rfq_line.part_number}: {line.status} @ {line.unit_price}")
-
-print(quote.summary())
+```bash
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
+cd electronics-rfq-agent
+uv run python benchmarks/run.py
 ```
 
-MockERP applies quantity-based pricing tiers automatically: qty >= 1000 gets 20% off, qty >= 100 gets 10% off, qty >= 10 gets 5% off. List price applies below qty 10. This mirrors real-world volume pricing so benchmarks and integration tests reflect realistic cost curves.
+**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
+
+| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
+|---|---|---|---|
+| 10 lines | <0.1ms | <0.1ms | <0.1s |
+| 25 lines | <0.1ms | <0.1ms | <0.1s |
+| 50 lines | <0.1ms | <0.1ms | <0.1s |
+
+*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
+
+## ERP support
+
+| ERP | Status | Connection | Docs |
+|---|---|---|---|
+| Epicor Kinetic | Supported | REST API | [Setup](docs/erp-setup/epicor.md) |
+| SAP ECC / S/4HANA | Beta (manual install) | PyRFC (BAPI) | [Setup](docs/erp-setup/sap.md) |
+| Oracle Cloud SCM | Supported | REST API | [Setup](docs/erp-setup/oracle.md) |
+| Microsoft Dynamics 365 | Supported | Graph API | [Setup](docs/erp-setup/dynamics.md) |
+| Mock backend | Built-in | In-memory | No config needed |
+
+> **SAP note:** pyrfc requires the SAP NetWeaver RFC Library, which is not on PyPI and must be downloaded manually from SAP's support portal (S-user required). See [docs/erp-setup/sap.md](docs/erp-setup/sap.md) for step-by-step instructions.
 
 ## API reference
 
@@ -234,6 +224,28 @@ except ERPConnectionError as e:
 
 ERP connection errors during lookup do not raise at the `QuoteAgent` level — the affected line gets `status="not_found"` and the error detail is written to `line.notes`. Only a total parse failure raises `RFQParseError`.
 
+## Integration matrix
+
+Electronics RFQ Agent works with any agent framework that supports MCP:
+
+| Framework | Install | Example |
+|---|---|---|
+| Claude (built-in) | `pip install electronics-rfq-agent` | [01-basic-quote](examples/01-basic-quote/) |
+| LangGraph | `pip install 'electronics-rfq-agent[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
+| OpenAI Agents SDK | `pip install electronics-rfq-agent[agents]` | [05-openai-agents](examples/05-openai-agents/) |
+| CrewAI | `pip install electronics-rfq-agent[crewai]` | — |
+
+## Try it in Docker
+
+```bash
+git clone https://github.com/RudrenduPaul/electronics-rfq-agent
+cd electronics-rfq-agent
+cp .env.example .env   # add your ERP credentials and Anthropic API key
+docker compose up -d
+```
+
+Your quote data never leaves your environment.
+
 ## Design partner telemetry (opt-in)
 
 If you are a design partner, you can turn on anonymized telemetry. No part numbers, prices, or customer data is ever recorded.
@@ -253,18 +265,41 @@ agent = QuoteAgent(erp=MockERP(), telemetry=True)
 
 Data is written to `~/.erfa/telemetry.jsonl`. Each record contains only: ERP type, line count, found/substituted/not-found counts, duration in ms, and package version. To push to a custom endpoint: `ERFA_TELEMETRY_ENDPOINT=https://your-endpoint/ingest`.
 
-## Documentation
+## Security
 
-- [Getting started](docs/getting-started.md)
-- [ERP setup: Epicor](docs/erp-setup/epicor.md)
-- [ERP setup: SAP](docs/erp-setup/sap.md)
-- [ERP setup: Oracle](docs/erp-setup/oracle.md)
-- [ERP setup: Dynamics 365](docs/erp-setup/dynamics.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security](SECURITY.md)
-- [Changelog](CHANGELOG.md)
+- **Supply chain:** SLSA Level 2 via GitHub Actions provenance. All releases signed with Sigstore. SBOM attached to every GitHub Release.
+- **Vulnerability scanning:** Trivy scans on every CI run (HIGH/CRITICAL only, exit on unfixed). CodeQL static analysis on every push.
+- **Dependency pinning:** Dependabot keeps all GitHub Actions and Python dependencies current.
+- **Disclosure:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately via GitHub Security Advisories.
 
-## Community
+## Contributing
+
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR
+- Good first issues are labeled in GitHub
+- ERP adapters live in `electronics_rfq_agent/mcp/` — each is a self-contained file with no changes to core
+- All PRs require 80% test coverage
 
 GitHub Discussions: [Ask questions, share ideas](https://github.com/RudrenduPaul/electronics-rfq-agent/discussions)
 Discord: coming soon
+
+Full docs: [Getting started](docs/getting-started.md) · [ERP setup: Epicor](docs/erp-setup/epicor.md) · [SAP](docs/erp-setup/sap.md) · [Oracle](docs/erp-setup/oracle.md) · [Dynamics 365](docs/erp-setup/dynamics.md) · [Changelog](CHANGELOG.md)
+
+MIT. Contributions welcome.
+
+## Cite this work
+
+If you use Electronics RFQ Agent in research, please cite:
+
+```bibtex
+@software{paul2026electronicsrfq,
+  author = {Paul, Rudrendu and Nandy, Sourav},
+  title = {Electronics RFQ Agent: AI Quoting Agent for Electronics Distributors},
+  year = {2026},
+  url = {https://github.com/RudrenduPaul/electronics-rfq-agent},
+  license = {MIT}
+}
+```
+
+---
+
+*Built by Rudrendu Paul and Sourav Nandy*
