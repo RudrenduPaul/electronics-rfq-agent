@@ -695,8 +695,11 @@ class TestDynamicsMCPHTTP:
 
 
 class TestDynamicsMCPValidation:
-    def test_empty_tenant_id_raises_in_non_mock_mode(self) -> None:
+    def test_empty_tenant_id_raises_in_non_mock_mode(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Empty tenant_id must raise ValueError immediately."""
+        monkeypatch.setenv("ERFA_USE_MOCK", "false")
         with pytest.raises(ValueError, match="tenant_id must not be empty"):
             DynamicsMCP(
                 tenant_id="",
@@ -709,6 +712,7 @@ class TestDynamicsMCPValidation:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """No tenant_id and no env var must raise ValueError immediately."""
+        monkeypatch.setenv("ERFA_USE_MOCK", "false")
         monkeypatch.delenv("ERFA_DYNAMICS_TENANT_ID", raising=False)
         with pytest.raises(ValueError, match="tenant_id must not be empty"):
             DynamicsMCP(
