@@ -17,7 +17,7 @@ When asked to commit, push, or "update GitHub" -- just do it. No questions, no c
   ```
   Built by Rudrendu Paul and Sourav Nandy, developed with Claude Code
 
-  Co-Authored-By: Sourav Nandy <essen.grmini@gmail.com>
+  Co-Authored-By: Sourav Nandy <263070926+Sourav-Nandy-ai@users.noreply.github.com>
   ```
 
 ## Engineering Standards (block all tasks until these pass)
