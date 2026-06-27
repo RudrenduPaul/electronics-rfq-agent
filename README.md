@@ -138,15 +138,21 @@ cd electronics-rfq-agent
 uv run python benchmarks/run.py
 ```
 
-**ERP lookup + quote assembly (parser mocked, no Anthropic API call):**
+**ERP lookup latency (100 individual lookups, mock backend):**
 
-| RFQ size | ERP lookup P50 | ERP lookup P99 | Assembly time |
-|---|---|---|---|
-| 10 lines | <0.1ms | <0.1ms | <0.1s |
-| 25 lines | <0.1ms | <0.1ms | <0.1s |
-| 50 lines | <0.1ms | <0.1ms | <0.1s |
+| P50 | P99 | Mean |
+|---|---|---|
+| 0.00025ms | 0.0023ms | 0.00032ms |
 
-*Benchmark covers ERP lookup and quote assembly only. The RFQ parser is mocked, so no Anthropic API call is made. In production, AI document parsing adds 5-15s per document and real ERP lookups add 100-500ms per line. Manual baseline for a 50-line RFQ: 2-4 hours.*
+**Quote assembly time by RFQ size (parser mocked, no Anthropic API call):**
+
+| RFQ size | Assembly time |
+|---|---|
+| 10 lines | 0.004s |
+| 25 lines | 0.001s |
+| 50 lines | 0.001s |
+
+*These numbers cover ERP lookup and quote assembly only — the RFQ parser is mocked and no Anthropic API call is made. In production, AI document parsing adds 5–15s per document and real ERP lookups add 100–500ms per line (parallelised at up to `max_concurrent=10`), giving a realistic total of ~15s for a 50-line RFQ. Manual baseline: 2–4 hours.*
 
 ## Integration matrix
 
