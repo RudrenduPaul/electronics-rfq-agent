@@ -16,8 +16,9 @@ When asked to commit, push, or "update GitHub" -- just do it. No questions, no c
 - Every commit message ends with:
   ```
   Built by Rudrendu Paul and Sourav Nandy, developed with Claude Code
+
+  Co-Authored-By: Sourav Nandy <essen.grmini@gmail.com>
   ```
-- Never use Co-Authored-By lines
 
 ## Engineering Standards (block all tasks until these pass)
 
