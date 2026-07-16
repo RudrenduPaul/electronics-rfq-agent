@@ -1,0 +1,2 @@
+# CI/CD workflow changes require review from a trusted maintainer.
+.github/workflows/** @RudrenduPaul @Sourav-Nandy-ai
