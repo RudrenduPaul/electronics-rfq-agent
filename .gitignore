@@ -45,6 +45,9 @@ htmlcov/
 .idea/
 *.swp
 
+# Local agent tooling
+.claude/
+
 # uv
 uv.lock
 
