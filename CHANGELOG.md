@@ -11,7 +11,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - Package renamed from `openquote` to `electronics-rfq-agent`; CLI command renamed from `openquote` to `erfa`; all import paths changed from `openquote` to `electronics_rfq_agent`
 
-### Fixed — Engineering review (18 items)
+### Fixed (18 items)
 
 **Architecture**
 - `run_sync()` now safe inside running event loops via `nest_asyncio` (Jupyter, FastAPI startup handlers)
