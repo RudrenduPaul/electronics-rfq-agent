@@ -1,0 +1,112 @@
+{
+  "id": "df9fd083-2928-42bd-a027-e1ec699dbe23",
+  "created_at": "2026-08-05T06:18:48.326060Z",
+  "rfq_source": "tests/fixtures/sample_rfq.txt",
+  "lines": [
+    {
+      "rfq_line": {
+        "line_number": 1,
+        "part_number": "RES-0402-10K-1PCT",
+        "quantity": 1000,
+        "required_date": null,
+        "customer_notes": null,
+        "manufacturer": "Yageo"
+      },
+      "erp_result": {
+        "part_number": "RES-0402-10K-1PCT",
+        "description": "10K Ohm 1% 0.1W 0402 Resistor",
+        "unit_price": "0.007",
+        "available_qty": 10000,
+        "lead_time_days": 3,
+        "manufacturer": "Yageo"
+      },
+      "status": "found",
+      "unit_price": "0.0064",
+      "extended_price": "6.40",
+      "notes": null
+    },
+    {
+      "rfq_line": {
+        "line_number": 2,
+        "part_number": "CAP-100NF-50V-X7R-0402",
+        "quantity": 500,
+        "required_date": null,
+        "customer_notes": null,
+        "manufacturer": "Murata"
+      },
+      "erp_result": {
+        "part_number": "CAP-100NF-50V-X7R-0402",
+        "description": "100nF 50V X7R 0402 Capacitor",
+        "unit_price": "0.01",
+        "available_qty": 9500,
+        "lead_time_days": 3,
+        "manufacturer": "Murata"
+      },
+      "status": "found",
+      "unit_price": "0.0104",
+      "extended_price": "5.20",
+      "notes": null
+    },
+    {
+      "rfq_line": {
+        "line_number": 3,
+        "part_number": "IC-LM358-SOIC8",
+        "quantity": 50,
+        "required_date": null,
+        "customer_notes": null,
+        "manufacturer": "Texas Instruments"
+      },
+      "erp_result": {
+        "part_number": "IC-LM358-SOIC8",
+        "description": "LM358 Dual Op-Amp SOIC-8",
+        "unit_price": "0.65",
+        "available_qty": 4500,
+        "lead_time_days": 7,
+        "manufacturer": "Texas Instruments"
+      },
+      "status": "found",
+      "unit_price": "0.7101",
+      "extended_price": "35.50",
+      "notes": null
+    },
+    {
+      "rfq_line": {
+        "line_number": 4,
+        "part_number": "XTAL-16MHZ-SMD",
+        "quantity": 25,
+        "required_date": null,
+        "customer_notes": null,
+        "manufacturer": "SiTime"
+      },
+      "erp_result": {
+        "part_number": "XTAL-16MHZ-SMD",
+        "description": "16MHz Crystal Oscillator SMD",
+        "unit_price": "0.62",
+        "available_qty": 4500,
+        "lead_time_days": 7,
+        "manufacturer": "SiTime"
+      },
+      "status": "found",
+      "unit_price": "0.6774",
+      "extended_price": "16.94",
+      "notes": null
+    },
+    {
+      "rfq_line": {
+        "line_number": 5,
+        "part_number": "MOSFET-NMOS-20V-3A-SOT23",
+        "quantity": 100,
+        "required_date": null,
+        "customer_notes": null,
+        "manufacturer": "onsemi"
+      },
+      "erp_result": null,
+      "status": "not_found",
+      "unit_price": null,
+      "extended_price": null,
+      "notes": "Part 'MOSFET-NMOS-20V-3A-SOT23' not found in ERP catalog"
+    }
+  ],
+  "total_price": "64.04",
+  "currency": "USD"
+}
