@@ -12,12 +12,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from electronics_rfq_agent.cli import _build_erp
 from electronics_rfq_agent.models import RFQParseError
 
-mcp = FastMCP("electronics-rfq-agent")
+mcp = MCPServer("electronics-rfq-agent")
 
 
 @mcp.tool()

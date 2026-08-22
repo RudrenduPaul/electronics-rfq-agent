@@ -6,6 +6,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-22
+
+### Fixed
+- `erfa mcp` crashed on real install with `ModuleNotFoundError: No module named 'mcp.server.fastmcp'`. The `mcp` SDK made a breaking change between 1.x and 2.x, renaming `mcp.server.fastmcp.FastMCP` to `mcp.server.mcpserver.MCPServer` with no backward-compat alias; the loose `mcp>=1.0` dependency floor let a fresh install pull 2.0.0 while the code still targeted the old API. Updated `mcp_server.py` to the new `MCPServer` class (same `.tool()`/`.run()` shape) and tightened the dependency to `mcp>=2.0`. Caught by an actual clean-venv install and launch of 0.3.0, not just local dev-environment testing, which had an older `mcp` already cached.
+
 ## [0.3.0] - 2026-08-22
 
 ### Added

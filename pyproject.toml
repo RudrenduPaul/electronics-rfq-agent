@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "electronics-rfq-agent-cli"
-version = "0.3.0"
+version = "0.3.1"
 description = "AI quoting agent for electronics distributors. RFQ in, quote out in seconds."
 readme = "README.md"
 license = {text = "MIT"}
@@ -32,7 +32,7 @@ dependencies = [
     "pydantic>=2.7",
     "openpyxl>=3.1",
     "python-docx>=1.1",
-    "mcp>=1.0",
+    "mcp>=2.0",
     "rich>=13.0",
     "typer>=0.12",
 ]
