@@ -62,7 +62,7 @@ jobs:
           name: dist
 
       - name: Sign with sigstore
-        uses: sigstore/gh-action-sigstore-python@310f3cb441addf9e269304174612d9651118d038 # v1.2.0
+        uses: sigstore/gh-action-sigstore-python@0f4cc4226f42a4405c63939a3909bac535d1f323 # main, fixes upload-artifact@v3 deprecation (unreleased past v1.2.0)
         with:
           inputs: dist/*.whl dist/*.tar.gz
 

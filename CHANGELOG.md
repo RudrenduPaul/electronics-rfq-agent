@@ -6,6 +6,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-22
+
+### Fixed
+- `.github/workflows/release.yml`: `cyclonedx-py` dropped `--format` in favor of `--of` (SBOM generation was failing on every run). `sigstore/gh-action-sigstore-python@v3` does not exist; pinned to the real latest commit, which also fixes that action's own internal use of the now-blocked `actions/upload-artifact@v3`. `pypa/gh-action-pypi-publish` bumped to v1.14.2, since v1.14.0's bundled packaging/twine rejected wheels with Metadata-Version 2.5 (which current hatchling emits) as invalid. All three found and fixed during this package's first-ever release run; 0.2.0 published successfully to PyPI but without its signed release artifacts, hence this immediate 0.2.1 to get a clean, fully-signed release.
+
 ## [0.2.0] - 2026-08-21
 
 ### Changed
