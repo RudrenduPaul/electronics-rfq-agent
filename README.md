@@ -9,7 +9,7 @@ erfa quote rfq.xlsx --mock
 ```
 
 [![CI](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/electronics-rfq-agent/actions/workflows/ci.yml)
-[![PyPI version](https://badge.fury.io/py/electronics-rfq-agent.svg)](https://badge.fury.io/py/electronics-rfq-agent)
+[![PyPI version](https://badge.fury.io/py/electronics-rfq-agent-cli.svg)](https://badge.fury.io/py/electronics-rfq-agent-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent/badge)](https://api.securityscorecards.dev/projects/github.com/RudrenduPaul/electronics-rfq-agent)
@@ -19,9 +19,9 @@ erfa quote rfq.xlsx --mock
 ## Install
 
 ```bash
-pip install electronics-rfq-agent
+pip install electronics-rfq-agent-cli
 # or
-uv add electronics-rfq-agent
+uv add electronics-rfq-agent-cli
 ```
 
 ## The problem this solves
@@ -160,10 +160,10 @@ Electronics RFQ Agent works with any agent framework that supports MCP:
 
 | Framework | Install | Example |
 |---|---|---|
-| Claude (built-in) | `pip install electronics-rfq-agent` | [01-basic-quote](examples/01-basic-quote/) |
-| LangGraph | `pip install 'electronics-rfq-agent[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
-| OpenAI Agents SDK | `pip install electronics-rfq-agent[agents]` | [05-openai-agents](examples/05-openai-agents/) |
-| CrewAI | `pip install electronics-rfq-agent[crewai]` | — |
+| Claude (built-in) | `pip install electronics-rfq-agent-cli` | [01-basic-quote](examples/01-basic-quote/) |
+| LangGraph | `pip install 'electronics-rfq-agent-cli[langgraph]'` | [04-langgraph-agent](examples/04-langgraph-agent/) |
+| OpenAI Agents SDK | `pip install electronics-rfq-agent-cli[agents]` | [05-openai-agents](examples/05-openai-agents/) |
+| CrewAI | `pip install electronics-rfq-agent-cli[crewai]` | — |
 
 ## Try it in Docker
 
@@ -182,6 +182,29 @@ Your quote data never leaves your environment.
 - **Vulnerability scanning:** Trivy scans on every CI run (HIGH/CRITICAL only, exit on unfixed). CodeQL static analysis on every push.
 - **Dependency pinning:** Dependabot keeps all GitHub Actions and Python dependencies current.
 - **Disclosure:** [SECURITY.md](SECURITY.md) — report vulnerabilities privately via GitHub Security Advisories.
+
+## FAQ
+
+**Q: What does Electronics RFQ Agent actually do?**
+A: It reads an RFQ document (PDF, Excel, or Word) from a customer, looks up every line item against your ERP catalog (SAP, Epicor, Oracle, or Microsoft Dynamics), and produces a draft quote in seconds instead of the 2-4 hours a sales engineer typically spends doing this by hand.
+
+**Q: How is this different from SAP Joule or a generic AI tool like ChatGPT?**
+A: SAP Joule only works if you're on SAP. This tool is ERP-agnostic (SAP, Epicor, Oracle, and Dynamics from day one), self-hostable so your quote and pricing data never leaves your environment, and open source under MIT. A generic AI tool like ChatGPT has no access to your ERP catalog at all, so it cannot produce a priced quote.
+
+**Q: Do I need my own API keys?**
+A: Yes, for document parsing you need an Anthropic API key (the parser uses Claude's vision capability to read PDFs, Excel, and Word RFQs). No key is required to try the mock backend (`erfa quote rfq.xlsx --mock`), which uses an in-memory 200-part catalog with realistic volume pricing.
+
+**Q: Is it safe? How is the release verified?**
+A: Every release is signed with Sigstore and ships with an SBOM. CI runs Trivy vulnerability scanning (exits on unfixed HIGH/CRITICAL CVEs) and CodeQL static analysis on every push, and the supply chain targets SLSA Level 2 via GitHub Actions provenance.
+
+**Q: Is this a library or a CLI?**
+A: Both. `pip install electronics-rfq-agent-cli` gives you the `erfa` command (`erfa quote`, `erfa audit`) for direct use, and the same package exposes a Python API (`QuoteAgent`, `EpicorMCP`, and the other ERP connectors) for embedding in your own agent framework.
+
+**Q: How do I use it from an agent?**
+A: The ERP connectors are MCP (Model Context Protocol) servers, so any agent framework that speaks MCP, Claude, GPT-4, Gemini, or a custom agent, can call them directly as tools without a bespoke integration per ERP.
+
+**Q: Does my quote data leave my environment?**
+A: No. The library runs entirely self-hosted; ERP credentials and quote data stay on your infrastructure. `docker compose up -d` runs the full stack, including the mock ERP backend, with no external service required beyond the Anthropic API call for document parsing.
 
 ## Contributing
 

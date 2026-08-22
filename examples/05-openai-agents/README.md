@@ -12,7 +12,7 @@ workflow.
 ## Install
 
 ```bash
-pip install electronics-rfq-agent[openai] openai-agents
+pip install electronics-rfq-agent-cli[openai] openai-agents
 ```
 
 ## Run

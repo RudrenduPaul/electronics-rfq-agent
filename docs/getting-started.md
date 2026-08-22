@@ -9,13 +9,13 @@
 ## Installation
 
 ```bash
-pip install electronics-rfq-agent
+pip install electronics-rfq-agent-cli
 ```
 
 For SAP connectivity:
 
 ```bash
-pip install electronics-rfq-agent[sap]
+pip install electronics-rfq-agent-cli[sap]
 # Also install SAP NetWeaver RFC Library -- see docs/erp-setup/sap.md
 ```
 

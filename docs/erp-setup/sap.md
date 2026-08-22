@@ -4,7 +4,7 @@
 
 - SAP ECC 6.0+ or SAP S/4HANA
 - SAP NetWeaver RFC Library (free download from SAP Support Portal)
-- pyrfc Python package: `pip install electronics-rfq-agent[sap]`
+- pyrfc Python package: `pip install electronics-rfq-agent-cli[sap]`
 
 ## SAP NetWeaver RFC Library installation
 

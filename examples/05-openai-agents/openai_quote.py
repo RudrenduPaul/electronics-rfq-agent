@@ -6,7 +6,7 @@ questions ("which parts are missing?", "what's the total?") or route the
 quote to an approval workflow using additional tools.
 
 Requirements:
-    pip install 'electronics-rfq-agent[agents]'
+    pip install 'electronics-rfq-agent-cli[agents]'
 
 Environment:
     OPENAI_API_KEY    - required for the OpenAI agent

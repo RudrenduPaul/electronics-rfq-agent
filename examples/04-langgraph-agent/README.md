@@ -28,7 +28,7 @@ check_quote     ← flag if total > $5K or any parts missing
 ## Install
 
 ```bash
-pip install 'electronics-rfq-agent[langchain]' langgraph
+pip install 'electronics-rfq-agent-cli[langchain]' langgraph
 ```
 
 ## Run

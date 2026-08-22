@@ -6,6 +6,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-21
+
+### Changed
+- PyPI package renamed from `electronics-rfq-agent` to `electronics-rfq-agent-cli` to match this portfolio's CLI naming convention; all install commands, badges, and `project.urls` updated accordingly. The Python import path (`electronics_rfq_agent`) and the `erfa` CLI command are unchanged.
+- Added `Author - <name>` entries to `project.urls` for both co-authors.
+
+### Added
+- FAQ section in the README covering install, API keys, security/signing, library-vs-CLI usage, agent/MCP usage, and data locality.
+
 ## [0.1.1] - 2026-06-19
 
 ### Changed
