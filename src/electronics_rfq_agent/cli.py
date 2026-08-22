@@ -4,6 +4,7 @@ Usage:
     erfa quote rfq.xlsx
     erfa quote rfq.pdf --mock --output quote.json
     erfa audit quote.json
+    erfa mcp
     ERFA_USE_MOCK=true erfa quote rfq.xlsx
 """
 
@@ -190,6 +191,14 @@ def _summary_line(found: int, subst: int, missing: int) -> None:
         f"Fill rate: {fill_pct}%  "
         f"({found} found / {subst} substituted / {missing} not found)"
     )
+
+
+@app.command(name="mcp")
+def mcp_command() -> None:
+    """Launch the MCP stdio server (quote_rfq, lookup_part, audit_quote tools)."""
+    from electronics_rfq_agent.mcp_server import main as _mcp_main  # noqa: PLC0415
+
+    _mcp_main()
 
 
 def _build_erp(*, mock: bool) -> ERPMCPServer:

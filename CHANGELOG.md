@@ -6,6 +6,13 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-22
+
+### Added
+- `erfa mcp`: launches a real MCP stdio server (`electronics_rfq_agent/mcp_server.py`, built on `mcp.server.fastmcp.FastMCP`) exposing `quote_rfq`, `lookup_part`, and `audit_quote` as typed tools. Any MCP-compatible agent client can now call this package's capabilities directly, without shelling out to the CLI. Previously the `ERPMCPServer` classes (`EpicorMCP`, `SAPMCP`, etc.) were library-internal, with no standalone launchable server for an MCP client to point at.
+- README: new `erfa mcp` row in the Commands table, new FAQ entry.
+- 10 new tests (`tests/unit/test_mcp_server.py`) covering all three tools' happy paths and error cases; overall coverage 90%.
+
 ## [0.2.1] - 2026-08-22
 
 ### Fixed

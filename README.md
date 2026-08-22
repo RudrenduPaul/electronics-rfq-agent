@@ -108,6 +108,7 @@ print(quote.summary())
 |---|---|---|---|
 | `erfa quote` | `rfq` (path, required) | `--mock`, `--margin <float>` (default `0.15`), `--output/-o <path>` | Parses an RFQ file and prints a draft quote. Needs `ANTHROPIC_API_KEY`; parsing always goes through Claude, `--mock` only swaps the ERP backend. |
 | `erfa audit` | `quote_file` (path, required) | none | Prints a full audit report (found / substituted / not found, fill rate) for a quote JSON file saved with `erfa quote --output`. Reads a local file only, no API key needed. |
+| `erfa mcp` | none | none | Launches an MCP stdio server exposing `quote_rfq`, `lookup_part`, and `audit_quote` as typed tools, so any MCP-compatible agent (Claude, GPT-4, Gemini) can call them directly without shelling out to the CLI. Point your MCP client config at `erfa mcp` as the command. |
 
 ```bash
 # Generate a quote from an RFQ file against the mock ERP
@@ -253,6 +254,9 @@ A generic chat model can read a document and even guess at prices, but it has no
 
 **How is this different from SAP Joule?**
 Joule is SAP's proprietary AI assistant suite, built into SAP's cloud platform (SAP BTP) and centered on SAP data. Electronics RFQ Agent is MIT-licensed, self-hosted, and works with SAP, Epicor, Oracle, and Dynamics through the same MCP interface. Your quote data never has to leave your environment, and you're not tied to one ERP vendor.
+
+**How do I call this from an agent instead of the CLI?**
+Run `erfa mcp` to launch an MCP stdio server exposing `quote_rfq`, `lookup_part`, and `audit_quote` as typed tools. Point any MCP-compatible client (Claude, GPT-4, Gemini, or a custom agent framework) at `erfa mcp` as the launch command, and it can call those tools directly with structured JSON in and out, no CLI output to parse.
 
 **Which document formats does it parse?**
 PDF (including scanned tables, via Claude's vision capability), Excel (`.xlsx`/`.xls`, searches every worksheet for the line-item header row), and Word (`.docx`, reads all tables). Plain text RFQs work too.

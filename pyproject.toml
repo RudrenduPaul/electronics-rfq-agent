@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "electronics-rfq-agent-cli"
-version = "0.2.1"
+version = "0.3.0"
 description = "AI quoting agent for electronics distributors. RFQ in, quote out in seconds."
 readme = "README.md"
 license = {text = "MIT"}
