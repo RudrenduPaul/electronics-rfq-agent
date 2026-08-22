@@ -6,3 +6,17 @@
 #         deployment surface and avoid exposing ChromaDB to untrusted input until
 #         an upstream patch is released.
 CVE-2026-45829
+
+# GHSA-xf7x-x43h-rpqh: json-repair unbounded-CPU DoS via a circular JSON Schema $ref
+# Status: fix exists (json-repair 0.60.1) but is not independently pinnable here --
+#         it is a transitive dependency of the optional `crewai` extra, and forcing
+#         it to 0.60.1 pulls a different resolved litellm (1.72.0) carrying 6 new
+#         HIGH/CRITICAL CVEs (auth bypass, RCE) -- verified locally with
+#         `uv lock --upgrade-package "json-repair==0.60.1"` + `trivy fs`, confirmed
+#         strictly worse than the DoS this ignore accepts.
+# Scope: transitive only, via the optional `crewai` extra; json-repair is never
+#        imported directly by this project's own source (`grep -r json_repair src/`
+#        returns nothing).
+# Action: revisit once crewai's own dependency graph allows json-repair>=0.60.1
+#         without a litellm downgrade path that reintroduces higher-severity CVEs.
+GHSA-xf7x-x43h-rpqh
