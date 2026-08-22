@@ -897,3 +897,38 @@ class TestDynamicsMCPFromConfig:
         with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
             d = DynamicsMCP.from_config(cfg)
         assert d._base_url == self._BASE_URL
+
+
+# ---------------------------------------------------------------------------
+# OracleMCP.from_config() classmethod tests (issue #6)
+# ---------------------------------------------------------------------------
+
+
+class TestOracleMCPFromConfig:
+    """OracleMCP.from_config() must wire ERPConfig fields to the right attributes."""
+
+    _BASE_URL = "https://myorg.fa.ocs.oraclecloud.com"
+
+    def test_from_config_sets_client_id(self) -> None:
+        cfg = ERPConfig(
+            erp_type="oracle",
+            api_key="unused",
+            username="my-client-id",
+            password="my-secret",
+            base_url=self._BASE_URL,
+        )
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            o = OracleMCP.from_config(cfg)
+        assert o._client_id == "my-client-id"
+
+    def test_from_config_sets_base_url(self) -> None:
+        cfg = ERPConfig(
+            erp_type="oracle",
+            api_key="unused",
+            username="my-client-id",
+            password="my-secret",
+            base_url=self._BASE_URL,
+        )
+        with patch.dict(os.environ, {"ERFA_USE_MOCK": "false"}):
+            o = OracleMCP.from_config(cfg)
+        assert o._base_url == self._BASE_URL
