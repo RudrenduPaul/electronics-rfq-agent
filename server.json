@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.RudrenduPaul/electronics-rfq-agent",
+  "description": "AI quoting agent for electronics distributors. RFQ in, quote out via MCP tools.",
+  "repository": {
+    "url": "https://github.com/RudrenduPaul/electronics-rfq-agent",
+    "source": "github"
+  },
+  "version": "0.3.2",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "electronics-rfq-agent-cli",
+      "version": "0.3.2",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--from",
+          "value": "electronics-rfq-agent-cli"
+        }
+      ],
+      "packageArguments": [
+        {
+          "type": "positional",
+          "valueHint": "script_name",
+          "value": "erfa"
+        },
+        {
+          "type": "positional",
+          "valueHint": "subcommand",
+          "value": "mcp"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

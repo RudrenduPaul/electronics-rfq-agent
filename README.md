@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.RudrenduPaul/electronics-rfq-agent -->
+
 <div align="center">
 
 # Electronics RFQ Agent

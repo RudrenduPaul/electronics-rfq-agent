@@ -6,6 +6,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-08-22
+
+### Added
+- `mcp-name: io.github.RudrenduPaul/electronics-rfq-agent` marker in the README, required by the official MCP Registry to verify PyPI package ownership before listing. Also added `server.json` at the repo root (MCP Registry server manifest).
+
 ## [0.3.1] - 2026-08-22
 
 ### Fixed
