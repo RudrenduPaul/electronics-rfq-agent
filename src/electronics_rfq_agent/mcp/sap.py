@@ -37,7 +37,7 @@ class SAPMCP(ERPMCPServer):
     - ERFA_SAP_PASSWORD: RFC password
     """
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         host: str | None = None,
         sysnr: str | None = None,

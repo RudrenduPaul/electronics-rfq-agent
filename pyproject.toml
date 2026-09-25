@@ -74,6 +74,9 @@ packages = ["src/electronics_rfq_agent"]
 target-version = "py310"
 line-length = 88
 
+[tool.ruff.format]
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = ["E", "F", "B", "I", "N", "UP", "S", "PL", "RUF"]
 ignore = ["S101"]
