@@ -116,3 +116,6 @@ exclude_lines = [
     "raise ImportError",
     "raise NotImplementedError",
 ]
+
+[tool.uv]
+override-dependencies = ["json-repair>=0.60.1"]
